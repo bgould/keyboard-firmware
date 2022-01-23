@@ -30,9 +30,9 @@ type Keyboard struct {
 	layers  []Keymap
 	host    Host
 
-	leds   uint8
-	prev   []Row
-	ghost  []Row
+	leds uint8
+	prev []Row
+	// ghost  []Row
 	debug  bool
 	report *Report
 }
@@ -43,9 +43,9 @@ func New(console Console, host Host, matrix *Matrix, layers []Keymap) *Keyboard 
 		matrix:  matrix,
 		layers:  layers,
 		host:    host,
-		prev:    make([]Row, MatrixRows),
-		ghost:   make([]Row, MatrixRows),
-		report:  NewReport().Keyboard(0),
+		prev:    make([]Row, matrix.Rows()),
+		// ghost:   make([]Row, matrix.Rows()),
+		report: NewReport().Keyboard(0),
 	}
 }
 
@@ -62,7 +62,7 @@ func (kbd *Keyboard) Task() {
 		if diff == 0 {
 			continue
 		}
-		kbd.ghost[i] = row
+		//kbd.ghost[i] = row
 		if kbd.matrix.HasGhostInRow(i) {
 			continue
 		}
@@ -85,7 +85,7 @@ func (kbd *Keyboard) processEvent(ev Event) {
 	key := kbd.layers[0].KeyAt(ev.Pos)
 	if kbd.debug {
 		fmt.Fprintf(kbd.console,
-			"event => code: %X%X, made: %t, usb: %02X, mod: %t, key: %t\r\n",
+			"event => loc: r=%X c=%X, made: %t, usb: %02X, mod: %t, key: %t\r\n",
 			ev.Pos.Row, ev.Pos.Col, ev.Made, key, key.IsModifier(), key.IsKey(),
 		)
 	}
