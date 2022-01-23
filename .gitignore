@@ -1,3 +1,4 @@
 /.vscode/
 /tmp/
 *.uf2
+*.hex
