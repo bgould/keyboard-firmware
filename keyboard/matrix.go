@@ -122,7 +122,7 @@ func (m *Matrix) Print(w io.Writer) {
 	fmt.Fprintf(w, " c0123456\r\n")
 	fmt.Fprintf(w, "r+-------+\r\n")
 	for i, row := range m.rows {
-		s := fmt.Sprintf("%016b", bits.Reverse16(uint16(row)))
+		s := fmt.Sprintf("%016b", bits.Reverse16(uint16(row)))[0:m.nCols]
 		g := ""
 		if m.HasGhostInRow(uint8(i)) {
 			g = " <ghost"

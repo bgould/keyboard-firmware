@@ -7,7 +7,7 @@ import (
 	"github.com/bgould/keyboard-firmware/keyboard"
 )
 
-const _debug = false
+const _debug = true
 
 var (
 	keymap = []keyboard.Keymap{KinTKeymap()}
@@ -32,5 +32,6 @@ func main() {
 		}
 		board.Task()
 		counter++
+		time.Sleep(100 * time.Microsecond)
 	}
 }

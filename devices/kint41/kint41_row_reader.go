@@ -1,6 +1,7 @@
 package main
 
 import (
+	"device/arm"
 	"machine"
 	"time"
 
@@ -22,6 +23,7 @@ var rows = []machine.Pin{
 	machine.D0,
 	machine.D2,
 	machine.D17,
+	machine.D23,
 	machine.D21,
 }
 
@@ -49,8 +51,7 @@ func ReadRow(rowIndex uint8) (row keyboard.Row) {
 		v := i != int(rowIndex)
 		pin.Set(v)
 	}
-	//time.Sleep(time.Microsecond)
-	//delayMicros(1)
+	delayForSelect()
 	for i, pin := range columns {
 		v := pin.Get()
 		if !v {
@@ -62,4 +63,69 @@ func ReadRow(rowIndex uint8) (row keyboard.Row) {
 
 func delayMicros(usecs uint32) {
 	timer.Wait(time.Duration(usecs) * time.Microsecond)
+}
+
+func delayForSelect() {
+	for i := 0; i < 1000; i++ {
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+		arm.Asm("nop")
+	}
 }

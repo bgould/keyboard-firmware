@@ -6,8 +6,6 @@ import (
 	. "github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 
-// TODO: refactor/fix interfaces
-// FIXME: actually a "Keymap"
 func KinTKeymap() keyboard.Keymap {
 	return KinesisAdvantageLayer(
 		ESC, F1, F2, F3, F4, F5, F6, F7, F8 /*  */, F9, F10, F11, F12, PSCR, SLCK, BRK, TRNS, TRNS,
@@ -28,7 +26,7 @@ func KinesisAdvantageLayer(
 	k01, k11, k21, k31, k41, k51 /*                          */, k61, k71, k81, k91, kA1, kB1,
 	k02, k12, k22, k32, k42, k52 /*                          */, k62, k72, k82, k92, kA2, kB2,
 	k03, k13, k23, k33, k43, k53 /*                          */, k63, k73, k83, k93, kA3, kB3,
-	/**/ k14, k24, k34, k54 /*                                    */, k64, k84, k94, kA4,
+	/**/ k14, k24, k34, k54 /*                                        */, k64, k84, k94, kA4,
 	/*                    */ k56, k55 /*                */, k96, k85,
 	/*                         */ k35 /*                */, k86,
 	/*               */ k36, k46, k25 /*                */, k66, k75, k65 /**/ Keycode,
