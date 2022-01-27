@@ -50,7 +50,6 @@ func ReadRow(rowIndex uint8) (row keyboard.Row) {
 		pin.Set(v)
 	}
 	delayMicros(10)
-	//delayForSelect()
 	for i, pin := range columns {
 		v := pin.Get()
 		if !v {
@@ -62,6 +61,6 @@ func ReadRow(rowIndex uint8) (row keyboard.Row) {
 
 func delayMicros(usecs uint32) {
 	var cycles = usecs * (runtime.CORE_FREQ / 1e6)
-	for start := runtime.DWT_CR.Get(); runtime.DWT_CYCCNT.Get()-start < cycles; {
+	for start := runtime.DWT_CYCCNT.Get(); runtime.DWT_CYCCNT.Get()-start < cycles; {
 	}
 }
