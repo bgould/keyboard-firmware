@@ -3,6 +3,8 @@ package keyboard
 import (
 	"fmt"
 	"io"
+
+	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 
 type Host interface {
@@ -34,6 +36,8 @@ type Keyboard struct {
 	prev   []Row
 	debug  bool
 	report *Report
+
+	jumpToBootloader func()
 }
 
 func New(console Console, host Host, matrix *Matrix, layers []Keymap) *Keyboard {
@@ -49,6 +53,11 @@ func New(console Console, host Host, matrix *Matrix, layers []Keymap) *Keyboard 
 
 func (kbd *Keyboard) WithDebug(dbg bool) *Keyboard {
 	kbd.debug = dbg
+	return kbd
+}
+
+func (kbd *Keyboard) WithJumpToBootloader(fn func()) *Keyboard {
+	kbd.jumpToBootloader = fn
 	return kbd
 }
 
@@ -85,6 +94,11 @@ func (kbd *Keyboard) processEvent(ev Event) {
 			"event => loc: r=%X c=%X, made: %t, usb: %02X, mod: %t, key: %t\r\n",
 			ev.Pos.Row, ev.Pos.Col, ev.Made, key, key.IsModifier(), key.IsKey(),
 		)
+	}
+	if key == keycodes.BOOTLOADER {
+		if ev.Made && kbd.jumpToBootloader != nil {
+			kbd.jumpToBootloader()
+		}
 	}
 	if ev.Made {
 		kbd.report.Make(key)
