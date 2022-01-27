@@ -1,12 +1,10 @@
 package main
 
 import (
-	"device/arm"
 	"machine"
-	"time"
+	"runtime"
 
 	"github.com/bgould/keyboard-firmware/keyboard"
-	"github.com/bgould/keyboard-firmware/timer"
 )
 
 var rows = []machine.Pin{
@@ -51,7 +49,8 @@ func ReadRow(rowIndex uint8) (row keyboard.Row) {
 		v := i != int(rowIndex)
 		pin.Set(v)
 	}
-	delayForSelect()
+	delayMicros(10)
+	//delayForSelect()
 	for i, pin := range columns {
 		v := pin.Get()
 		if !v {
@@ -62,70 +61,7 @@ func ReadRow(rowIndex uint8) (row keyboard.Row) {
 }
 
 func delayMicros(usecs uint32) {
-	timer.Wait(time.Duration(usecs) * time.Microsecond)
-}
-
-func delayForSelect() {
-	for i := 0; i < 1000; i++ {
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
-		arm.Asm("nop")
+	var cycles = usecs * (runtime.CORE_FREQ / 1e6)
+	for start := runtime.DWT_CR.Get(); runtime.DWT_CYCCNT.Get()-start < cycles; {
 	}
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/bgould/keyboard-firmware/keyboard"
 )
 
-const _debug = true
+const _debug = false
 
 var (
 	keymap = []keyboard.Keymap{KinTKeymap()}

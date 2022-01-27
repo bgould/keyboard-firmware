@@ -12,8 +12,6 @@ import (
 
 const (
 	DebounceMS = 4
-	// MatrixRows = 8
-	// MatrixCols = 16
 )
 
 func NewMatrix(r, c uint8, io RowReader) *Matrix {

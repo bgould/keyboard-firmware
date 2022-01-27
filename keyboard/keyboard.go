@@ -30,9 +30,8 @@ type Keyboard struct {
 	layers  []Keymap
 	host    Host
 
-	leds uint8
-	prev []Row
-	// ghost  []Row
+	leds   uint8
+	prev   []Row
 	debug  bool
 	report *Report
 }
@@ -44,8 +43,7 @@ func New(console Console, host Host, matrix *Matrix, layers []Keymap) *Keyboard 
 		layers:  layers,
 		host:    host,
 		prev:    make([]Row, matrix.Rows()),
-		// ghost:   make([]Row, matrix.Rows()),
-		report: NewReport().Keyboard(0),
+		report:  NewReport().Keyboard(0),
 	}
 }
 
@@ -62,7 +60,6 @@ func (kbd *Keyboard) Task() {
 		if diff == 0 {
 			continue
 		}
-		//kbd.ghost[i] = row
 		if kbd.matrix.HasGhostInRow(i) {
 			continue
 		}
