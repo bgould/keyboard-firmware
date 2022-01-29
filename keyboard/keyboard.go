@@ -62,6 +62,10 @@ func (kbd *Keyboard) WithJumpToBootloader(fn func()) *Keyboard {
 	return kbd
 }
 
+func (kbd *Keyboard) LEDs() uint8 {
+	return kbd.host.LEDs()
+}
+
 func (kbd *Keyboard) Task() {
 	kbd.matrix.Scan()
 	for i, rows := uint8(0), kbd.matrix.Rows(); i < rows; i++ {

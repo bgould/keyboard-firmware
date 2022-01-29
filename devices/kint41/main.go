@@ -13,6 +13,11 @@ const _debug = false
 var (
 	keymap = []keyboard.Keymap{KinTKeymap()}
 	matrix = keyboard.NewMatrix(15, 7, keyboard.RowReaderFunc(ReadRow))
+	host   = configureHost()
+
+	board = keyboard.New(machine.Serial, host, matrix, keymap).
+		WithDebug(_debug).
+		WithJumpToBootloader(jumpToBootloader)
 
 	lastSecond = time.Now()
 	counter    uint
@@ -20,13 +25,13 @@ var (
 	seconds    uint
 )
 
-func main() {
+func init() {
 	configurePins()
-	host := configureHost()
-	board := keyboard.New(machine.Serial, host, matrix, keymap).
-		WithDebug(_debug).
-		WithJumpToBootloader(jumpToBootloader)
+}
+
+func main() {
 	for {
+		board.Task()
 		for since := time.Since(lastSecond); since >= time.Second; since = 0 {
 			average = uint(float32(counter) * (float32(time.Second) / float32(since)))
 			println(seconds, "-", "average:", average)
@@ -36,7 +41,6 @@ func main() {
 			counter = 0
 			seconds++
 		}
-		board.Task()
 		counter++
 		time.Sleep(100 * time.Microsecond)
 	}
