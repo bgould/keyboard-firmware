@@ -92,3 +92,7 @@ func (host *Host) Send(rpt *keyboard.Report) {
 	}
 	host.kbd.SendKeys(rpt[0], rpt[2], rpt[3], rpt[4], rpt[5], rpt[6], rpt[7])
 }
+
+func (host *Host) LEDs() uint8 {
+	return host.kbd.LEDs()
+}

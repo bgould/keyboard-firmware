@@ -9,6 +9,7 @@ import (
 
 type Host interface {
 	Send(report *Report)
+	LEDs() uint8
 }
 
 type Event struct {

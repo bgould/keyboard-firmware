@@ -104,7 +104,7 @@ func (m *Matrix) Scan() (changed bool) {
 		m.debounce -= 1
 		// if still debouncing, wait an interval before returning
 		if m.debounce > 0 {
-			timer.Wait(1 * time.Millisecond)
+			timer.Wait(250 * time.Microsecond)
 			return
 		}
 		// if debouncing is complete, update the matrix and mark as changed

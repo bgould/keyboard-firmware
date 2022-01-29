@@ -30,6 +30,7 @@ func main() {
 		for since := time.Since(lastSecond); since >= time.Second; since = 0 {
 			average = uint(float32(counter) * (float32(time.Second) / float32(since)))
 			println(seconds, "-", "average:", average)
+			println(seconds, "-", "   leds:", host.LEDs())
 			// reset
 			lastSecond = lastSecond.Add(since)
 			counter = 0
