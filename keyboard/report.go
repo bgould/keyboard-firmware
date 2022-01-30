@@ -7,10 +7,12 @@ import (
 )
 
 const (
-	RptKeyboard = 0x0
-	RptMouse    = 0x2
-	RptConsumer = 0x3
+	RptKeyboard ReportType = 0x0
+	RptMouse    ReportType = 0x2
+	RptConsumer ReportType = 0x3
 )
+
+type ReportType byte
 
 type Report [8]byte
 
@@ -33,6 +35,7 @@ func NewReport() *Report {
 }
 
 func (r *Report) Make(key keycodes.Keycode) {
+	r[1] = byte(RptKeyboard)
 	if key.IsModifier() {
 		r[0] |= 1 << (key & 0x07)
 		return
@@ -54,6 +57,7 @@ func (r *Report) Make(key keycodes.Keycode) {
 }
 
 func (r *Report) Break(key keycodes.Keycode) {
+	r[1] = byte(RptKeyboard)
 	if key.IsModifier() {
 		r[0] &= ^(1 << (key & 0x07))
 		return
@@ -65,26 +69,9 @@ func (r *Report) Break(key keycodes.Keycode) {
 	}
 }
 
-func (r *Report) String() string {
-	// return fmt.Sprintf(
-	// 	"[ %02X %02X %02X %02X %02X %02X %02X %02X ]",
-	// 	r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7],
-	// )
-	return "[" +
-		" " + hex(r[0]) +
-		" " + hex(r[1]) +
-		" " + hex(r[2]) +
-		" " + hex(r[3]) +
-		" " + hex(r[4]) +
-		" " + hex(r[5]) +
-		" " + hex(r[6]) +
-		" " + hex(r[7]) +
-		" ]"
-}
-
 func (r *Report) Keyboard(mod KeyboardModifier, keys ...byte) *Report {
 	r[0] = byte(mod)
-	r[1] = 0x0
+	r[1] = byte(RptKeyboard)
 	for i, c := 0, len(keys); i < 6; i++ {
 		if i < c {
 			r[i+2] = keys[i]
@@ -95,15 +82,6 @@ func (r *Report) Keyboard(mod KeyboardModifier, keys ...byte) *Report {
 	return r
 }
 
-func hex(b uint8) string {
-	s := strconv.FormatUint(uint64(b), 16)
-	if len(s) == 1 {
-		s = "0" + s
-	}
-	return s
-}
-
-/*
 type MouseButton byte
 
 const (
@@ -114,7 +92,7 @@ const (
 
 func (r *Report) Mouse(buttons MouseButton, x int8, y int8) *Report {
 	r[0] = 0x0
-	r[1] = 0x3
+	r[1] = byte(RptMouse)
 	r[2] = byte(buttons)
 	r[3] = byte(x)
 	r[4] = byte(y)
@@ -144,7 +122,7 @@ const (
 
 func (r *Report) Consumer(key ConsumerKey) *Report {
 	r[0] = 0x0
-	r[1] = 0x2
+	r[1] = byte(RptConsumer)
 	r[2] = byte(key >> 8)
 	r[3] = byte(key & 0xFF)
 	r[4] = 0x0
@@ -154,4 +132,23 @@ func (r *Report) Consumer(key ConsumerKey) *Report {
 	return r
 }
 
-*/
+func (r *Report) String() string {
+	return "[" +
+		" " + hex(r[0]) +
+		" " + hex(r[1]) +
+		" " + hex(r[2]) +
+		" " + hex(r[3]) +
+		" " + hex(r[4]) +
+		" " + hex(r[5]) +
+		" " + hex(r[6]) +
+		" " + hex(r[7]) +
+		" ]"
+}
+
+func hex(b uint8) string {
+	s := strconv.FormatUint(uint64(b), 16)
+	if len(s) == 1 {
+		s = "0" + s
+	}
+	return s
+}

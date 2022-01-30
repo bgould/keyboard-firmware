@@ -10,6 +10,8 @@ import (
 	"github.com/bgould/keyboard-firmware/keyboard"
 )
 
+const _debug = false
+
 func configureHost() keyboard.Host {
 	hid := &usb.HID{}
 	hid.Configure(usb.HIDConfig{})

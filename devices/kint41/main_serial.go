@@ -10,6 +10,8 @@ import (
 	"github.com/bgould/keyboard-firmware/keyboard"
 )
 
+const _debug = true
+
 func configureHost() keyboard.Host {
 	return serial.New(machine.Serial)
 }

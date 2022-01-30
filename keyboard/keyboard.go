@@ -1,10 +1,10 @@
 package keyboard
 
 import (
+	"io"
 	"strconv"
 
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
-	"tinygo.org/x/drivers"
 )
 
 type Host interface {
@@ -24,7 +24,8 @@ type Pos struct {
 }
 
 type Console interface {
-	drivers.UART
+	io.ReadWriter
+	Buffered() int
 }
 
 type Keyboard struct {
@@ -33,22 +34,28 @@ type Keyboard struct {
 	layers  []Layer
 	host    Host
 
-	leds   uint8
-	prev   []Row
-	debug  bool
-	report *Report
+	prev []Row
+	leds uint8
+
+	keyReport      *Report
+	mouseReport    *Report
+	consumerReport *Report
+
+	debug bool
 
 	jumpToBootloader func()
 }
 
 func New(console Console, host Host, matrix *Matrix, keymap Keymap) *Keyboard {
 	return &Keyboard{
-		console: console,
-		matrix:  matrix,
-		layers:  keymap,
-		host:    host,
-		prev:    make([]Row, matrix.Rows()),
-		report:  NewReport().Keyboard(0),
+		console:        console,
+		matrix:         matrix,
+		layers:         keymap,
+		host:           host,
+		prev:           make([]Row, matrix.Rows()),
+		keyReport:      NewReport().Keyboard(0),
+		mouseReport:    NewReport().Keyboard(0),
+		consumerReport: NewReport().Keyboard(0),
 	}
 }
 
@@ -100,23 +107,83 @@ func (kbd *Keyboard) processEvent(ev Event) {
 				"loc: r=" + hex(ev.Pos.Row) + " c= " + hex(ev.Pos.Col) + ", " +
 				"made: " + strconv.FormatBool(ev.Made) + ", " +
 				"usb: " + hex(uint8(key)) + ", " +
+				"key: " + strconv.FormatBool(key.IsKey()) + ", " +
 				"mod: " + strconv.FormatBool(key.IsModifier()) + ", " +
-				"key: " + strconv.FormatBool(key.IsKey()) + "\r\n"))
+				"msk: " + strconv.FormatBool(key.IsMouseKey()) + ", " +
+				"cns: " + strconv.FormatBool(key.IsConsumer()) + ", " +
+				"sys: " + strconv.FormatBool(key.IsSystem()) + ", " +
+				"spc: " + strconv.FormatBool(key.IsSpecial()) + "\r\n"))
 	}
-	if key == keycodes.BOOTLOADER {
-		if ev.Made && kbd.jumpToBootloader != nil {
-			kbd.jumpToBootloader()
-		}
+
+	switch {
+	case key.IsKey() || key.IsModifier():
+		kbd.processKey(key, ev.Made)
+	case key.IsMouseKey():
+		kbd.processMouseKey(key, ev.Made)
+	case key.IsConsumer():
+		kbd.processConsumerKey(key, ev.Made)
+	case key.IsSystem():
+		kbd.processSystemKey(key, ev.Made)
+	case key.IsSpecial():
+		kbd.processSpecialKey(key, ev.Made)
 	}
-	if ev.Made {
-		kbd.report.Make(key)
+}
+
+func (kbd *Keyboard) processKey(key keycodes.Keycode, made bool) {
+	if made {
+		kbd.keyReport.Make(key)
 	} else {
-		kbd.report.Break(key)
+		kbd.keyReport.Break(key)
 	}
 	if kbd.debug {
-		kbd.console.Write([]byte("report => " + kbd.report.String() + "\r\n"))
+		kbd.console.Write([]byte("keyboard report => " + kbd.keyReport.String() + "\r\n"))
 	}
-	kbd.host.Send(kbd.report)
+	kbd.host.Send(kbd.keyReport)
+}
+
+func (kbd *Keyboard) processMouseKey(key keycodes.Keycode, made bool) {
+	if kbd.debug {
+		kbd.console.Write([]byte("mouse report => " + kbd.mouseReport.String() + "\r\n"))
+	}
+}
+
+func (kbd *Keyboard) processConsumerKey(key keycodes.Keycode, made bool) {
+	if kbd.debug {
+		kbd.console.Write([]byte("consumer report => " + kbd.consumerReport.String() + "\r\n"))
+	}
+}
+
+func (kbd *Keyboard) processSystemKey(key keycodes.Keycode, made bool) {
+	if kbd.debug {
+		kbd.console.Write([]byte("system report => " + kbd.consumerReport.String() + "\r\n"))
+	}
+}
+
+func (kbd *Keyboard) processSpecialKey(key keycodes.Keycode, made bool) {
+	switch key {
+	case keycodes.BOOTLOADER:
+		if !made {
+			break
+		}
+		if kbd.jumpToBootloader != nil {
+			if kbd.debug {
+				kbd.console.Write([]byte("jumping to bootloader"))
+			}
+			kbd.jumpToBootloader()
+			if kbd.debug {
+				kbd.console.Write([]byte("notice: jump to bootloader appears to have failed"))
+			}
+		} else {
+			if kbd.debug {
+				kbd.console.Write([]byte("notice: no jumpToBootloader callback defined"))
+			}
+		}
+		return
+	}
+	if kbd.debug {
+		kbd.console.Write([]byte("special key => " +
+			hex(uint8(key)) + ", made: " + strconv.FormatBool(made) + "\r\n"))
+	}
 }
 
 func (kbd *Keyboard) debugMatrix() bool {

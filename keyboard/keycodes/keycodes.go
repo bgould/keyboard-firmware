@@ -1,4 +1,4 @@
-package keycodes 
+package keycodes
 
 /*
  * Keycodes based on HID Usage Keyboard/Keypad Page(0x07) plus special codes
@@ -526,6 +526,7 @@ const (
 
 	/* Jump to bootloader */
 	BTLD = BOOTLOADER
+	PROG = BOOTLOADER
 
 	/* Transparent */
 	TRANSPARENT = 1

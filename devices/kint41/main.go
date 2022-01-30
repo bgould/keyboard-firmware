@@ -8,8 +8,6 @@ import (
 	"github.com/bgould/keyboard-firmware/keyboard"
 )
 
-const _debug = false
-
 var (
 	matrix = keyboard.NewMatrix(15, 7, keyboard.RowReaderFunc(ReadRow))
 	keymap = KinTKeymap()
