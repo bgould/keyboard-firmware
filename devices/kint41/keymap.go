@@ -7,7 +7,7 @@ import (
 )
 
 func KinTKeymap() keyboard.Keymap {
-	return KinesisAdvantageLayer(
+	return keyboard.Keymap([]keyboard.Layer{KinesisAdvantageLayer(
 		ESC, F1, F2, F3, F4, F5, F6, F7, F8 /*  */, F9, F10, F11, F12, PSCR, SLCK, BRK, TRNS, BOOTLOADER,
 		EQL, N1, N2, N3, N4, N5 /*                       */, N6, N7, N8, N9, N0, MINS,
 		TAB, Q, W, E, R, T /*                            */, Y, U, I, O, P, BSLS,
@@ -17,7 +17,7 @@ func KinTKeymap() keyboard.Keymap {
 		/*           */ ESC, LGUI /*                */, RALT, RCTL,
 		/*                */ HOME /*                */, PGUP,
 		/*      */ BSPC, DEL, END /*                */, PGDN, ENT, SPC, /**/
-	)
+	)})
 }
 
 func KinesisAdvantageLayer(
@@ -30,8 +30,8 @@ func KinesisAdvantageLayer(
 	/*                    */ k56, k55 /*                */, k96, k85,
 	/*                         */ k35 /*                */, k86,
 	/*               */ k36, k46, k25 /*                */, k66, k75, k65 /**/ Keycode,
-) keyboard.Keymap {
-	return keyboard.Keymap([][]Keycode{
+) keyboard.Layer {
+	return keyboard.Layer([][]Keycode{
 		/*        0x0  0x1  0x2  0x3  0x4  0x5  0x6  */
 		/*********************************************/
 		/*    */ {k00, k01, k02, k03, 0x0, 0x0, 0x0},

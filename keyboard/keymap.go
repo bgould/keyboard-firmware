@@ -2,8 +2,10 @@ package keyboard
 
 import "github.com/bgould/keyboard-firmware/keyboard/keycodes"
 
-type Keymap [][]keycodes.Keycode
+type Layer [][]keycodes.Keycode
 
-func (keymap Keymap) KeyAt(position Pos) keycodes.Keycode {
-	return keymap[position.Row][position.Col]
+func (layer Layer) KeyAt(position Pos) keycodes.Keycode {
+	return layer[position.Row][position.Col]
 }
+
+type Keymap []Layer

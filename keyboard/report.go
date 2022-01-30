@@ -1,7 +1,7 @@
 package keyboard
 
 import (
-	"fmt"
+	"strconv"
 
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
@@ -66,10 +66,20 @@ func (r *Report) Break(key keycodes.Keycode) {
 }
 
 func (r *Report) String() string {
-	return fmt.Sprintf(
-		"[ %02X %02X %02X %02X %02X %02X %02X %02X ]",
-		r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7],
-	)
+	// return fmt.Sprintf(
+	// 	"[ %02X %02X %02X %02X %02X %02X %02X %02X ]",
+	// 	r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7],
+	// )
+	return "[" +
+		" " + hex(r[0]) +
+		" " + hex(r[1]) +
+		" " + hex(r[2]) +
+		" " + hex(r[3]) +
+		" " + hex(r[4]) +
+		" " + hex(r[5]) +
+		" " + hex(r[6]) +
+		" " + hex(r[7]) +
+		" ]"
 }
 
 func (r *Report) Keyboard(mod KeyboardModifier, keys ...byte) *Report {
@@ -83,6 +93,14 @@ func (r *Report) Keyboard(mod KeyboardModifier, keys ...byte) *Report {
 		}
 	}
 	return r
+}
+
+func hex(b uint8) string {
+	s := strconv.FormatUint(uint64(b), 16)
+	if len(s) == 1 {
+		s = "0" + s
+	}
+	return s
 }
 
 /*

@@ -1,10 +1,10 @@
 package keyboard
 
 import (
-	"fmt"
-	"io"
+	"strconv"
 
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
+	"tinygo.org/x/drivers"
 )
 
 type Host interface {
@@ -24,13 +24,13 @@ type Pos struct {
 }
 
 type Console interface {
-	io.ReadWriter
+	drivers.UART
 }
 
 type Keyboard struct {
 	console Console
 	matrix  *Matrix
-	layers  []Keymap
+	layers  []Layer
 	host    Host
 
 	leds   uint8
@@ -41,11 +41,11 @@ type Keyboard struct {
 	jumpToBootloader func()
 }
 
-func New(console Console, host Host, matrix *Matrix, layers []Keymap) *Keyboard {
+func New(console Console, host Host, matrix *Matrix, keymap Keymap) *Keyboard {
 	return &Keyboard{
 		console: console,
 		matrix:  matrix,
-		layers:  layers,
+		layers:  keymap,
 		host:    host,
 		prev:    make([]Row, matrix.Rows()),
 		report:  NewReport().Keyboard(0),
@@ -95,10 +95,13 @@ func (kbd *Keyboard) Task() {
 func (kbd *Keyboard) processEvent(ev Event) {
 	key := kbd.layers[0].KeyAt(ev.Pos)
 	if kbd.debug {
-		fmt.Fprintf(kbd.console,
-			"event => loc: r=%X c=%X, made: %t, usb: %02X, mod: %t, key: %t\r\n",
-			ev.Pos.Row, ev.Pos.Col, ev.Made, key, key.IsModifier(), key.IsKey(),
-		)
+		kbd.console.Write([]byte(
+			"event => " +
+				"loc: r=" + hex(ev.Pos.Row) + " c= " + hex(ev.Pos.Col) + ", " +
+				"made: " + strconv.FormatBool(ev.Made) + ", " +
+				"usb: " + hex(uint8(key)) + ", " +
+				"mod: " + strconv.FormatBool(key.IsModifier()) + ", " +
+				"key: " + strconv.FormatBool(key.IsKey()) + "\r\n"))
 	}
 	if key == keycodes.BOOTLOADER {
 		if ev.Made && kbd.jumpToBootloader != nil {
@@ -111,7 +114,7 @@ func (kbd *Keyboard) processEvent(ev Event) {
 		kbd.report.Break(key)
 	}
 	if kbd.debug {
-		fmt.Fprintf(kbd.console, "report => %s\r\n", kbd.report.String())
+		kbd.console.Write([]byte("report => " + kbd.report.String() + "\r\n"))
 	}
 	kbd.host.Send(kbd.report)
 }

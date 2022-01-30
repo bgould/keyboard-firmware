@@ -7,6 +7,20 @@ import (
 	"github.com/bgould/keyboard-firmware/keyboard"
 )
 
+const (
+	LEDCapsLock   = machine.D12
+	LEDNumLock    = machine.D26
+	LEDScrollLock = machine.D25
+	LEDKeyPad     = machine.D24
+)
+
+var leds = []machine.Pin{
+	LEDCapsLock,
+	LEDNumLock,
+	LEDScrollLock,
+	LEDKeyPad,
+}
+
 var rows = []machine.Pin{
 	machine.D8,
 	machine.D9,
@@ -36,6 +50,10 @@ var columns = []machine.Pin{
 }
 
 func configurePins() {
+	for _, pin := range leds {
+		pin.Configure(machine.PinConfig{Mode: machine.PinOutput})
+		pin.Set(false)
+	}
 	for _, pin := range columns {
 		pin.Configure(machine.PinConfig{Mode: machine.PinInputPullUp})
 	}
@@ -60,7 +78,9 @@ func ReadRow(rowIndex uint8) (row keyboard.Row) {
 }
 
 func delayMicros(usecs uint32) {
+	// (cycles to delay) = microseconds * (cycles per microsecond)
 	var cycles = usecs * (runtime.CORE_FREQ / 1e6)
+	// cycle counter increments once per cycle; busy-loop until time cycles to delay elapsed
 	for start := runtime.DWT_CYCCNT.Get(); runtime.DWT_CYCCNT.Get()-start < cycles; {
 	}
 }
