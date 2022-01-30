@@ -7,7 +7,7 @@ import (
 )
 
 func ANSI101DefaultLayer() keyboard.Keymap {
-	return ANSI101Keymap(
+	return keyboard.Keymap([]keyboard.Layer{ANSI101Layer(
 
 		ESC, F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, PSCR, SLCK, BRK,
 
@@ -16,10 +16,10 @@ func ANSI101DefaultLayer() keyboard.Keymap {
 		CAPS, A, S, D, F, G, H, J, K, L, SCLN, QUOT, ENT, P4, P5, P6,
 		LSFT, Z, X, C, V, B, N, M, COMM, DOT, SLSH, RSFT, UP, P1, P2, P3, PENT,
 		LCTL, LALT, SPC, RALT, RCTL, LEFT, DOWN, RGHT, P0, PDOT,
-	)
+	)})
 }
 
-func ANSI101Keymap(
+func ANSI101Layer(
 
 	K72, K53, K54, K64, K74, K76, K78, K69, K59, K56, K46, K4B, K4C, K4F, K3F, K1E,
 
@@ -29,8 +29,8 @@ func ANSI101Keymap(
 	K61, K12, K13, K14, K15, K05, K07, K17, K18, K19, K0A, K11, K7E, K2B, K2C, K2D, K2E,
 	K50, K7F, K06, K0F, K10, K0E, K0B, K0C, K7C, K7D Keycode,
 
-) keyboard.Keymap {
-	return keyboard.Keymap([8][16]Keycode{
+) keyboard.Layer {
+	return keyboard.Layer([][]Keycode{
 		/*       0x0  0x1  0x2  0x3  0x4  0x5  0x6  0x7  0x8  0x9  0xA  0xB  0xC  0xD  0xE  0xF */
 		/****************************************************************************************/
 		/* 0 */ {0x0, 0x0, 0x0, 0x0, 0x0, K05, K06, K07, 0x0, 0x0, K0A, K0B, K0C, K0D, K0E, K0F},

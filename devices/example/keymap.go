@@ -8,16 +8,16 @@ import (
 
 // TODO: refactor/fix interfaces
 // FIXME: actually a "Keymap"
-func FourButtonDefaultLayer() keyboard.Keymap {
-	return FourButtonKeymap(W, A, S, D)
+func FourButtonDefaultKeymap() keyboard.Keymap {
+	return keyboard.Keymap([]keyboard.Layer{FourButtonLayer(W, A, S, D)})
 }
 
 // FIXME: actually a "Layer"
-func FourButtonKeymap(
+func FourButtonLayer(
 	/**/ K00, /**/
 	K01, K02, K03 /**/ Keycode,
-) keyboard.Keymap {
-	return keyboard.Keymap([][]Keycode{
+) keyboard.Layer {
+	return keyboard.Layer([][]Keycode{
 		/*       0x0  0x1  0x2  0x3  0x4  0x5  0x6  0x7  0x8  0x9  0xA  0xB  0xC  0xD  0xE  0xF */
 		/****************************************************************************************/
 		/* 0 */ {K00, K01, K02, K03, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0},

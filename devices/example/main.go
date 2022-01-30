@@ -10,7 +10,7 @@ const _debug = false
 
 var (
 	pins   = []machine.Pin{machine.D23, machine.D7, machine.D22, machine.D21}
-	layers = []keyboard.Keymap{FourButtonDefaultLayer()}
+	layers = FourButtonDefaultKeymap()
 	matrix = keyboard.NewMatrix(1, 4, keyboard.RowReaderFunc(ReadRow))
 )
 
