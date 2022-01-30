@@ -11,6 +11,16 @@ const (
 	DebounceMS = 4
 )
 
+type RowReader interface {
+	ReadRow(rowIndex uint8) Row
+}
+
+type RowReaderFunc func(rowIndex uint8) Row
+
+func (fn RowReaderFunc) ReadRow(rowIndex uint8) Row {
+	return fn(rowIndex)
+}
+
 func NewMatrix(r, c uint8, io RowReader) *Matrix {
 	matrix := &Matrix{
 		io:         io,
