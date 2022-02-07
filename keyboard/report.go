@@ -14,6 +14,19 @@ const (
 
 type ReportType byte
 
+func (t ReportType) String() string {
+	switch t {
+	case RptKeyboard:
+		return "Keyboard"
+	case RptMouse:
+		return "Mouse"
+	case RptConsumer:
+		return "Consumer"
+	default:
+		return "Unknown"
+	}
+}
+
 type Report [8]byte
 
 type KeyboardModifier byte
@@ -32,6 +45,10 @@ const (
 
 func NewReport() *Report {
 	return new(Report)
+}
+
+func (r *Report) Type() ReportType {
+	return ReportType(r[1])
 }
 
 func (r *Report) Make(key keycodes.Keycode) {
@@ -88,16 +105,23 @@ const (
 	MouseBtnLeft   MouseButton = 0x01
 	MouseBtnRight  MouseButton = 0x02
 	MouseBtnMiddle MouseButton = 0x04
+
+	mouseButtons = 2
+	mouseX       = 3
+	mouseY       = 4
+	mouseV       = 5
+	mouseH       = 6
 )
 
-func (r *Report) Mouse(buttons MouseButton, x int8, y int8) *Report {
+// TODO: implement wheel, accel
+func (r *Report) Mouse(buttons MouseButton, x int8, y int8, v int8, h int8) *Report {
 	r[0] = 0x0
 	r[1] = byte(RptMouse)
-	r[2] = byte(buttons)
-	r[3] = byte(x)
-	r[4] = byte(y)
-	r[5] = 0x0
-	r[6] = 0x0
+	r[mouseButtons] = byte(buttons)
+	r[mouseX] = byte(x)
+	r[mouseY] = byte(y)
+	r[mouseV] = byte(v)
+	r[mouseH] = byte(h)
 	r[7] = 0x0
 	return r
 }
@@ -133,7 +157,7 @@ func (r *Report) Consumer(key ConsumerKey) *Report {
 }
 
 func (r *Report) String() string {
-	return "[" +
+	return r.Type().String() + "[" +
 		" " + hex(r[0]) +
 		" " + hex(r[1]) +
 		" " + hex(r[2]) +

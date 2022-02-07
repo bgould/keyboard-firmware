@@ -7,7 +7,10 @@ import (
 )
 
 func FourButtonDefaultKeymap() keyboard.Keymap {
-	return keyboard.Keymap([]keyboard.Layer{FourButtonLayer(W, A, S, D)})
+	return keyboard.Keymap([]keyboard.Layer{
+		// FourButtonLayer(W, A, S, D),
+		FourButtonLayer(MS_UP, MS_L, MS_D, MS_R),
+	})
 }
 
 func FourButtonLayer(

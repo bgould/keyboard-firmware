@@ -37,6 +37,8 @@ type Keyboard struct {
 	prev []Row
 	leds uint8
 
+	mouseKeys *MouseKeys
+
 	keyReport      *Report
 	mouseReport    *Report
 	consumerReport *Report
@@ -53,6 +55,7 @@ func New(console Console, host Host, matrix *Matrix, keymap Keymap) *Keyboard {
 		layers:         keymap,
 		host:           host,
 		prev:           make([]Row, matrix.Rows()),
+		mouseKeys:      NewMouseKeys(DefaultMouseKeysConfig()),
 		keyReport:      NewReport().Keyboard(0),
 		mouseReport:    NewReport().Keyboard(0),
 		consumerReport: NewReport().Keyboard(0),
@@ -96,6 +99,12 @@ func (kbd *Keyboard) Task() {
 				kbd.prev[i] ^= mask
 			}
 		}
+	}
+	if kbd.mouseKeys.Task(kbd.mouseReport) {
+		if kbd.debug {
+			kbd.console.Write([]byte("mouse keys => " + kbd.mouseKeys.Debug() + "\r\n"))
+		}
+		kbd.host.Send(kbd.mouseReport)
 	}
 }
 
@@ -142,8 +151,13 @@ func (kbd *Keyboard) processKey(key keycodes.Keycode, made bool) {
 }
 
 func (kbd *Keyboard) processMouseKey(key keycodes.Keycode, made bool) {
+	if made {
+		kbd.mouseKeys.Make(key)
+	} else {
+		kbd.mouseKeys.Break(key)
+	}
 	if kbd.debug {
-		kbd.console.Write([]byte("mouse report => " + kbd.mouseReport.String() + "\r\n"))
+		kbd.console.Write([]byte("mouse keys => " + kbd.mouseKeys.Debug() + "\r\n"))
 	}
 }
 
