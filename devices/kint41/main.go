@@ -12,10 +12,6 @@ var (
 	matrix = keyboard.NewMatrix(15, 7, keyboard.RowReaderFunc(ReadRow))
 	keymap = KinTKeymap()
 	host   = configureHost()
-
-	board = keyboard.New(machine.Serial, host, matrix, keymap).
-		WithDebug(_debug).
-		WithJumpToBootloader(func() { arm.Asm("bkpt") })
 )
 
 func init() {
@@ -23,10 +19,18 @@ func init() {
 }
 
 func main() {
+	board := keyboard.New(machine.Serial, host, matrix, keymap).
+		WithDebug(_debug).
+		WithJumpToBootloader(func() {
+			println("jumping to bootloader")
+			delayMicros(10000)
+			arm.Asm("bkpt")
+		})
+
 	go bootBlink()
 	for {
 		board.Task()
-		// metrics()
+		metrics()
 		time.Sleep(100 * time.Microsecond)
 	}
 }

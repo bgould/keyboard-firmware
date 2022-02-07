@@ -6,7 +6,7 @@ import (
 	"github.com/bgould/keyboard-firmware/keyboard"
 )
 
-const _debug = false
+const _debug = true
 
 var (
 	pins   = []machine.Pin{machine.D23, machine.D7, machine.D22, machine.D21}
@@ -27,6 +27,7 @@ func main() {
 }
 
 func configurePins() {
+	machine.LED.Configure(machine.PinConfig{Mode: machine.PinOutput})
 	for _, pin := range pins {
 		pin.Configure(machine.PinConfig{Mode: machine.PinInputPullUp})
 	}
