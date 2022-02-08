@@ -1,7 +1,6 @@
 package keyboard
 
 import (
-	"strconv"
 	"time"
 
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
@@ -123,35 +122,6 @@ func (mk *MouseKeys) Task(report *Report) bool {
 	report.Mouse(MouseButton(mk.report.buttons), mk.report.x, mk.report.y, mk.report.v, mk.report.h)
 	return true
 
-	/*
-	   if (timer_elapsed(last_timer) < (mousekey_repeat ? mk_interval : mk_delay*10))
-	       return;
-
-	   if (mouse_report.x == 0 && mouse_report.y == 0 && mouse_report.v == 0 && mouse_report.h == 0)
-	       return;
-
-	   if (mousekey_repeat != UINT8_MAX)
-	       mousekey_repeat++;
-
-
-	   if (mouse_report.x > 0) mouse_report.x = move_unit();
-	   if (mouse_report.x < 0) mouse_report.x = move_unit() * -1;
-	   if (mouse_report.y > 0) mouse_report.y = move_unit();
-	   if (mouse_report.y < 0) mouse_report.y = move_unit() * -1;
-
-	   // diagonal move [1/sqrt(2) = 0.7]
-	   if (mouse_report.x && mouse_report.y) {
-	       mouse_report.x *= 0.7;
-	       mouse_report.y *= 0.7;
-	   }
-
-	   if (mouse_report.v > 0) mouse_report.v = wheel_unit();
-	   if (mouse_report.v < 0) mouse_report.v = wheel_unit() * -1;
-	   if (mouse_report.h > 0) mouse_report.h = wheel_unit();
-	   if (mouse_report.h < 0) mouse_report.h = wheel_unit() * -1;
-
-	   mousekey_send();
-	*/
 }
 
 func (mk *MouseKeys) Make(code keycodes.Keycode) {
@@ -294,214 +264,22 @@ func (mk *MouseKeys) wheelUnit() int8 {
 	} else {
 		return int8(unit)
 	}
-	// return (unit > mk.WheelMaxSpeed ? mk.WheelMaxSpeed : (unit == 0 ? 1 : unit));
 }
 
-func (mk *MouseKeys) Debug() string {
-	return "mousekey [btn|x y v h](rep/acl): [" +
-		hex(mk.report.buttons) + "|" +
-		strconv.FormatInt(int64(mk.report.x), 10) + " " +
-		strconv.FormatInt(int64(mk.report.y), 10) + " " +
-		strconv.FormatInt(int64(mk.report.v), 10) + " " +
-		strconv.FormatInt(int64(mk.report.h), 10) + "](" +
-		strconv.FormatInt(int64(mk.repeat), 10) + "/" +
-		strconv.FormatInt(int64(mk.accel), 10) + ")\n"
-	// print_decs(mouse_report.x); print(" ");
-	// print_decs(mouse_report.y); print(" ");
-	// print_decs(mouse_report.v); print(" ");
-	// print_decs(mouse_report.h); print("](");
-	// print_dec(mousekey_repeat); print("/");
-	// print_dec(mousekey_accel); print(")\n");
-}
-
-/*
-#define MOUSEKEY_MOVE_DELTA           3
-#define mk.config.WheelDelta          1
-#define MOUSEKEY_DELAY                0
-#define MOUSEKEY_INTERVAL            20
-#define MOUSEKEY_MAX_SPEED           10
-#define MOUSEKEY_TIME_TO_MAX         20
-#define mk.WheelMaxSpeed_SPEED     16
-#define MOUSEKEY_WHEEL_TIME_TO_MAX   40
-
-void mousekey_task(void);
-void mousekey_on(uint8_t code);
-void mousekey_off(uint8_t code);
-void mousekey_clear(void);
-void mousekey_send(void);
-uint8_t mousekey_buttons(void);
-
-static report_mouse_t mouse_report = {};
-static uint8_t mousekey_repeat =  0;
-static uint8_t mousekey_accel = 0;
-
-static void mousekey_debug(void);
-
-
-/*
- * Mouse keys  acceleration algorithm
- *  http://en.wikipedia.org/wiki/Mouse_keys
- *
- *  speed = delta * max_speed * (repeat / time_to_max)**((1000+curve)/1000)
-// milliseconds between the initial key press and first repeated motion event (0-2550)
-uint8_t mk_delay = MOUSEKEY_DELAY/10;
-// milliseconds between repeated motion events (0-255)
-uint8_t mk_interval = MOUSEKEY_INTERVAL;
-// steady speed (in action_delta units) applied each event (0-255)
-uint8_t mk.MoveMaxSpeed = MOUSEKEY_MAX_SPEED;
-// number of events (count) accelerating to steady speed (0-255)
-uint8_t mk_time_to_max = MOUSEKEY_TIME_TO_MAX;
-// ramp used to reach maximum pointer speed (NOT SUPPORTED)
-//int8_t mk_curve = 0;
-// wheel params
-uint8_t mk.WheelMaxSpeed = mk.WheelMaxSpeed_SPEED;
-uint8_t mk_wheel_time_to_max = MOUSEKEY_WHEEL_TIME_TO_MAX;
-
-716 831 1800 ext 2227
-static uint16_t last_timer = 0;
-
-
-static uint8_t move_unit(void)
-{
-    uint16_t unit;
-    if (mousekey_accel & (1<<0)) {
-        unit = (MOUSEKEY_MOVE_DELTA * mk.MoveMaxSpeed)/4;
-    } else if (mousekey_accel & (1<<1)) {
-        unit = (MOUSEKEY_MOVE_DELTA * mk.MoveMaxSpeed)/2;
-    } else if (mousekey_accel & (1<<2)) {
-        unit = (MOUSEKEY_MOVE_DELTA * mk.MoveMaxSpeed);
-    } else if (mousekey_repeat == 0) {
-        unit = MOUSEKEY_MOVE_DELTA;
-    } else if (mousekey_repeat >= mk_time_to_max) {
-        unit = MOUSEKEY_MOVE_DELTA * mk.MoveMaxSpeed;
-    } else {
-        unit = (MOUSEKEY_MOVE_DELTA * mk.MoveMaxSpeed * mousekey_repeat) / mk_time_to_max;
-    }
-    return (unit > MOUSEKEY_MOVE_MAX ? MOUSEKEY_MOVE_MAX : (unit == 0 ? 1 : unit));
-}
-
-static uint8_t wheel_unit(void)
-{
-    uint16_t unit;
-    if (mousekey_accel & (1<<0)) {
-        unit = (mk.config.WheelDelta * mk.WheelMaxSpeed)/4;
-    } else if (mousekey_accel & (1<<1)) {
-        unit = (mk.config.WheelDelta * mk.WheelMaxSpeed)/2;
-    } else if (mousekey_accel & (1<<2)) {
-        unit = (mk.config.WheelDelta * mk.WheelMaxSpeed);
-    } else if (mousekey_repeat == 0) {
-        unit = mk.config.WheelDelta;
-    } else if (mousekey_repeat >= mk_wheel_time_to_max) {
-        unit = mk.config.WheelDelta * mk.WheelMaxSpeed;
-    } else {
-        unit = (mk.config.WheelDelta * mk.WheelMaxSpeed * mousekey_repeat) / mk_wheel_time_to_max;
-    }
-    return (unit > mk.WheelMaxSpeed ? mk.WheelMaxSpeed : (unit == 0 ? 1 : unit));
-}
-
-void mousekey_task(void)
-{
-    if (timer_elapsed(last_timer) < (mousekey_repeat ? mk_interval : mk_delay*10))
-        return;
-
-    if (mouse_report.x == 0 && mouse_report.y == 0 && mouse_report.v == 0 && mouse_report.h == 0)
-        return;
-
-    if (mousekey_repeat != UINT8_MAX)
-        mousekey_repeat++;
-
-
-    if (mouse_report.x > 0) mouse_report.x = move_unit();
-    if (mouse_report.x < 0) mouse_report.x = move_unit() * -1;
-    if (mouse_report.y > 0) mouse_report.y = move_unit();
-    if (mouse_report.y < 0) mouse_report.y = move_unit() * -1;
-
-    // diagonal move [1/sqrt(2) = 0.7]
-    if (mouse_report.x && mouse_report.y) {
-        mouse_report.x *= 0.7;
-        mouse_report.y *= 0.7;
-    }
-
-    if (mouse_report.v > 0) mouse_report.v = wheel_unit();
-    if (mouse_report.v < 0) mouse_report.v = wheel_unit() * -1;
-    if (mouse_report.h > 0) mouse_report.h = wheel_unit();
-    if (mouse_report.h < 0) mouse_report.h = wheel_unit() * -1;
-
-    mousekey_send();
-}
-
-void mousekey_on(uint8_t code)
-{
-    if      (code == KC_MS_UP)       mouse_report.y = move_unit() * -1;
-    else if (code == KC_MS_DOWN)     mouse_report.y = move_unit();
-    else if (code == KC_MS_LEFT)     mouse_report.x = move_unit() * -1;
-    else if (code == KC_MS_RIGHT)    mouse_report.x = move_unit();
-    else if (code == KC_MS_WH_UP)    mouse_report.v = wheel_unit();
-    else if (code == KC_MS_WH_DOWN)  mouse_report.v = wheel_unit() * -1;
-    else if (code == KC_MS_WH_LEFT)  mouse_report.h = wheel_unit() * -1;
-    else if (code == KC_MS_WH_RIGHT) mouse_report.h = wheel_unit();
-    else if (code == KC_MS_BTN1)     mouse_report.buttons |= MOUSE_BTN1;
-    else if (code == KC_MS_BTN2)     mouse_report.buttons |= MOUSE_BTN2;
-    else if (code == KC_MS_BTN3)     mouse_report.buttons |= MOUSE_BTN3;
-    else if (code == KC_MS_BTN4)     mouse_report.buttons |= MOUSE_BTN4;
-    else if (code == KC_MS_BTN5)     mouse_report.buttons |= MOUSE_BTN5;
-    else if (code == KC_MS_ACCEL0)   mousekey_accel |= (1<<0);
-    else if (code == KC_MS_ACCEL1)   mousekey_accel |= (1<<1);
-    else if (code == KC_MS_ACCEL2)   mousekey_accel |= (1<<2);
-}
-
-void mousekey_off(uint8_t code)
-{
-    if      (code == KC_MS_UP       && mouse_report.y < 0) mouse_report.y = 0;
-    else if (code == KC_MS_DOWN     && mouse_report.y > 0) mouse_report.y = 0;
-    else if (code == KC_MS_LEFT     && mouse_report.x < 0) mouse_report.x = 0;
-    else if (code == KC_MS_RIGHT    && mouse_report.x > 0) mouse_report.x = 0;
-    else if (code == KC_MS_WH_UP    && mouse_report.v > 0) mouse_report.v = 0;
-    else if (code == KC_MS_WH_DOWN  && mouse_report.v < 0) mouse_report.v = 0;
-    else if (code == KC_MS_WH_LEFT  && mouse_report.h < 0) mouse_report.h = 0;
-    else if (code == KC_MS_WH_RIGHT && mouse_report.h > 0) mouse_report.h = 0;
-    else if (code == KC_MS_BTN1) mouse_report.buttons &= ~MOUSE_BTN1;
-    else if (code == KC_MS_BTN2) mouse_report.buttons &= ~MOUSE_BTN2;
-    else if (code == KC_MS_BTN3) mouse_report.buttons &= ~MOUSE_BTN3;
-    else if (code == KC_MS_BTN4) mouse_report.buttons &= ~MOUSE_BTN4;
-    else if (code == KC_MS_BTN5) mouse_report.buttons &= ~MOUSE_BTN5;
-    else if (code == KC_MS_ACCEL0) mousekey_accel &= ~(1<<0);
-    else if (code == KC_MS_ACCEL1) mousekey_accel &= ~(1<<1);
-    else if (code == KC_MS_ACCEL2) mousekey_accel &= ~(1<<2);
-
-    if (mouse_report.x == 0 && mouse_report.y == 0 && mouse_report.v == 0 && mouse_report.h == 0)
-        mousekey_repeat = 0;
-}
-
-void mousekey_send(void)
-{
-    mousekey_debug();
-    host_mouse_send(&mouse_report);
-    last_timer = timer_read();
-}
-
-void mousekey_clear(void)
-{
-    mouse_report = (report_mouse_t){};
-    mousekey_repeat = 0;
-    mousekey_accel = 0;
-}
-
-uint8_t mousekey_buttons(void)
-{
-    return mouse_report.buttons;
-}
-
-static void mousekey_debug(void)
-{
-    if (!debug_mouse) return;
-    print("mousekey [btn|x y v h](rep/acl): [");
-    phex(mouse_report.buttons); print("|");
-    print_decs(mouse_report.x); print(" ");
-    print_decs(mouse_report.y); print(" ");
-    print_decs(mouse_report.v); print(" ");
-    print_decs(mouse_report.h); print("](");
-    print_dec(mousekey_repeat); print("/");
-    print_dec(mousekey_accel); print(")\n");
-}
-*/
+// func (mk *MouseKeys) WriteDebug(w io.Writer) {
+// 	w.Write([]byte("mousekey [btn|x y v h](rep/acl): ["))
+// 	w.Write([]byte(hex(mk.report.buttons)))
+// 	w.Write([]byte("|"))
+// 	w.Write([]byte(strconv.FormatInt(int64(mk.report.x), 10)))
+// 	w.Write([]byte(" "))
+// 	w.Write([]byte(strconv.FormatInt(int64(mk.report.y), 10)))
+// 	w.Write([]byte(" "))
+// 	w.Write([]byte(strconv.FormatInt(int64(mk.report.v), 10)))
+// 	w.Write([]byte(" "))
+// 	w.Write([]byte(strconv.FormatInt(int64(mk.report.h), 10)))
+// 	w.Write([]byte("]("))
+// 	w.Write([]byte(strconv.FormatInt(int64(mk.repeat), 10)))
+// 	w.Write([]byte("/"))
+// 	w.Write([]byte(strconv.FormatInt(int64(mk.accel), 10)))
+// 	w.Write([]byte(")\n"))
+// }

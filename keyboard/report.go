@@ -43,10 +43,6 @@ const (
 	KbdModGuiRight   KeyboardModifier = 1 << 7
 )
 
-func NewReport() *Report {
-	return new(Report)
-}
-
 func (r *Report) Type() ReportType {
 	return ReportType(r[1])
 }
@@ -86,7 +82,7 @@ func (r *Report) Break(key keycodes.Keycode) {
 	}
 }
 
-func (r *Report) Keyboard(mod KeyboardModifier, keys ...byte) *Report {
+func (r *Report) Keyboard(mod KeyboardModifier, keys ...byte) {
 	r[0] = byte(mod)
 	r[1] = byte(RptKeyboard)
 	for i, c := 0, len(keys); i < 6; i++ {
@@ -96,7 +92,6 @@ func (r *Report) Keyboard(mod KeyboardModifier, keys ...byte) *Report {
 			r[i+2] = 0x0
 		}
 	}
-	return r
 }
 
 type MouseButton byte
@@ -114,7 +109,7 @@ const (
 )
 
 // TODO: implement wheel, accel
-func (r *Report) Mouse(buttons MouseButton, x int8, y int8, v int8, h int8) *Report {
+func (r *Report) Mouse(buttons MouseButton, x int8, y int8, v int8, h int8) {
 	r[0] = 0x0
 	r[1] = byte(RptMouse)
 	r[mouseButtons] = byte(buttons)
@@ -123,7 +118,6 @@ func (r *Report) Mouse(buttons MouseButton, x int8, y int8, v int8, h int8) *Rep
 	r[mouseV] = byte(v)
 	r[mouseH] = byte(h)
 	r[7] = 0x0
-	return r
 }
 
 type ConsumerKey uint16
@@ -144,7 +138,7 @@ const (
 	ConsKeyStop       ConsumerKey = 0x0010
 )
 
-func (r *Report) Consumer(key ConsumerKey) *Report {
+func (r *Report) Consumer(key ConsumerKey) {
 	r[0] = 0x0
 	r[1] = byte(RptConsumer)
 	r[2] = byte(key >> 8)
@@ -153,7 +147,6 @@ func (r *Report) Consumer(key ConsumerKey) *Report {
 	r[5] = 0x0
 	r[6] = 0x0
 	r[7] = 0x0
-	return r
 }
 
 func (r *Report) String() string {

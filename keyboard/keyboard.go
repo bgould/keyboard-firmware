@@ -2,13 +2,12 @@ package keyboard
 
 import (
 	"io"
-	"strconv"
 
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 
 type Host interface {
-	Send(report *Report)
+	Send(report Report)
 	LEDs() uint8
 }
 
@@ -39,9 +38,9 @@ type Keyboard struct {
 
 	mouseKeys *MouseKeys
 
-	keyReport      *Report
-	mouseReport    *Report
-	consumerReport *Report
+	keyReport      Report
+	mouseReport    Report
+	consumerReport Report
 
 	debug bool
 
@@ -50,26 +49,25 @@ type Keyboard struct {
 
 func New(console Console, host Host, matrix *Matrix, keymap Keymap) *Keyboard {
 	return &Keyboard{
-		console:        console,
-		matrix:         matrix,
-		layers:         keymap,
-		host:           host,
-		prev:           make([]Row, matrix.Rows()),
-		mouseKeys:      NewMouseKeys(DefaultMouseKeysConfig()),
-		keyReport:      NewReport().Keyboard(0),
-		mouseReport:    NewReport().Keyboard(0),
-		consumerReport: NewReport().Keyboard(0),
+		console:   console,
+		matrix:    matrix,
+		layers:    keymap,
+		host:      host,
+		prev:      make([]Row, matrix.Rows()),
+		mouseKeys: NewMouseKeys(DefaultMouseKeysConfig()),
 	}
 }
 
-func (kbd *Keyboard) WithDebug(dbg bool) *Keyboard {
-	kbd.debug = dbg
-	return kbd
+func (kbd *Keyboard) SetConsole(console Console) {
+	kbd.console = console
 }
 
-func (kbd *Keyboard) WithJumpToBootloader(fn func()) *Keyboard {
+func (kbd *Keyboard) SetDebug(dbg bool) {
+	kbd.debug = dbg
+}
+
+func (kbd *Keyboard) SetBootloaderJump(fn func()) {
 	kbd.jumpToBootloader = fn
-	return kbd
 }
 
 func (kbd *Keyboard) LEDs() uint8 {
@@ -100,29 +98,29 @@ func (kbd *Keyboard) Task() {
 			}
 		}
 	}
-	if kbd.mouseKeys.Task(kbd.mouseReport) {
-		if kbd.debug {
-			kbd.console.Write([]byte("mouse keys => " + kbd.mouseKeys.Debug() + "\r\n"))
-		}
+	if kbd.mouseKeys.Task(&kbd.mouseReport) {
+		// kbd.console.Write([]byte("mouse keys => "))
+		// kbd.mouseKeys.WriteDebug(kbd.console)
+		// kbd.console.Write([]byte("\r\n"))
 		kbd.host.Send(kbd.mouseReport)
 	}
 }
 
 func (kbd *Keyboard) processEvent(ev Event) {
 	key := kbd.layers[0].KeyAt(ev.Pos)
-	if kbd.debug {
-		kbd.console.Write([]byte(
-			"event => " +
-				"loc: r=" + hex(ev.Pos.Row) + " c= " + hex(ev.Pos.Col) + ", " +
-				"made: " + strconv.FormatBool(ev.Made) + ", " +
-				"usb: " + hex(uint8(key)) + ", " +
-				"key: " + strconv.FormatBool(key.IsKey()) + ", " +
-				"mod: " + strconv.FormatBool(key.IsModifier()) + ", " +
-				"msk: " + strconv.FormatBool(key.IsMouseKey()) + ", " +
-				"cns: " + strconv.FormatBool(key.IsConsumer()) + ", " +
-				"sys: " + strconv.FormatBool(key.IsSystem()) + ", " +
-				"spc: " + strconv.FormatBool(key.IsSpecial()) + "\r\n"))
-	}
+	// if kbd.debug {
+	// 	kbd.console.Write([]byte(
+	// 		"event => " +
+	// 			"loc: r=" + hex(ev.Pos.Row) + " c= " + hex(ev.Pos.Col) + ", " +
+	// 			"made: " + strconv.FormatBool(ev.Made) + ", " +
+	// 			"usb: " + hex(uint8(key)) + ", " +
+	// 			"key: " + strconv.FormatBool(key.IsKey()) + ", " +
+	// 			"mod: " + strconv.FormatBool(key.IsModifier()) + ", " +
+	// 			"msk: " + strconv.FormatBool(key.IsMouseKey()) + ", " +
+	// 			"cns: " + strconv.FormatBool(key.IsConsumer()) + ", " +
+	// 			"sys: " + strconv.FormatBool(key.IsSystem()) + ", " +
+	// 			"spc: " + strconv.FormatBool(key.IsSpecial()) + "\r\n"))
+	// }
 
 	switch {
 	case key.IsKey() || key.IsModifier():
@@ -144,9 +142,9 @@ func (kbd *Keyboard) processKey(key keycodes.Keycode, made bool) {
 	} else {
 		kbd.keyReport.Break(key)
 	}
-	if kbd.debug {
-		kbd.console.Write([]byte("keyboard report => " + kbd.keyReport.String() + "\r\n"))
-	}
+	// if kbd.debug {
+	// 	kbd.console.Write([]byte("keyboard report => " + kbd.keyReport.String() + "\r\n"))
+	// }
 	kbd.host.Send(kbd.keyReport)
 }
 
@@ -156,21 +154,23 @@ func (kbd *Keyboard) processMouseKey(key keycodes.Keycode, made bool) {
 	} else {
 		kbd.mouseKeys.Break(key)
 	}
-	if kbd.debug {
-		kbd.console.Write([]byte("mouse keys => " + kbd.mouseKeys.Debug() + "\r\n"))
-	}
+	// if kbd.debug {
+	// 	kbd.console.Write([]byte("mouse keys => "))
+	// 	kbd.mouseKeys.WriteDebug(kbd.console)
+	// 	kbd.console.Write([]byte("\r\n"))
+	// }
 }
 
 func (kbd *Keyboard) processConsumerKey(key keycodes.Keycode, made bool) {
-	if kbd.debug {
-		kbd.console.Write([]byte("consumer report => " + kbd.consumerReport.String() + "\r\n"))
-	}
+	// if kbd.debug {
+	// 	kbd.console.Write([]byte("consumer report => " + kbd.consumerReport.String() + "\r\n"))
+	// }
 }
 
 func (kbd *Keyboard) processSystemKey(key keycodes.Keycode, made bool) {
-	if kbd.debug {
-		kbd.console.Write([]byte("system report => " + kbd.consumerReport.String() + "\r\n"))
-	}
+	// if kbd.debug {
+	// 	kbd.console.Write([]byte("system report => " + kbd.consumerReport.String() + "\r\n"))
+	// }
 }
 
 func (kbd *Keyboard) processSpecialKey(key keycodes.Keycode, made bool) {
@@ -180,24 +180,24 @@ func (kbd *Keyboard) processSpecialKey(key keycodes.Keycode, made bool) {
 			break
 		}
 		if kbd.jumpToBootloader != nil {
-			if kbd.debug {
-				kbd.console.Write([]byte("jumping to bootloader"))
-			}
+			// if kbd.debug {
+			// 	kbd.console.Write([]byte("jumping to bootloader"))
+			// }
 			kbd.jumpToBootloader()
-			if kbd.debug {
-				kbd.console.Write([]byte("notice: jump to bootloader appears to have failed"))
-			}
+			// if kbd.debug {
+			// 	kbd.console.Write([]byte("notice: jump to bootloader appears to have failed"))
+			// }
 		} else {
-			if kbd.debug {
-				kbd.console.Write([]byte("notice: no jumpToBootloader callback defined"))
-			}
+			// if kbd.debug {
+			// 	kbd.console.Write([]byte("notice: no jumpToBootloader callback defined"))
+			// }
 		}
 		return
 	}
-	if kbd.debug {
-		kbd.console.Write([]byte("special key => " +
-			hex(uint8(key)) + ", made: " + strconv.FormatBool(made) + "\r\n"))
-	}
+	// if kbd.debug {
+	// 	kbd.console.Write([]byte("special key => " +
+	// 		hex(uint8(key)) + ", made: " + strconv.FormatBool(made) + "\r\n"))
+	// }
 }
 
 func (kbd *Keyboard) debugMatrix() bool {

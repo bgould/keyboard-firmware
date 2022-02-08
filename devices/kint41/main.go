@@ -12,6 +12,7 @@ var (
 	matrix = keyboard.NewMatrix(15, 7, keyboard.RowReaderFunc(ReadRow))
 	keymap = KinTKeymap()
 	host   = configureHost()
+	board  = keyboard.New(machine.Serial, host, matrix, keymap)
 )
 
 func init() {
@@ -19,18 +20,18 @@ func init() {
 }
 
 func main() {
-	board := keyboard.New(machine.Serial, host, matrix, keymap).
-		WithDebug(_debug).
-		WithJumpToBootloader(func() {
-			println("jumping to bootloader")
-			delayMicros(10000)
-			arm.Asm("bkpt")
-		})
+	board.SetDebug(_debug)
+	board.SetBootloaderJump(func() {
+		println("jumping to bootloader")
+		delayMicros(10000)
+		arm.Asm("bkpt")
+	})
 
 	go bootBlink()
 	for {
 		board.Task()
 		metrics()
+		// delayMicros(100)
 		time.Sleep(100 * time.Microsecond)
 	}
 }
@@ -54,10 +55,12 @@ var (
 )
 
 func metrics() {
-	for since := time.Since(lastSecond); since >= time.Second; since = 0 {
+	since := time.Since(lastSecond)
+	if since >= time.Second {
+		// if counter >= 200 {
+		// 	since := time.Since(lastSecond)
 		average = uint(float32(counter) * (float32(time.Second) / float32(since)))
-		println(seconds, "-", "average:", average)
-		println(seconds, "-", "   leds:", host.LEDs())
+		println(seconds, "-", "average:", average, "  leds", host.LEDs())
 		// reset
 		lastSecond = lastSecond.Add(since)
 		counter = 0

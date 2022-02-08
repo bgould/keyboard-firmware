@@ -3,12 +3,11 @@ package keyboard
 import (
 	"io"
 	"time"
-
-	"github.com/bgould/keyboard-firmware/timer"
 )
 
 const (
-	DebounceMS = 4
+	debounceCount    = 5
+	debounceInterval = 100 * time.Microsecond
 )
 
 type RowReader interface {
@@ -102,7 +101,7 @@ func (m *Matrix) Scan() (changed bool) {
 			//changed = true
 			//m.rows[i] = row
 			m.debouncing[i] = row
-			m.debounce = DebounceMS
+			m.debounce = debounceCount
 		}
 	}
 	// if matrix is debouncing, decrement the countdown
@@ -111,7 +110,8 @@ func (m *Matrix) Scan() (changed bool) {
 		m.debounce -= 1
 		// if still debouncing, wait an interval before returning
 		if m.debounce > 0 {
-			timer.Wait(250 * time.Microsecond)
+			for start := time.Now(); time.Since(start) < debounceInterval; {
+			}
 			return
 		}
 		// if debouncing is complete, update the matrix and mark as changed

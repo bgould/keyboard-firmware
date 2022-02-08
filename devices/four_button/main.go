@@ -19,7 +19,8 @@ func main() {
 	configurePins()
 	host := configureHost()
 
-	board := keyboard.New(machine.Serial, host, matrix, layers).WithDebug(_debug)
+	board := keyboard.New(machine.Serial, host, matrix, layers)
+	board.SetDebug(_debug)
 	for {
 		board.Task()
 	}

@@ -21,7 +21,7 @@ func New(hid *usb.HID) *Host {
 	}
 }
 
-func (host *Host) Send(rpt *keyboard.Report) {
+func (host *Host) Send(rpt keyboard.Report) {
 	// if debug {
 	// println(rpt[0], rpt[1], rpt[2], rpt[3], rpt[4], rpt[5], rpt[6], rpt[7])
 	// }
