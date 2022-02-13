@@ -36,6 +36,8 @@ type Keyboard struct {
 	prev []Row
 	leds uint8
 
+	activeLayer uint8
+
 	mouseKeys *MouseKeys
 
 	keyReport      Report
@@ -107,7 +109,11 @@ func (kbd *Keyboard) Task() {
 }
 
 func (kbd *Keyboard) processEvent(ev Event) {
-	key := kbd.layers[0].KeyAt(ev.Pos)
+	l := kbd.activeLayer
+	if int(l) > len(kbd.layers) {
+		l = 0
+	}
+	key := kbd.layers[l].KeyAt(ev.Pos)
 	// if kbd.debug {
 	// 	kbd.console.Write([]byte(
 	// 		"event => " +
@@ -193,11 +199,23 @@ func (kbd *Keyboard) processSpecialKey(key keycodes.Keycode, made bool) {
 			// }
 		}
 		return
+	case keycodes.FN0, keycodes.FN1, keycodes.FN2, keycodes.FN3, keycodes.FN4, keycodes.FN5, keycodes.FN6, keycodes.FN7,
+		keycodes.FN8, keycodes.FN9, keycodes.FN10, keycodes.FN11, keycodes.FN12, keycodes.FN13, keycodes.FN14, keycodes.FN15:
+		kbd.processAction(key, made)
 	}
 	// if kbd.debug {
 	// 	kbd.console.Write([]byte("special key => " +
 	// 		hex(uint8(key)) + ", made: " + strconv.FormatBool(made) + "\r\n"))
 	// }
+}
+
+func (kbd *Keyboard) processAction(key keycodes.Keycode, made bool) {
+	if made {
+		kbd.activeLayer = 1
+	} else {
+		kbd.activeLayer = 0
+	}
+	println("switched layer", kbd.activeLayer)
 }
 
 func (kbd *Keyboard) debugMatrix() bool {

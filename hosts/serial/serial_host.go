@@ -21,7 +21,7 @@ func New(serial io.Writer) *Host {
 	}
 }
 
-func (host *Host) Send(rpt *keyboard.Report) {
+func (host *Host) Send(rpt keyboard.Report) {
 	host.serial.Write([]byte(rpt.String() + "\r\n"))
 }
 
