@@ -22,7 +22,8 @@ func New(serial io.Writer) *Host {
 }
 
 func (host *Host) Send(rpt keyboard.Report) {
-	host.serial.Write([]byte(rpt.String() + "\r\n"))
+	rpt.WriteDebug(host.serial)
+	host.serial.Write([]byte("\r\n"))
 }
 
 func (host *Host) LEDs() uint8 {

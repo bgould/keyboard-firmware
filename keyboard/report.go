@@ -1,6 +1,7 @@
 package keyboard
 
 import (
+	"io"
 	"strconv"
 
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
@@ -160,6 +161,12 @@ func (r *Report) String() string {
 		" " + hex(r[6]) +
 		" " + hex(r[7]) +
 		" ]"
+}
+
+func (r *Report) WriteDebug(w io.Writer) {
+	for i := 0; i < 8; i++ {
+		w.Write([]byte(hex(r[i])))
+	}
 }
 
 func hex(b uint8) string {
