@@ -1,5 +1,5 @@
-//go:build !macropad.tinyterm
-// +build !macropad.tinyterm
+//go:build macropad_rp2040 && !macropad.tinyterm
+// +build macropad_rp2040,!macropad.tinyterm
 
 package main
 
