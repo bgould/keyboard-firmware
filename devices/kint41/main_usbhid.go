@@ -1,5 +1,5 @@
-//go:build !serial.usb
-// +build !serial.usb
+//go:build !teensy41 && serial.usb
+// +build !teensy41,serial.usb
 
 package main
 

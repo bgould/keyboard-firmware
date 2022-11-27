@@ -1,3 +1,6 @@
+//go:build teensy41
+// +build teensy41
+
 package main
 
 import (
