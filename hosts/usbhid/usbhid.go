@@ -26,13 +26,12 @@ func New( /*hid *usb.HID*/ ) *Host {
 }
 
 func (host *Host) Send(rpt keyboard.Report) {
-	println("sending ...")
+	if debug {
+		writeDebug(rpt[:])
+	}
 	switch rpt.Type() {
 	case keyboard.RptKeyboard:
-		// writeDebug(rpt[:])
-		kb.SendKeyboardReport(rpt[0], rpt[2], rpt[3], rpt[4], rpt[5], rpt[6], rpt[7])
-		// port.tx(rpt[:])
-		// host.hid.SendKeyboardReport(rpt[0], rpt[2], rpt[3], rpt[4], rpt[5], rpt[6], rpt[7])
+		kb.SendReport(rpt[0], rpt[2], rpt[3], rpt[4], rpt[5], rpt[6], rpt[7])
 	case keyboard.RptMouse:
 		// if err := host.hid.SendMouseReport(rpt[2], rpt[3], rpt[4], rpt[5], rpt[6]); err != nil {
 		// println("HID error:", err)
