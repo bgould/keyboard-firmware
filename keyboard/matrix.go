@@ -1,7 +1,6 @@
 package keyboard
 
 import (
-	"io"
 	"time"
 )
 
@@ -123,8 +122,8 @@ func (m *Matrix) Scan() (changed bool) {
 	return
 }
 
+/*
 func (m *Matrix) Print(w io.Writer) {
-	/*
 		fmt.Fprintf(w, " c0123456\r\n")
 		fmt.Fprintf(w, "r+-------+\r\n")
 		for i, row := range m.rows {
@@ -136,5 +135,5 @@ func (m *Matrix) Print(w io.Writer) {
 			fmt.Fprintf(w, "%X|%s|%s\r\n", byte(i), strings.ReplaceAll(s, "0", "."), g)
 		}
 		fmt.Fprintf(w, " +----------------+\r\n")
-	*/
 }
+*/

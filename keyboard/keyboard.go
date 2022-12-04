@@ -87,7 +87,7 @@ func (kbd *Keyboard) Task() {
 		if kbd.matrix.HasGhostInRow(i) {
 			continue
 		}
-		kbd.debugMatrix()
+		// kbd.debugMatrix()
 		for j, cols := uint8(0), kbd.matrix.Cols(); j < cols; j++ {
 			mask := Row(1) << j
 			if diff&mask > 0 {
@@ -218,6 +218,7 @@ func (kbd *Keyboard) processAction(key keycodes.Keycode, made bool) {
 	println("switched layer", kbd.activeLayer)
 }
 
+/*
 func (kbd *Keyboard) debugMatrix() bool {
 	if kbd.debug {
 		kbd.matrix.Print(kbd.console)
@@ -225,3 +226,4 @@ func (kbd *Keyboard) debugMatrix() bool {
 	}
 	return false
 }
+*/
