@@ -1,10 +1,9 @@
-macropad.tinyterm
+//go:build macropad.tinyterm
 // +build macropad.tinyterm
 
-package p
-/*
 package main
 
+/*
 import (
 	"image/color"
 	"machine"
@@ -15,6 +14,7 @@ import (
 	"tinygo.org/x/tinydraw"
 	"tinygo.org/x/tinyterm"
 	"tinygo.org/x/tinyterm/fonts/proggy"
+	// "tinygo.org/x/tinyfont"
 )
 
 const _debug = false
@@ -24,6 +24,7 @@ var (
 	terminal = tinyterm.NewTerminal(&displayer{&display})
 	font     = &proggy.TinySZ8pt7b
 	// font = &freemono.Bold12pt7b
+	// font = &tinyfont.Picopixel
 )
 
 func configureHost() keyboard.Host {
