@@ -1,5 +1,5 @@
-//go:build tinygo && experimental_usb
-// +build tinygo,experimental_usb
+//go:build tinygo && usbhid_teensy41
+// +build tinygo,usbhid_teensy41
 
 package usbhid
 

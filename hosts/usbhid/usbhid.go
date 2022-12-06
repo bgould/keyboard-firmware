@@ -1,11 +1,10 @@
-//go:build !experimental_usb
-// +build !experimental_usb
+//go:build tinygo
+// +build tinygo
 
 package usbhid
 
 import (
 	"machine"
-	machine_kb "machine/usb/hid/keyboard"
 	"strconv"
 
 	"github.com/bgould/keyboard-firmware/keyboard"
@@ -13,16 +12,10 @@ import (
 
 const debug = false
 
-var kb = machine_kb.New()
+type Host struct{}
 
-type Host struct {
-	// hid *usb.HID
-}
-
-func New( /*hid *usb.HID*/ ) *Host {
-	return &Host{
-		// hid: hid,
-	}
+func New() *Host {
+	return &Host{}
 }
 
 func (host *Host) Send(rpt keyboard.Report) {
@@ -31,17 +24,14 @@ func (host *Host) Send(rpt keyboard.Report) {
 	}
 	switch rpt.Type() {
 	case keyboard.RptKeyboard:
-		kb.SendReport(rpt[0], rpt[2], rpt[3], rpt[4], rpt[5], rpt[6], rpt[7])
+		sendKeyboardReport(rpt[0], rpt[2], rpt[3], rpt[4], rpt[5], rpt[6], rpt[7])
 	case keyboard.RptMouse:
-		// if err := host.hid.SendMouseReport(rpt[2], rpt[3], rpt[4], rpt[5], rpt[6]); err != nil {
-		// println("HID error:", err)
-		// }
+		sendMouseReport(rpt[2], rpt[3], rpt[4], rpt[5])
 	}
 }
 
 func (host *Host) LEDs() uint8 {
 	return 0
-	// return host.hid.KeyboardLEDs()
 }
 
 func writeDebug(r []byte) {
