@@ -1,8 +1,5 @@
-macropad.tinyterm
-// +build macropad.tinyterm
+// +build host_tinyterm
 
-package p
-/*
 package main
 
 import (

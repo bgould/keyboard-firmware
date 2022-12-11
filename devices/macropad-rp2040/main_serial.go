@@ -1,5 +1,5 @@
-//go:build macropad_rp2040 && !macropad.tinyterm
-// +build macropad_rp2040,!macropad.tinyterm
+//go:build host_serial
+// +build host_serial
 
 package main
 
