@@ -10,8 +10,6 @@ import (
 )
 
 var (
-	i2c = machine.I2C0
-
 	adapter = kint_pe.NewAdapter(i2c)
 
 	host   = configureHost()

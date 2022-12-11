@@ -1,5 +1,4 @@
-//go:build nrf52840 && !host_tinyterm && !host_serial
-// +build nrf52840,!host_tinyterm,!host_serial
+//go:build (nrf52840 || rp2040) && !host_tinyterm && !host_serial
 
 package main
 
