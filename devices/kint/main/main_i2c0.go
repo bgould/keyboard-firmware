@@ -3,4 +3,8 @@
 
 package main
 
+import (
+	"machine"
+)
+
 var i2c = machine.I2C0

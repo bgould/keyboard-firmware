@@ -1,5 +1,5 @@
-//go:build tinygo && !usbhid_machine && !usbhid_experimental
-// +build tinygo,!usbhid_machine,!usbhid_experimental
+//go:build tinygo && !usbhid_teensy41
+// +build tinygo,!usbhid_teensy41
 
 package usbhid
 
@@ -39,26 +39,24 @@ func sendMouseReport(buttons, x, y, wheel byte) {
 }
 
 type kbport struct {
-	buf     hid.RingBuffer
-	waitTxc bool
-	dbg     bool
+	buf hid.RingBuffer
+	txc bool
+	dbg bool
 }
 
-func (kb *kbport) tx(b []byte) {
-	if kb.waitTxc {
-		kb.buf.Put(b)
+func (port *kbport) tx(b []byte) {
+	if port.txc {
+		port.buf.Put(b)
 	} else {
-		kb.waitTxc = true
+		port.txc = true
 		hid.SendUSBPacket(b)
 	}
 }
 
-func (kb *kbport) Handler() bool {
-	kb.waitTxc = false
-	if b, ok := kb.buf.Get(); ok {
-		kb.tx(b)
-		// kb.waitTxc = true
-		// hid.SendUSBPacket(b)
+func (port *kbport) Handler() bool {
+	port.txc = false
+	if b, ok := port.buf.Get(); ok {
+		port.tx(b)
 		return true
 	}
 	return false
