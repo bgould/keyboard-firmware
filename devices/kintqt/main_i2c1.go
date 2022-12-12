@@ -1,5 +1,5 @@
-//go:build (tinygo && i2c1) || (tinygo && feather_rp2040)
-// +build tinygo,i2c1 tinygo,feather_rp2040
+//go:build tinygo && i2c1
+// +build tinygo,i2c1
 
 package main
 

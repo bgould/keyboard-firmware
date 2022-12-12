@@ -1,0 +1,4 @@
+{
+	"inherits": ["feather-rp2040"],
+	"build-tags": ["i2c1"]
+}
