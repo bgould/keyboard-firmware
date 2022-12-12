@@ -4,9 +4,9 @@ import (
 	"machine"
 	"time"
 
-	"github.com/bgould/keyboard-firmware/devices/kint"
-	"github.com/bgould/keyboard-firmware/devices/kint/kint_pe"
 	"github.com/bgould/keyboard-firmware/keyboard"
+	"github.com/bgould/keyboard-firmware/matrix/kint"
+	"github.com/bgould/keyboard-firmware/matrix/kint/kint_pe"
 )
 
 var (

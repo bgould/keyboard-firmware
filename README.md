@@ -32,7 +32,7 @@ The high-level abstractions in the codebase are the same as [defined by TMK][tmk
 Building Firmware
 -----------------
 
-In order to build firmware in this repository, please install [Go][https://golang.org] 1.18+ and [TinyGo][tinygo] 0.26+.
+In order to build firmware in this repository, please install [Go][https://golang.org/] 1.18+ and [TinyGo][tinygo] 0.26+.
 
 
 

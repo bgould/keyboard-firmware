@@ -23,9 +23,14 @@ func init() {
 
 func main() {
 	board.SetDebug(_debug)
+	go func() {
+		for {
+			board.Task()
+			time.Sleep(500 * time.Microsecond)
+		}
+	}()
 	for {
-		board.Task()
-		time.Sleep(100 * time.Microsecond)
+		time.Sleep(time.Hour)
 	}
 }
 
