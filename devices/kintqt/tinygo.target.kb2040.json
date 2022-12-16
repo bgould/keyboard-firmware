@@ -1,0 +1,4 @@
+{
+	"inherits": ["kb2040"],
+	"build-tags": ["i2c0"]
+}

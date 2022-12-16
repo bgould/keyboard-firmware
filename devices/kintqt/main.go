@@ -25,7 +25,7 @@ func main() {
 		println("initializing hardware")
 	}
 
-	machine.LED.Configure(machine.PinConfig{Mode: machine.PinOutput})
+	// machine.LED.Configure(machine.PinConfig{Mode: machine.PinOutput})
 
 	// initialize I2C bus
 	err := i2c.Configure(machine.I2CConfig{
@@ -83,5 +83,5 @@ func errmsg(err error) {
 }
 
 func setLED(on bool) {
-	machine.LED.Set(on)
+	// machine.LED.Set(on)
 }
