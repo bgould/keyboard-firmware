@@ -2,33 +2,8 @@ package kint
 
 import (
 	"github.com/bgould/keyboard-firmware/keyboard"
-
-	. "github.com/bgould/keyboard-firmware/keyboard/keycodes"
+	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
-
-func KinTKeymap() keyboard.Keymap {
-	return keyboard.Keymap([]keyboard.Layer{KinesisAdvantageLayer(
-		ESC, F1, F2, F3, F4, F5, F6, F7, F8 /*  */, F9, F10, F11, F12, PSCR, SLCK, BRK, FN0, PROG,
-		EQL, N1, N2, N3, N4, N5 /*                       */, N6, N7, N8, N9, N0, MINS,
-		TAB, Q, W, E, R, T /*                            */, Y, U, I, O, P, BSLS,
-		LCTL, A, S, D, F, G /*                           */, H, J, K, L, SCLN, QUOT,
-		LSFT, Z, X, C, V, B /*                           */, N, M, COMM, DOT, SLSH, RSFT,
-		/**/ GRV, INS, LEFT, RGHT /*                     */, UP, DOWN, LBRC, RBRC,
-		/*                 */ ESC, LGUI /*         */, LALT, RCTL,
-		/*                      */ HOME /*         */, PGUP,
-		/*            */ BSPC, DEL, END /*         */, PGDN, ENT, SPC, /**/
-	), KinesisAdvantageLayer(
-		TRNS, TRNS, TRNS, TRNS, TRNS, TRNS, TRNS, TRNS, TRNS /*  */, TRNS, TRNS, TRNS, TRNS, TRNS, TRNS, TRNS, TRNS, TRNS,
-		TRNS, TRNS, TRNS, TRNS, TRNS, TRNS /*                                      */, TRNS, TRNS, TRNS, TRNS, TRNS, TRNS,
-		TRNS, TRNS, TRNS, TRNS, TRNS, TRNS /*                                      */, TRNS, TRNS, MS_U, TRNS, TRNS, TRNS,
-		TRNS, TRNS, TRNS, TRNS, TRNS, TRNS /*                                      */, TRNS, MS_L, MS_D, MS_R, TRNS, TRNS,
-		TRNS, TRNS, TRNS, TRNS, TRNS, TRNS /*                                      */, TRNS, TRNS, TRNS, TRNS, TRNS, TRNS,
-		/* */ TRNS, TRNS, TRNS, TRNS /*                                                  */, TRNS, TRNS, TRNS, TRNS,
-		/*                         */ TRNS, TRNS /*                          */, TRNS, TRNS,
-		/*                               */ TRNS /*                          */, TRNS,
-		/*                   */ TRNS, TRNS, TRNS /*                          */, TRNS, TRNS, TRNS, /**/
-	)})
-}
 
 func KinesisAdvantageLayer(
 	kC0, kD0, kE0, kC1, kD1, kE1, kC2, kD2, kE2 /* */, kC3, kD3, kE3, kC4, kD4, kE4, kC5, kE5, kD5,
@@ -39,9 +14,9 @@ func KinesisAdvantageLayer(
 	/**/ k14, k24, k34, k54 /*                                    */, k64, k84, k94, kA4,
 	/*                    */ k56, k55 /*                */, k96, k85,
 	/*                         */ k35 /*                */, k86,
-	/*               */ k36, k46, k25 /*                */, k66, k75, k65 /**/ Keycode,
+	/*               */ k36, k46, k25 /*                */, k66, k75, k65 /**/ keycodes.Keycode,
 ) keyboard.Layer {
-	return keyboard.Layer([][]Keycode{
+	return keyboard.Layer([][]keycodes.Keycode{
 		/*        0x0  0x1  0x2  0x3  0x4  0x5  0x6  */
 		/*********************************************/
 		/*    */ {k00, k01, k02, k03, 0x0, 0x0, 0x0},

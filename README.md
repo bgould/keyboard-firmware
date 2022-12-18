@@ -32,17 +32,18 @@ The high-level abstractions in the codebase are the same as [defined by TMK][tmk
 Building Firmware
 -----------------
 
-In order to build firmware in this repository, please install [Go][https://golang.org/] 1.18+ and [TinyGo][tinygo] 0.26+.
+In order to build firmware in this repository, please install [Go][golang] 1.18+ and [TinyGo][tinygo] 0.26+.
 
-
+*Note: for Teensy 4.1 targets, please see README.md in the `devices/kint41` folder.*
 
 License
 -----------------------
 
-Copyright © 2019-2022 Benjamin Gould
+Copyright © 2019-2023 Benjamin Gould
 
-Licensed GPLv3 or later. May consider re-licensing to 3-clause BSD at a later time.
+Licensed GPLv3 or later.
 
+[golang]: https://golang.org/
 [tinygo]: https://tinygo.org/
 [tmk]: https://github.com/tmk/tmk_keyboard
 [tmk-architecture]: https://github.com/tmk/tmk_keyboard/tree/master/tmk_core#architecture

@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/bgould/keyboard-firmware/keyboard"
-	"github.com/bgould/keyboard-firmware/matrix/kint"
 	"github.com/bgould/keyboard-firmware/matrix/kint/kint_pe"
 )
 
@@ -14,7 +13,7 @@ var (
 
 	host   = configureHost()
 	matrix = adapter.NewMatrix()
-	keymap = kint.KinTKeymap()
+	keymap = KinTKeymap()
 	board  = keyboard.New(&SerialConsole{machine.Serial}, host, matrix, keymap)
 )
 
