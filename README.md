@@ -8,7 +8,7 @@ general-purpose and maintain it as a library.
 Architecture
 ------------
 
-The architecture of the firmware code is loosely based on concepts from the excellent [TMK Keyboard][tmk] libary.
+The architecture of the firmware code is loosely based on concepts from the excellent [TMK Keyboard][tmk] library.
 The high-level abstractions in the codebase are the same as [defined by TMK][tmk-architecture], including:
 
  * Device (actually called "Keyboard" in the context of TMK) - often this is a physical keyboard, but also could
