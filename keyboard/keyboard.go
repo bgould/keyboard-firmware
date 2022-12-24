@@ -168,6 +168,8 @@ func (kbd *Keyboard) processMouseKey(key keycodes.Keycode, made bool) {
 }
 
 func (kbd *Keyboard) processConsumerKey(key keycodes.Keycode, made bool) {
+	kbd.consumerReport.Consumer(ConsKeyHome)
+	kbd.console.Write([]byte("consumer report => " + kbd.consumerReport.String() + "\r\n"))
 	// if kbd.debug {
 	// 	kbd.console.Write([]byte("consumer report => " + kbd.consumerReport.String() + "\r\n"))
 	// }
