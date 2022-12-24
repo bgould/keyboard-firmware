@@ -1,5 +1,4 @@
 //go:build tinygo && usbhid_teensy41
-// +build tinygo,usbhid_teensy41
 
 package usbhid
 

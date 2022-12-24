@@ -1,5 +1,4 @@
 //go:build tinygo && i2c1
-// +build tinygo,i2c1
 
 package main
 

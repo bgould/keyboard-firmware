@@ -1,5 +1,4 @@
 //go:build teensy41 && experimental_usb && !serial.usb
-// +build teensy41,experimental_usb,!serial.usb
 
 package main
 

@@ -1,5 +1,4 @@
 //go:build host_serial
-// +build host_serial
 
 package main
 

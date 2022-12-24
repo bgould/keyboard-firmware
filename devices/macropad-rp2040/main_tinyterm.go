@@ -1,4 +1,4 @@
-// +build host_tinyterm
+//go:build host_tinyterm
 
 package main
 
@@ -48,4 +48,3 @@ func (d *displayer) FillRectangle(x, y, w, h int16, c color.RGBA) error {
 	tinydraw.FilledRectangle(d.Device, x, y, w, h, c)
 	return nil
 }
-*/
