@@ -38,6 +38,8 @@ type Keyboard struct {
 
 	activeLayer uint8
 
+	encoders *encoders
+
 	mouseKeys *MouseKeys
 
 	keyReport      Report
@@ -57,6 +59,7 @@ func New(console Console, host Host, matrix *Matrix, keymap Keymap) *Keyboard {
 		host:      host,
 		prev:      make([]Row, matrix.Rows()),
 		mouseKeys: NewMouseKeys(DefaultMouseKeysConfig()),
+		encoders:  nil,
 	}
 }
 
@@ -74,6 +77,13 @@ func (kbd *Keyboard) SetBootloaderJump(fn func()) {
 
 func (kbd *Keyboard) LEDs() uint8 {
 	return kbd.host.LEDs()
+}
+
+func (kbd *Keyboard) SetEncoders(encs []Encoder, subscriber EncoderSubscriber) {
+	if encs == nil || len(encs) == 0 {
+		kbd.encoders = nil
+	}
+	kbd.encoders = &encoders{encoders: encs, subcribers: []EncoderSubscriber{subscriber}, values: make([]int, len(encs))}
 }
 
 func (kbd *Keyboard) Task() {
@@ -105,6 +115,9 @@ func (kbd *Keyboard) Task() {
 		// kbd.mouseKeys.WriteDebug(kbd.console)
 		// kbd.console.Write([]byte("\r\n"))
 		kbd.host.Send(kbd.mouseReport)
+	}
+	if kbd.encoders != nil {
+		kbd.encoders.Task()
 	}
 }
 
