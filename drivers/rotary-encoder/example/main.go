@@ -15,7 +15,9 @@ var (
 
 func main() {
 
-	enc.Configure()
+	enc.Configure(rotary_encoder.Config{
+		Precision: 4,
+	})
 
 	for oldValue := 0; ; {
 		time.Sleep(100 * time.Microsecond) // doesn't work without this?

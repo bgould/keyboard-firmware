@@ -29,7 +29,7 @@ func main() {
 
 	board.SetDebug(_debug)
 
-	board.SetEncoders([]keyboard.Encoder{encoder}, keyboard.EncoderSubscriberFunc(
+	board.SetEncoders([]keyboard.Encoder{encoder}, keyboard.EncodersSubscriberFunc(
 		func(index int, clockwise bool) {
 			println("encoder changed: ", index, clockwise)
 		},

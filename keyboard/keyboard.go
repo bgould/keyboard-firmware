@@ -79,11 +79,11 @@ func (kbd *Keyboard) LEDs() uint8 {
 	return kbd.host.LEDs()
 }
 
-func (kbd *Keyboard) SetEncoders(encs []Encoder, subscriber EncoderSubscriber) {
+func (kbd *Keyboard) SetEncoders(encs []Encoder, subscriber EncodersSubscriber) {
 	if encs == nil || len(encs) == 0 {
 		kbd.encoders = nil
 	}
-	kbd.encoders = &encoders{encoders: encs, subcribers: []EncoderSubscriber{subscriber}, values: make([]int, len(encs))}
+	kbd.encoders = &encoders{encoders: encs, subcribers: []EncodersSubscriber{subscriber}, values: make([]int, len(encs))}
 }
 
 func (kbd *Keyboard) Task() {

@@ -1,24 +1,28 @@
 package keyboard
 
+type Encoders interface {
+	Task()
+}
+
 type Encoder interface {
 	Value() int
 	SetValue(int)
 }
 
-type EncoderSubscriber interface {
+type EncodersSubscriber interface {
 	EncoderChanged(index int, clockwise bool)
 }
 
-type EncoderSubscriberFunc func(index int, clockwise bool)
-
-func (fn EncoderSubscriberFunc) EncoderChanged(index int, clockwise bool) {
-	fn(index, clockwise)
-}
+type EncodersSubscriberFunc func(index int, clockwise bool)
 
 type encoders struct {
-	subcribers []EncoderSubscriber
+	subcribers []EncodersSubscriber
 	encoders   []Encoder
 	values     []int
+}
+
+func NewEncoders(encs []Encoders, subs ...EncodersSubscriber) Encoders {
+	return &encoders{}
 }
 
 func (encs *encoders) Task() {
@@ -38,4 +42,8 @@ func (encs *encoders) Task() {
 			}
 		}
 	}
+}
+
+func (fn EncodersSubscriberFunc) EncoderChanged(index int, clockwise bool) {
+	fn(index, clockwise)
 }
