@@ -19,16 +19,28 @@ type Device struct {
 	pinA machine.Pin
 	pinB machine.Pin
 
+	precision int
+
 	oldAB int
 	value int
 }
 
-func (enc *Device) Configure() {
+type Config struct {
+	Precision int
+}
+
+func (enc *Device) Configure(cfg Config) {
 	enc.pinA.Configure(machine.PinConfig{Mode: machine.PinInputPullup})
 	enc.pinA.SetInterrupt(machine.PinRising|machine.PinFalling, enc.interrupt)
 
 	enc.pinB.Configure(machine.PinConfig{Mode: machine.PinInputPullup})
 	enc.pinB.SetInterrupt(machine.PinRising|machine.PinFalling, enc.interrupt)
+
+	if cfg.Precision > 0 {
+		enc.precision = cfg.Precision
+	} else {
+		enc.precision = 4
+	}
 }
 
 func (enc *Device) interrupt(pin machine.Pin) {
@@ -44,9 +56,9 @@ func (enc *Device) interrupt(pin machine.Pin) {
 }
 
 func (enc *Device) Value() int {
-	return enc.value / 4
+	return enc.value / enc.precision
 }
 
 func (enc *Device) SetValue(v int) {
-	enc.value = v * 4
+	enc.value = v * enc.precision
 }
