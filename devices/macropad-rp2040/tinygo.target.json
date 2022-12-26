@@ -1,3 +1,4 @@
 {
-	"inherits": ["macropad-rp2040"]
+	"inherits": ["macropad-rp2040"],
+	"build-tags": ["console.tinyterm"]
 }
