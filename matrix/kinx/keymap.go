@@ -1,4 +1,4 @@
-package kint
+package kinx
 
 import (
 	"github.com/bgould/keyboard-firmware/keyboard"

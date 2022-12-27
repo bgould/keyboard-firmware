@@ -1,4 +1,4 @@
-package kint_pe
+package kintqt
 
 import (
 	"github.com/bgould/keyboard-firmware/keyboard"

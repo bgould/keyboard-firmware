@@ -5,11 +5,11 @@ import (
 	"time"
 
 	"github.com/bgould/keyboard-firmware/keyboard"
-	"github.com/bgould/keyboard-firmware/matrix/kint/kint_pe"
+	"github.com/bgould/keyboard-firmware/matrix/kinx/kintqt"
 )
 
 var (
-	adapter = kint_pe.NewAdapter(i2c)
+	adapter = kintqt.NewAdapter(i2c)
 
 	host   = configureHost()
 	matrix = adapter.NewMatrix()

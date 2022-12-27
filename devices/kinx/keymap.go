@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/bgould/keyboard-firmware/keyboard"
-	"github.com/bgould/keyboard-firmware/matrix/kint"
+	"github.com/bgould/keyboard-firmware/matrix/kinx"
 
 	. "github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
@@ -13,7 +13,7 @@ const (
 
 func KinTKeymap() keyboard.Keymap {
 	return keyboard.Keymap([]keyboard.Layer{
-		kint.KinesisAdvantageLayer(
+		kinx.KinesisAdvantageLayer(
 			ESC, F1, F2, F3, F4, F5, F6, F7, F8 /*  */, F9, F10, F11, F12, PSCR, SLCK, BRK, FN0, PROG,
 			EQL, N1, N2, N3, N4, N5 /*                       */, N6, N7, N8, N9, N0, MINS,
 			TAB, Q, W, E, R, T /*                            */, Y, U, I, O, P, BSLS,
@@ -24,7 +24,7 @@ func KinTKeymap() keyboard.Keymap {
 			/*                      */ HOME /*         */, PGUP,
 			/*            */ BSPC, DEL, END /*         */, PGDN, ENT, SPC, /**/
 		),
-		kint.KinesisAdvantageLayer(
+		kinx.KinesisAdvantageLayer(
 			____, ____, ____, ____, ____, ____, ____, ____, ____ /*  */, ____, ____, ____, ____, ____, ____, ____, ____, ____,
 			____, ____, ____, ____, ____, ____ /*                                      */, ____, ____, ____, ____, ____, ____,
 			____, ____, ____, ____, ____, ____ /*                                      */, ____, ____, MS_U, ____, ____, ____,

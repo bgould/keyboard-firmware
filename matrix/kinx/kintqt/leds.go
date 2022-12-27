@@ -1,4 +1,4 @@
-package kint_pe
+package kintqt
 
 import "tinygo.org/x/drivers/mcp23017"
 

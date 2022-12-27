@@ -1,5 +1,8 @@
 //go:build tinygo
 
+// Implementation based on:
+// https://gist.github.com/aykevl/3fc1683ed77bb0a9c07559dfe857304a
+
 package rotary_encoder
 
 import (
@@ -8,7 +11,6 @@ import (
 
 var (
 	states = []int8{0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0}
-	// enc    = New(machine.ROT_A, machine.ROT_B)
 )
 
 func New(pinA, pinB machine.Pin) *Device {
