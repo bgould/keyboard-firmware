@@ -1,4 +1,4 @@
-//go:build tinygo && !i2c1
+//go:build tinygo && !teensy41 && !i2c1
 
 package main
 
