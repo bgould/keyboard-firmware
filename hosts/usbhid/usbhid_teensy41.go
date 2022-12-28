@@ -1,4 +1,4 @@
-//go:build tinygo && usbhid_teensy41
+//go:build tinygo && teensy41
 
 package usbhid
 
@@ -7,8 +7,6 @@ import (
 
 	"github.com/bgould/keyboard-firmware/keyboard"
 )
-
-const debug = false
 
 type Host struct {
 	hid *usb.HID
