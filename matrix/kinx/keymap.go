@@ -5,7 +5,7 @@ import (
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 
-func KinesisAdvantageLayer(
+func Layer(
 	kC0, kD0, kE0, kC1, kD1, kE1, kC2, kD2, kE2 /* */, kC3, kD3, kE3, kC4, kD4, kE4, kC5, kE5, kD5,
 	k00, k10, k20, k30, k40, k50 /*                          */, k60, k70, k80, k90, kA0, kB0,
 	k01, k11, k21, k31, k41, k51 /*                          */, k61, k71, k81, k91, kA1, kB1,
