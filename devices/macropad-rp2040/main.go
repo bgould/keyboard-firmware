@@ -44,7 +44,7 @@ func main() {
 	board.SetEncoders(
 		[]keyboard.Encoder{encoder},
 		keyboard.EncodersSubscriberFunc(func(index int, clockwise bool) {
-			fmt.Fprintf(console, "encoder: %d %T\n", index, clockwise)
+			fmt.Fprintf(console, "encoder: %d %t\n", index, clockwise)
 		}),
 	)
 
@@ -62,7 +62,7 @@ func main() {
 					fmt.Fprintf(console, "layer: %d\n", board.ActiveLayer())
 				}
 			default:
-				fmt.Fprintf(console, "fn: %d %T\n", key-keycodes.FN0, made)
+				fmt.Fprintf(console, "fn: %d %t\n", key-keycodes.FN0, made)
 			}
 		},
 	))
