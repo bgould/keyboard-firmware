@@ -114,7 +114,6 @@ func (kbd *Keyboard) Task() {
 		if kbd.matrix.HasGhostInRow(i) {
 			continue
 		}
-		// kbd.debugMatrix()
 		for j, cols := uint8(0), kbd.matrix.Cols(); j < cols; j++ {
 			mask := Row(1) << j
 			if diff&mask > 0 {
@@ -128,9 +127,6 @@ func (kbd *Keyboard) Task() {
 		}
 	}
 	if kbd.mouseKeys.Task(&kbd.mouseReport) {
-		// kbd.console.Write([]byte("mouse keys => "))
-		// kbd.mouseKeys.WriteDebug(kbd.console)
-		// kbd.console.Write([]byte("\r\n"))
 		kbd.host.Send(kbd.mouseReport)
 	}
 	if kbd.encoders != nil {
@@ -144,20 +140,6 @@ func (kbd *Keyboard) processEvent(ev Event) {
 		l = 0
 	}
 	key := kbd.layers[l].KeyAt(ev.Pos)
-	// if kbd.debug {
-	// 	kbd.console.Write([]byte(
-	// 		"event => " +
-	// 			"loc: r=" + hex(ev.Pos.Row) + " c= " + hex(ev.Pos.Col) + ", " +
-	// 			"made: " + strconv.FormatBool(ev.Made) + ", " +
-	// 			"usb: " + hex(uint8(key)) + ", " +
-	// 			"key: " + strconv.FormatBool(key.IsKey()) + ", " +
-	// 			"mod: " + strconv.FormatBool(key.IsModifier()) + ", " +
-	// 			"msk: " + strconv.FormatBool(key.IsMouseKey()) + ", " +
-	// 			"cns: " + strconv.FormatBool(key.IsConsumer()) + ", " +
-	// 			"sys: " + strconv.FormatBool(key.IsSystem()) + ", " +
-	// 			"spc: " + strconv.FormatBool(key.IsSpecial()) + "\r\n"))
-	// }
-
 	switch {
 	case key.IsKey() || key.IsModifier():
 		kbd.processKey(key, ev.Made)
@@ -180,9 +162,6 @@ func (kbd *Keyboard) processKey(key keycodes.Keycode, made bool) {
 	} else {
 		kbd.keyReport.Break(key)
 	}
-	// if kbd.debug {
-	// 	kbd.console.Write([]byte("keyboard report => " + kbd.keyReport.String() + "\r\n"))
-	// }
 	kbd.host.Send(kbd.keyReport)
 }
 
@@ -192,11 +171,6 @@ func (kbd *Keyboard) processMouseKey(key keycodes.Keycode, made bool) {
 	} else {
 		kbd.mouseKeys.Break(key)
 	}
-	// if kbd.debug {
-	// 	kbd.console.Write([]byte("mouse keys => "))
-	// 	kbd.mouseKeys.WriteDebug(kbd.console)
-	// 	kbd.console.Write([]byte("\r\n"))
-	// }
 }
 
 func (kbd *Keyboard) processConsumerKey(key keycodes.Keycode, made bool) {
@@ -235,22 +209,3 @@ func (kbd *Keyboard) processFn(key keycodes.Keycode, made bool) {
 		fn.KeyAction(key, made)
 	}
 }
-
-/*
-func (kbd *Keyboard) processAction(key keycodes.Keycode, made bool) {
-	if made {
-		kbd.activeLayer = 1
-	} else {
-		kbd.activeLayer = 0
-	}
-	println("switched layer", kbd.activeLayer)
-}
-
-func (kbd *Keyboard) debugMatrix() bool {
-	if kbd.debug {
-		kbd.matrix.Print(kbd.console)
-		return true
-	}
-	return false
-}
-*/
