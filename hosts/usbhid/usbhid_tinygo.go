@@ -13,28 +13,52 @@ func init() {
 	hid.SetHandler(port)
 }
 
+var (
+	keybuf   = make([]byte, 9)
+	mousebuf = make([]byte, 5)
+)
+
 func sendKeyboardReport(mod, k1, k2, k3, k4, k5, k6 byte) {
-	var b [9]byte
-	b[0] = 0x02
-	b[1] = mod
-	b[2] = 0
-	b[3] = k1
-	b[4] = k2
-	b[5] = k3
-	b[6] = k4
-	b[7] = k5
-	b[8] = k6
-	port.tx(b[:])
+	// var b [9]byte
+	// b[0] = 0x02
+	// b[1] = mod
+	// b[2] = 0
+	// b[3] = k1
+	// b[4] = k2
+	// b[5] = k3
+	// b[6] = k4
+	// b[7] = k5
+	// b[8] = k6
+	keybuf[0] = 0x02
+	keybuf[1] = mod
+	keybuf[2] = 0
+	keybuf[3] = k1
+	keybuf[4] = k2
+	keybuf[5] = k3
+	keybuf[6] = k4
+	keybuf[7] = k5
+	keybuf[8] = k6
+	port.tx(keybuf)
+
+	// b := []byte{0x02, mod, 0, k1, k2, k3, k4, k5, k6}
+	// if port.txc {
+	// 	port.buf.Put(b)
+	// } else {
+	// 	port.txc = true
+	// 	machine.SendUSBInPacket(usb.HID_ENDPOINT_IN, b)
+	// 	// hid.SendUSBPacket(b)
+	// }
+
+	//port.tx([]byte{0x02, mod, 0, k1, k2, k3, k4, k5, k6})
 }
 
 func sendMouseReport(buttons, x, y, wheel byte) {
-	var b [5]byte
-	b[0] = 0x01
-	b[1] = buttons
-	b[2] = x
-	b[3] = y
-	b[4] = wheel
-	port.tx(b[:])
+	mousebuf[0] = 0x01
+	mousebuf[1] = buttons
+	mousebuf[2] = x
+	mousebuf[3] = y
+	mousebuf[4] = wheel
+	port.tx(mousebuf)
 }
 
 type kbport struct {
@@ -43,6 +67,7 @@ type kbport struct {
 	dbg bool
 }
 
+//go:inline
 func (port *kbport) tx(b []byte) {
 	if port.txc {
 		port.buf.Put(b)

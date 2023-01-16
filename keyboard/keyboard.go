@@ -48,6 +48,8 @@ type Keyboard struct {
 
 	debug bool
 
+	keyActionFunc KeyAction
+
 	jumpToBootloader func()
 }
 
@@ -61,6 +63,10 @@ func New(console Console, host Host, matrix *Matrix, keymap Keymap) *Keyboard {
 		mouseKeys: NewMouseKeys(DefaultMouseKeysConfig()),
 		encoders:  nil,
 	}
+}
+
+func (kbd *Keyboard) SetKeyAction(action KeyAction) {
+	kbd.keyActionFunc = action
 }
 
 func (kbd *Keyboard) SetConsole(console Console) {
@@ -79,11 +85,22 @@ func (kbd *Keyboard) LEDs() uint8 {
 	return kbd.host.LEDs()
 }
 
+func (kbd *Keyboard) SetActiveLayer(index uint8) {
+	kbd.activeLayer = index
+}
+
+func (kbd *Keyboard) ActiveLayer() uint8 {
+	return kbd.activeLayer
+}
+
 func (kbd *Keyboard) SetEncoders(encs []Encoder, subscriber EncodersSubscriber) {
 	if encs == nil || len(encs) == 0 {
 		kbd.encoders = nil
 	}
-	kbd.encoders = &encoders{encoders: encs, subcribers: []EncodersSubscriber{subscriber}, values: make([]int, len(encs))}
+	kbd.encoders = &encoders{
+		encoders:   encs,
+		subcribers: []EncodersSubscriber{subscriber}, values: make([]int, len(encs)),
+	}
 }
 
 func (kbd *Keyboard) Task() {
@@ -150,6 +167,8 @@ func (kbd *Keyboard) processEvent(ev Event) {
 		kbd.processConsumerKey(key, ev.Made)
 	case key.IsSystem():
 		kbd.processSystemKey(key, ev.Made)
+	case key.IsFn():
+		kbd.processFn(key, ev.Made)
 	case key.IsSpecial():
 		kbd.processSpecialKey(key, ev.Made)
 	}
@@ -193,35 +212,31 @@ func (kbd *Keyboard) processSystemKey(key keycodes.Keycode, made bool) {
 }
 
 func (kbd *Keyboard) processSpecialKey(key keycodes.Keycode, made bool) {
-	switch key {
-	case keycodes.BOOTLOADER:
+	switch {
+	case key == keycodes.BOOTLOADER:
 		if !made {
 			break
 		}
 		if kbd.jumpToBootloader != nil {
-			// if kbd.debug {
-			// 	kbd.console.Write([]byte("jumping to bootloader"))
-			// }
 			kbd.jumpToBootloader()
-			// if kbd.debug {
-			// 	kbd.console.Write([]byte("notice: jump to bootloader appears to have failed"))
-			// }
-		} else {
-			// if kbd.debug {
-			// 	kbd.console.Write([]byte("notice: no jumpToBootloader callback defined"))
-			// }
 		}
 		return
-	case keycodes.FN0, keycodes.FN1, keycodes.FN2, keycodes.FN3, keycodes.FN4, keycodes.FN5, keycodes.FN6, keycodes.FN7,
-		keycodes.FN8, keycodes.FN9, keycodes.FN10, keycodes.FN11, keycodes.FN12, keycodes.FN13, keycodes.FN14, keycodes.FN15:
-		kbd.processAction(key, made)
 	}
-	// if kbd.debug {
-	// 	kbd.console.Write([]byte("special key => " +
-	// 		hex(uint8(key)) + ", made: " + strconv.FormatBool(made) + "\r\n"))
-	// }
 }
 
+func (kbd *Keyboard) processFn(key keycodes.Keycode, made bool) {
+	if !key.IsFn() { // sanity check
+		return
+	}
+	// fnIndex := uint8(key - keycodes.FN0)
+	if fn := kbd.keyActionFunc; fn != nil {
+		// TODO: should pass *kbd to KeyAction?
+		// TODO: consider error reporting
+		fn.KeyAction(key, made)
+	}
+}
+
+/*
 func (kbd *Keyboard) processAction(key keycodes.Keycode, made bool) {
 	if made {
 		kbd.activeLayer = 1
@@ -231,7 +246,6 @@ func (kbd *Keyboard) processAction(key keycodes.Keycode, made bool) {
 	println("switched layer", kbd.activeLayer)
 }
 
-/*
 func (kbd *Keyboard) debugMatrix() bool {
 	if kbd.debug {
 		kbd.matrix.Print(kbd.console)
