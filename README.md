@@ -2,7 +2,7 @@ Go Keyboard Firmware framework
 ==============================
 
 This is an experimental project that I am using to test out and iterate on the USB HID implementation being developed
-for [TinyGo][tinygo]. Once things become more stable I may add features and clean up the codebase to be more
+for [TinyGo][tinygo]. Once things become more stable I will add features and clean up the codebase to be more
 general-purpose and maintain it as a library.
 
 Architecture
@@ -28,6 +28,14 @@ The high-level abstractions in the codebase are the same as [defined by TMK][tmk
    layer as defined by the keymap.
 
 *Please note that not all protocols and features described above, such as multiple layers, are implemented yet*
+
+Design Considerations
+---------------------
+
+ * `import`-able as an idiomatic Go module; no Makefiles etc necessary to use core functionality and most use cases.
+ * Usable from both TinyGo and full-sized Go... all TinyGo-specific packages (machine, etc.) should be
+   protected with build tags. Conversely ... functionality not available in TinyGo must be protected as well.
+ * No/few allocations in core library ... user code should initialize memory when necessary.
 
 Building Firmware
 -----------------
