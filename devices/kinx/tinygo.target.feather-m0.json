@@ -1,0 +1,4 @@
+{
+	"inherits": ["feather-m0"],
+	"build-tags": ["i2c0"]
+}
