@@ -49,6 +49,17 @@ func (r *Report) Type() ReportType {
 }
 
 func (r *Report) Make(key keycodes.Keycode) {
+
+	if key.IsConsumer() {
+		r[1] = byte(RptConsumer)
+		if consumer := keycode2consumer(key); r[0] == 0 && consumer > 0 {
+			r[0] = 1
+			r[2] = uint8(consumer)
+			r[3] = uint8(consumer >> 8)
+		}
+		return
+	}
+
 	r[1] = byte(RptKeyboard)
 	if key.IsModifier() {
 		r[0] |= 1 << (key & 0x07)
@@ -71,6 +82,20 @@ func (r *Report) Make(key keycodes.Keycode) {
 }
 
 func (r *Report) Break(key keycodes.Keycode) {
+
+	if key.IsConsumer() {
+		r[1] = byte(RptConsumer)
+		if r[0] == 0 {
+			return
+		}
+		if c := keycode2consumer(key); r[2] == uint8(c) && r[3] == uint8(c>>8) {
+			r[0] = 0
+			r[2] = 0
+			r[3] = 0
+		}
+		return
+	}
+
 	r[1] = byte(RptKeyboard)
 	if key.IsModifier() {
 		r[0] &= ^(1 << (key & 0x07))
@@ -81,6 +106,7 @@ func (r *Report) Break(key keycodes.Keycode) {
 			r[i] = 0x0
 		}
 	}
+
 }
 
 func (r *Report) Keyboard(mod KeyboardModifier, keys ...byte) {
@@ -118,35 +144,6 @@ func (r *Report) Mouse(buttons MouseButton, x int8, y int8, v int8, h int8) {
 	r[mouseY] = byte(y)
 	r[mouseV] = byte(v)
 	r[mouseH] = byte(h)
-	r[7] = 0x0
-}
-
-type ConsumerKey uint16
-
-const (
-	ConsKeyHome       ConsumerKey = 0x0100
-	ConsKeyKbdLayout  ConsumerKey = 0x0200
-	ConsKeySearch     ConsumerKey = 0x0400
-	ConsKeySnapshot   ConsumerKey = 0x0800
-	ConsKeyVolUp      ConsumerKey = 0x1000
-	ConsKeyVolDown    ConsumerKey = 0x2000
-	ConsKeyPlayPause  ConsumerKey = 0x4000
-	ConsKeyFastFwd    ConsumerKey = 0x8000
-	ConsKeyRewind     ConsumerKey = 0x0001
-	ConsKeyNextTrack  ConsumerKey = 0x0002
-	ConsKeyPrevTrack  ConsumerKey = 0x0004
-	ConsKeyRandomPlay ConsumerKey = 0x0008
-	ConsKeyStop       ConsumerKey = 0x0010
-)
-
-func (r *Report) Consumer(key ConsumerKey) {
-	r[0] = 0x0
-	r[1] = byte(RptConsumer)
-	r[2] = byte(key >> 8)
-	r[3] = byte(key & 0xFF)
-	r[4] = 0x0
-	r[5] = 0x0
-	r[6] = 0x0
 	r[7] = 0x0
 }
 

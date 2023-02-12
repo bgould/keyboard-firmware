@@ -26,6 +26,8 @@ func (host *Host) Send(rpt keyboard.Report) {
 		sendKeyboardReport(rpt[0], rpt[2], rpt[3], rpt[4], rpt[5], rpt[6], rpt[7])
 	case keyboard.RptMouse:
 		sendMouseReport(rpt[2], rpt[3], rpt[4], rpt[5])
+	case keyboard.RptConsumer:
+		sendConsumerReport(uint16(rpt[3])<<8|(uint16(rpt[2])), 0, 0, 0)
 	}
 }
 

@@ -15,6 +15,7 @@ func init() {
 
 var (
 	keybuf   = make([]byte, 9)
+	conbuf   = make([]byte, 9)
 	mousebuf = make([]byte, 5)
 )
 
@@ -59,6 +60,19 @@ func sendMouseReport(buttons, x, y, wheel byte) {
 	mousebuf[3] = y
 	mousebuf[4] = wheel
 	port.tx(mousebuf)
+}
+
+func sendConsumerReport(k1, k2, k3, k4 uint16) {
+	conbuf[0] = 0x03 // REPORT_ID
+	conbuf[1] = uint8(k1)
+	conbuf[2] = uint8((k1 & 0x0300) >> 8)
+	conbuf[3] = uint8(k2)
+	conbuf[4] = uint8((k2 & 0x0300) >> 8)
+	conbuf[5] = uint8(k3)
+	conbuf[6] = uint8((k3 & 0x0300) >> 8)
+	conbuf[7] = uint8(k4)
+	conbuf[8] = uint8((k4 & 0x0300) >> 8)
+	port.tx(conbuf)
 }
 
 type kbport struct {

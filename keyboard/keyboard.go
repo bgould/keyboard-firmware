@@ -174,9 +174,15 @@ func (kbd *Keyboard) processMouseKey(key keycodes.Keycode, made bool) {
 }
 
 func (kbd *Keyboard) processConsumerKey(key keycodes.Keycode, made bool) {
-	// if kbd.debug {
-	// 	kbd.console.Write([]byte("consumer report => " + kbd.consumerReport.String() + "\r\n"))
-	// }
+	if made {
+		kbd.consumerReport.Make(key)
+	} else {
+		kbd.consumerReport.Break(key)
+	}
+	if kbd.debug {
+		kbd.console.Write([]byte("consumer report => " + kbd.consumerReport.String() + "\r\n"))
+	}
+	kbd.host.Send(kbd.consumerReport)
 }
 
 func (kbd *Keyboard) processSystemKey(key keycodes.Keycode, made bool) {
