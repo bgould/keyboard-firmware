@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/bgould/keyboard-firmware/keyboard"
+	"github.com/bgould/keyboard-firmware/hosts/usbhid"
 )
 
 var (
@@ -31,4 +32,8 @@ func main() {
 		time.Sleep(100 * time.Microsecond)
 	}
 
+}
+
+func configureHost() keyboard.Host {
+	return usbhid.New()
 }
