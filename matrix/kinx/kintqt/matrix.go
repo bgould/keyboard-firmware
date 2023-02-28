@@ -76,6 +76,12 @@ func (m *Adapter) ReadRow(rowIndex uint8) (row keyboard.Row) {
 	return row
 }
 
+func (m *Adapter) UpdateLEDs(ledState LEDs) {
+	m.ledState = ledState
+	m.port0.SetPins(ledState.port0state(), port0_ledMask)
+	m.port1.SetPins(ledState.port1state(), port1_ledMask)
+}
+
 // initialize both MCP23017 expanders
 func (m *Adapter) configurePorts() (*mcp23017.Device, *mcp23017.Device, error) {
 	ports := []*mcp23017.Device{nil, nil}
@@ -119,10 +125,6 @@ const (
 
 	// mask for row outputs on port1
 	port1_rowMask = mcp23017.Pins(0b01111111_11111111)
-
-	// mask for LED/GPIO output pins on both ports
-	port0_ledMask = mcp23017.Pins(0b11111111_10000000)
-	port1_ledMask = mcp23017.Pins(0b10000000_00000000)
 
 	// port0_colMask = mcp23017.Pins(0b_01111111_00000000)
 	// port0_pinMask = mcp23017.Pins(0b_00000000_00111111)

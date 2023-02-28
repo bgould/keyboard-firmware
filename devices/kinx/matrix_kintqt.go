@@ -29,6 +29,8 @@ func configureMatrix() {
 	if err := adapter.Initialize(); err != nil {
 		errmsg(err)
 	}
+	leds := kintqt.LEDs(0)
+	adapter.UpdateLEDs(leds)
 }
 
 type SerialConsole struct {
@@ -48,16 +50,19 @@ func (sc *SerialConsole) Read(buf []byte) (n int, err error) {
 
 func errmsg(err error) {
 	for {
-		setLED(true)
-		// machine.LED.Set(true)
 		println("error:", err)
-		time.Sleep(time.Second)
-		setLED(false)
-		// machine.LED.Set(false)
-		time.Sleep(time.Second)
+		time.Sleep(2 * time.Second)
 	}
 }
 
-func setLED(on bool) {
-	// machine.LED.Set(on)
+func bootBlink() {
+	for i, leds, on := 0, kintqt.LEDs(0), true; i < 10; i++ {
+		on = !on
+		leds.Set(kintqt.LEDKeypad, on)
+		leds.Set(kintqt.LEDScrollLock, on)
+		leds.Set(kintqt.LEDNumLock, on)
+		leds.Set(kintqt.LEDCapsLock, on)
+		adapter.UpdateLEDs(leds)
+		time.Sleep(100 * time.Millisecond)
+	}
 }

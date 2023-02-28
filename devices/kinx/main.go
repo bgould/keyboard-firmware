@@ -1,10 +1,11 @@
 package main
 
 import (
+	"runtime"
 	"time"
 
-	"github.com/bgould/keyboard-firmware/keyboard"
 	"github.com/bgould/keyboard-firmware/hosts/usbhid"
+	"github.com/bgould/keyboard-firmware/keyboard"
 )
 
 var (
@@ -27,11 +28,20 @@ func main() {
 	}
 	board.SetDebug(_debug)
 
+	go bootBlink()
+	go deviceLoop()
+
+	for {
+		runtime.Gosched()
+		// time.Sleep(1 * time.Second)
+	}
+}
+
+func deviceLoop() {
 	for {
 		board.Task()
-		time.Sleep(100 * time.Microsecond)
+		runtime.Gosched()
 	}
-
 }
 
 func configureHost() keyboard.Host {
