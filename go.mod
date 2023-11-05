@@ -1,6 +1,6 @@
 module github.com/bgould/keyboard-firmware
 
-go 1.18
+go 1.20
 
 require (
 	tinygo.org/x/drivers v0.23.1-0.20230111202912-999f42dc036f

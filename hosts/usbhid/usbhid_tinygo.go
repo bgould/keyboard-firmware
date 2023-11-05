@@ -91,11 +91,15 @@ func (port *kbport) tx(b []byte) {
 	}
 }
 
-func (port *kbport) Handler() bool {
+func (port *kbport) TxHandler() bool {
 	port.txc = false
 	if b, ok := port.buf.Get(); ok {
 		port.tx(b)
 		return true
 	}
 	return false
+}
+
+func (port *kbport) RxHandler([]byte) bool {
+	return true
 }

@@ -40,7 +40,7 @@ Design Considerations
 Building Firmware
 -----------------
 
-In order to build firmware in this repository, please install [Go][golang] 1.18+ and [TinyGo][tinygo] 0.26+.
+In order to build firmware in this repository, please install [Go][golang] 1.20+ and [TinyGo][tinygo] 0.30+.
 
 *Note: for Teensy 4.1 targets, please see README.md in the `devices/kint41` folder.*
 
