@@ -26,7 +26,7 @@ func main() {
 	machine.LED.Low()
 
 	// create the keyboard console
-	console := configureConsole()
+	console := serial.DefaultConsole()
 
 	configurePins()
 
