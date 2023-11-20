@@ -81,8 +81,9 @@ func (kbd *Keyboard) SetBootloaderJump(fn func()) {
 	kbd.jumpToBootloader = fn
 }
 
-func (kbd *Keyboard) LEDs() uint8 {
-	return kbd.host.LEDs()
+func (kbd *Keyboard) LEDs() LEDs {
+	// return kbd.host.LEDs()
+	return LEDs(kbd.leds)
 }
 
 func (kbd *Keyboard) SetActiveLayer(index uint8) {
@@ -125,6 +126,10 @@ func (kbd *Keyboard) Task() {
 				kbd.prev[i] ^= mask
 			}
 		}
+	}
+	if newLEDs := kbd.host.LEDs(); newLEDs != kbd.leds {
+		println("LED state changed -", "new: ", newLEDs, "old: ", kbd.leds)
+		kbd.leds = newLEDs
 	}
 	if kbd.mouseKeys.Task(&kbd.mouseReport) {
 		kbd.host.Send(kbd.mouseReport)
