@@ -52,7 +52,7 @@ func updateLEDs() {
 		caps := leds.Get(keyboard.LEDCapsLock)   // (uint8(leds) & uint8(1<<(keyboard.LEDCapsLock-1)))
 		nlck := leds.Get(keyboard.LEDNumLock)    // (uint8(leds) & uint8(1<<(keyboard.LEDNumLock-1)))
 		slck := leds.Get(keyboard.LEDScrollLock) // (uint8(leds) & uint8(1<<(keyboard.LEDScrollLock-1)))
-		println(leds, caps, nlck, slck)
+		// println(leds, caps, nlck, slck)
 
 		qtleds := kintqt.LEDs(0)
 		qtleds.Set(kintqt.LEDCapsLock, caps)
