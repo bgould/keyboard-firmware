@@ -18,19 +18,16 @@ func main() {
 
 	if _debug {
 		time.Sleep(3 * time.Second)
-		println("initializing hardware")
 	}
 
+	println("initializing hardware")
 	configureMatrix()
 
-	if _debug {
-		println("starting task loop")
-	}
 	board.SetDebug(_debug)
 
-	go bootBlink()
+	println("starting task loop")
+	// go bootBlink()
 	go deviceLoop()
-
 	for {
 		runtime.Gosched()
 		// time.Sleep(1 * time.Second)
@@ -38,12 +35,16 @@ func main() {
 }
 
 func deviceLoop() {
+	var oldState keyboard.LEDs
 	for {
 		board.Task()
+		oldState = syncLEDs(oldState)
 		runtime.Gosched()
 	}
 }
 
 func configureHost() keyboard.Host {
+	// return multihost.New(serial.New(machine.Serial), usbhid.New())
+	// return serial.New(machine.Serial)
 	return usbhid.New()
 }

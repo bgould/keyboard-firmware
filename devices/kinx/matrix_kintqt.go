@@ -6,6 +6,7 @@ import (
 	"machine"
 	"time"
 
+	"github.com/bgould/keyboard-firmware/keyboard"
 	"github.com/bgould/keyboard-firmware/matrix/kinx/kintqt"
 )
 
@@ -18,18 +19,21 @@ var (
 func configureMatrix() {
 	// initialize I2C bus
 	err := i2c.Configure(machine.I2CConfig{
-		Frequency: machine.TWI_FREQ_400KHZ,
+		Frequency: 400 * machine.KHz,
 	})
 	if err != nil {
 		errmsg(err)
 	}
-	if _debug {
-		println("intializing matrix")
-	}
+
+	println("intializing matrix")
 	if err := adapter.Initialize(); err != nil {
 		errmsg(err)
 	}
 	leds := kintqt.LEDs(0)
+	leds.Set(kintqt.LEDCapsLock, false)
+	leds.Set(kintqt.LEDNumLock, false)
+	leds.Set(kintqt.LEDScrollLock, false)
+	leds.Set(kintqt.LEDKeypad, keypadDefault)
 	adapter.UpdateLEDs(leds)
 }
 
@@ -65,4 +69,27 @@ func bootBlink() {
 		adapter.UpdateLEDs(leds)
 		time.Sleep(100 * time.Millisecond)
 	}
+}
+
+const keypadDefault = true
+
+func syncLEDs(oldState keyboard.LEDs) keyboard.LEDs {
+
+	leds := board.LEDs()
+	caps := leds.Get(keyboard.LEDCapsLock)   // (uint8(leds) & uint8(1<<(keyboard.LEDCapsLock-1)))
+	nlck := leds.Get(keyboard.LEDNumLock)    // (uint8(leds) & uint8(1<<(keyboard.LEDNumLock-1)))
+	slck := leds.Get(keyboard.LEDScrollLock) // (uint8(leds) & uint8(1<<(keyboard.LEDScrollLock-1)))
+	// println(leds, caps, nlck, slck)
+
+	if leds != oldState {
+		println("state change: ", leds, caps, nlck, slck)
+		oldState = leds
+		qtleds := kintqt.LEDs(0)
+		qtleds.Set(kintqt.LEDCapsLock, caps)
+		qtleds.Set(kintqt.LEDNumLock, nlck)
+		qtleds.Set(kintqt.LEDScrollLock, slck)
+		qtleds.Set(kintqt.LEDKeypad, keypadDefault)
+		adapter.UpdateLEDs(qtleds)
+	}
+	return leds
 }
