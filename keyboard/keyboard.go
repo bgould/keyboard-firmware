@@ -128,7 +128,8 @@ func (kbd *Keyboard) Task() {
 		}
 	}
 	if newLEDs := kbd.host.LEDs(); newLEDs != kbd.leds {
-		println("LED state changed -", "new: ", newLEDs, "old: ", kbd.leds)
+		// TODO: have some sort of event notification
+		// println("LED state changed -", "new: ", newLEDs, "old: ", kbd.leds)
 		kbd.leds = newLEDs
 	}
 	if kbd.mouseKeys.Task(&kbd.mouseReport) {

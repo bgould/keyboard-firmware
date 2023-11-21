@@ -32,7 +32,7 @@ func (host *Host) Send(rpt keyboard.Report) {
 }
 
 func (host *Host) LEDs() uint8 {
-	return ledState.Get()
+	return ledState
 }
 
 func writeDebug(r []byte) {

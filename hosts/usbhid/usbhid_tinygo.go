@@ -4,7 +4,6 @@ package usbhid
 
 import (
 	"machine/usb/hid"
-	"runtime/volatile"
 )
 
 var port = &kbport{}
@@ -19,7 +18,7 @@ var (
 	conbuf   = make([]byte, 9)
 	mousebuf = make([]byte, 5)
 
-	ledState volatile.Register8
+	ledState uint8
 )
 
 func sendKeyboardReport(mod, k1, k2, k3, k4, k5, k6 byte) {
@@ -107,6 +106,6 @@ func (port *kbport) RxHandler(rx []byte) bool {
 	if len(rx) < 2 || rx[0] != 0x02 {
 		return true
 	}
-	ledState.Set(rx[1])
+	ledState = rx[1]
 	return true
 }
