@@ -4,7 +4,9 @@ package main
 
 import (
 	"machine"
+	"time"
 
+	"github.com/bgould/keyboard-firmware/hosts/blehid"
 	"github.com/bgould/keyboard-firmware/hosts/multihost"
 	"github.com/bgould/keyboard-firmware/hosts/serial"
 	"github.com/bgould/keyboard-firmware/hosts/usbhid"
@@ -13,13 +15,26 @@ import (
 
 const _debug = true
 
+const deviceName = "tinygo-kbd"
+const deviceManufacturer = "Adafruit/TinyGo"
+const deviceModelNumber = "Circuit Playground Bluefruit"
+
 var (
 	pins   = []machine.Pin{machine.BUTTONA, machine.BUTTONB}
 	layers = CircuitPlaygroundDefaultKeymap()
 	matrix = keyboard.NewMatrix(1, 2, keyboard.RowReaderFunc(ReadRow))
+
+	hostConfig = blehid.HostConfig{
+		Name:         deviceName,
+		Manufacturer: deviceManufacturer,
+		ModelNumber:  deviceModelNumber,
+	}
+	bleHost = blehid.New(hostConfig)
 )
 
 func main() {
+
+	time.Sleep(time.Second)
 
 	// use the onboard LED as a status indicator
 	machine.LED.Configure(machine.PinConfig{Mode: machine.PinOutput})
