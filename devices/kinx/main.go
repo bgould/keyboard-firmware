@@ -24,9 +24,9 @@ func main() {
 	configureMatrix()
 
 	board.SetDebug(_debug)
+	bootBlink()
 
 	println("starting task loop")
-	// go bootBlink()
 	go deviceLoop()
 	for {
 		runtime.Gosched()
@@ -44,7 +44,5 @@ func deviceLoop() {
 }
 
 func configureHost() keyboard.Host {
-	// return multihost.New(serial.New(machine.Serial), usbhid.New())
-	// return serial.New(machine.Serial)
 	return usbhid.New()
 }

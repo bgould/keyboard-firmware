@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	console = &SerialConsole{machine.Serial}
+	console = machine.Serial
 	adapter = kintqt.NewAdapter(i2c)
 	matrix  = adapter.NewMatrix()
 )
@@ -24,7 +24,6 @@ func configureMatrix() {
 	if err != nil {
 		errmsg(err)
 	}
-
 	println("intializing matrix")
 	if err := adapter.Initialize(); err != nil {
 		errmsg(err)
@@ -69,18 +68,17 @@ func bootBlink() {
 		adapter.UpdateLEDs(leds)
 		time.Sleep(100 * time.Millisecond)
 	}
+	syncLEDs(keyboard.LEDs(7))
 }
 
 const keypadDefault = true
 
 func syncLEDs(oldState keyboard.LEDs) keyboard.LEDs {
-
 	leds := board.LEDs()
-	caps := leds.Get(keyboard.LEDCapsLock)   // (uint8(leds) & uint8(1<<(keyboard.LEDCapsLock-1)))
-	nlck := leds.Get(keyboard.LEDNumLock)    // (uint8(leds) & uint8(1<<(keyboard.LEDNumLock-1)))
-	slck := leds.Get(keyboard.LEDScrollLock) // (uint8(leds) & uint8(1<<(keyboard.LEDScrollLock-1)))
+	caps := leds.Get(keyboard.LEDCapsLock)
+	nlck := leds.Get(keyboard.LEDNumLock)
+	slck := leds.Get(keyboard.LEDScrollLock)
 	// println(leds, caps, nlck, slck)
-
 	if leds != oldState {
 		println("state change: ", leds, caps, nlck, slck)
 		oldState = leds
