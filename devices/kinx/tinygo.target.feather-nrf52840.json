@@ -1,4 +1,5 @@
 {
 	"inherits": ["feather-nrf52840"],
+	"serial": "uart",
 	"build-tags": ["i2c0"]
 }

@@ -1,4 +1,5 @@
 {
 	"inherits": ["kb2040"],
+	"serial": "uart",
 	"build-tags": ["i2c1"]
 }
