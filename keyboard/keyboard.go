@@ -47,7 +47,7 @@ type Keyboard struct {
 	mouseReport    Report
 	consumerReport Report
 
-	debug bool
+	// debug bool
 
 	keyActionFunc KeyAction
 
@@ -75,7 +75,7 @@ func (kbd *Keyboard) SetKeyAction(action KeyAction) {
 // }
 
 func (kbd *Keyboard) SetDebug(dbg bool) {
-	kbd.debug = dbg
+	// kbd.debug = dbg
 }
 
 func (kbd *Keyboard) SetBootloaderJump(fn func()) {
@@ -147,6 +147,10 @@ func (kbd *Keyboard) processEvent(ev Event) {
 		l = 0
 	}
 	key := kbd.layers[l].KeyAt(ev.Pos)
+	for key == keycodes.TRANSPARENT && l > 0 {
+		l--
+		key = kbd.layers[l].KeyAt(ev.Pos)
+	}
 	switch {
 	case key.IsKey() || key.IsModifier():
 		kbd.processKey(key, ev.Made)

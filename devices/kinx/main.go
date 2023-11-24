@@ -6,6 +6,7 @@ import (
 
 	"github.com/bgould/keyboard-firmware/hosts/usbhid"
 	"github.com/bgould/keyboard-firmware/keyboard"
+	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 
 var (
@@ -25,6 +26,23 @@ func main() {
 
 	board.SetDebug(_debug)
 	bootBlink()
+
+	board.SetKeyAction(func() keyboard.KeyActionFunc {
+		var previous bool
+		return func(key keycodes.Keycode, made bool) {
+			switch key {
+			case keycodes.FN0:
+				if previous && !made {
+					if board.ActiveLayer() == 1 {
+						board.SetActiveLayer(0)
+					} else {
+						board.SetActiveLayer(1)
+					}
+				}
+				previous = made
+			}
+		}
+	}())
 
 	println("starting task loop")
 	go deviceLoop()

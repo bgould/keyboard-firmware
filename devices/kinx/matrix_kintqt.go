@@ -36,21 +36,6 @@ func configureMatrix() {
 	adapter.UpdateLEDs(leds)
 }
 
-type SerialConsole struct {
-	machine.Serialer
-}
-
-func (sc *SerialConsole) Read(buf []byte) (n int, err error) {
-	for i := range buf {
-		buf[i], err = sc.ReadByte()
-		if err != nil {
-			n = i - 1
-			return n, err
-		}
-	}
-	return len(buf), nil
-}
-
 func errmsg(err error) {
 	for {
 		println("error:", err)
@@ -78,7 +63,11 @@ func syncLEDs(oldState keyboard.LEDs) keyboard.LEDs {
 	caps := leds.Get(keyboard.LEDCapsLock)
 	nlck := leds.Get(keyboard.LEDNumLock)
 	slck := leds.Get(keyboard.LEDScrollLock)
-	// println(leds, caps, nlck, slck)
+	kpad := board.ActiveLayer() == 1
+	if kpad {
+		leds.Set(keyboard.LED(4), true)
+	}
+	// println(leds, caps, nlck, slck, kpad)
 	if leds != oldState {
 		println("state change: ", leds, caps, nlck, slck)
 		oldState = leds
@@ -86,7 +75,7 @@ func syncLEDs(oldState keyboard.LEDs) keyboard.LEDs {
 		qtleds.Set(kintqt.LEDCapsLock, caps)
 		qtleds.Set(kintqt.LEDNumLock, nlck)
 		qtleds.Set(kintqt.LEDScrollLock, slck)
-		qtleds.Set(kintqt.LEDKeypad, keypadDefault)
+		qtleds.Set(kintqt.LEDKeypad, kpad)
 		adapter.UpdateLEDs(qtleds)
 	}
 	return leds
