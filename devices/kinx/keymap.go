@@ -17,8 +17,9 @@ const (
 	ESC_ = ESC
 )
 
-// FN0 -> toggle "Keypad" layer
-// FN1 -> Programming/Reset
+// FN0 -> Toggle "Keypad" layer on key press
+// FN1 -> Toggle "Programming" on and off on key up/down
+// FN2 -> CPU Reset on key down
 
 func Keymap() keyboard.Keymap {
 	return keyboard.Keymap([]keyboard.Layer{
@@ -39,12 +40,24 @@ func Keymap() keyboard.Keymap {
 			ESC_, ____, ____, ____, PLAY, PREV, NEXT, ____, ____ /*  */, ____, ____, ____, ____, MUTE, VOLD, VOLU, FN0, FN1,
 			____, ____, ____, ____, ____, ____ /*                                      */, ____, NLCK, KP_EQUAL, KP_SLASH, KP_ASTERISK, ____,
 			____, ____, ____, MS_U, ____, ____ /*                                      */, ____, KP_7, KP_8, KP_9, KP_MINUS, ____,
-			____, ____, MS_L, MS_D, MS_R, ____ /*                                      */, ____, KP_4, KP_5, KP_6, KP_PLUS, ____,
+			CAPS, ____, MS_L, MS_D, MS_R, ____ /*                                      */, ____, KP_4, KP_5, KP_6, KP_PLUS, ____,
 			____, ____, ____, ____, ____, ____ /*                                      */, ____, KP_1, KP_2, KP_3, KP_ENTER, ____,
 			/* */ ____, INS, LEFT, RGHT /*                                                   */, UP, DOWN, KP_DOT, KP_ENTER,
 			/*                         */ BTN1, BTN2 /*                          */, BTN4, BTN3,
 			/*                               */ HOME /*                          */, PGUP,
 			/*                    */ BSPC, DEL, END /*      i                    */, PGDN, ENT, KP_0, /**/
+		),
+		// 2 - Programming Layer
+		kinx.Layer(
+			____, ____, ____, ____, ____, ____, ____, ____, ____ /*   */, FN2, ____, ____, ____, ____, ____, ____, ____, FN1,
+			____, ____, ____, ____, ____, ____ /*                                      */, ____, ____, ____, ____, ____, ____,
+			____, ____, ____, ____, ____, ____ /*                                      */, ____, ____, ____, ____, ____, ____,
+			____, ____, ____, ____, ____, ____ /*                                      */, ____, ____, ____, ____, ____, ____,
+			____, ____, ____, ____, ____, ____ /*                                      */, ____, ____, ____, ____, ____, ____,
+			/* */ ____, ____, ____, ____ /*                                                  */, ____, ____, ____, ____,
+			/*                         */ ____, ____ /*                          */, ____, ____,
+			/*                               */ ____ /*                          */, ____,
+			/*                   */ ____, ____, ____ /*                          */, ____, ____, ____, /**/
 		),
 	})
 }
