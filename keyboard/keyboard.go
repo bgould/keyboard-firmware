@@ -23,15 +23,16 @@ type Pos struct {
 }
 
 type Console interface {
-	io.ReadWriter
+	io.ByteReader
+	io.ByteWriter
 	Buffered() int
 }
 
 type Keyboard struct {
-	console Console
-	matrix  *Matrix
-	layers  []Layer
-	host    Host
+	// console Console
+	matrix *Matrix
+	layers []Layer
+	host   Host
 
 	prev []Row
 	leds uint8
@@ -46,7 +47,7 @@ type Keyboard struct {
 	mouseReport    Report
 	consumerReport Report
 
-	debug bool
+	// debug bool
 
 	keyActionFunc KeyAction
 
@@ -55,7 +56,7 @@ type Keyboard struct {
 
 func New(console Console, host Host, matrix *Matrix, keymap Keymap) *Keyboard {
 	return &Keyboard{
-		console:   console,
+		// console:   console,
 		matrix:    matrix,
 		layers:    keymap,
 		host:      host,
@@ -69,12 +70,12 @@ func (kbd *Keyboard) SetKeyAction(action KeyAction) {
 	kbd.keyActionFunc = action
 }
 
-func (kbd *Keyboard) SetConsole(console Console) {
-	kbd.console = console
-}
+// func (kbd *Keyboard) SetConsole(console Console) {
+// 	kbd.console = console
+// }
 
 func (kbd *Keyboard) SetDebug(dbg bool) {
-	kbd.debug = dbg
+	// kbd.debug = dbg
 }
 
 func (kbd *Keyboard) SetBootloaderJump(fn func()) {
@@ -146,6 +147,10 @@ func (kbd *Keyboard) processEvent(ev Event) {
 		l = 0
 	}
 	key := kbd.layers[l].KeyAt(ev.Pos)
+	for key == keycodes.TRANSPARENT && l > 0 {
+		l--
+		key = kbd.layers[l].KeyAt(ev.Pos)
+	}
 	switch {
 	case key.IsKey() || key.IsModifier():
 		kbd.processKey(key, ev.Made)
@@ -185,9 +190,9 @@ func (kbd *Keyboard) processConsumerKey(key keycodes.Keycode, made bool) {
 	} else {
 		kbd.consumerReport.Break(key)
 	}
-	if kbd.debug {
-		kbd.console.Write([]byte("consumer report => " + kbd.consumerReport.String() + "\r\n"))
-	}
+	// if kbd.debug {
+	// 	kbd.console.Write([]byte("consumer report => " + kbd.consumerReport.String() + "\r\n"))
+	// }
 	kbd.host.Send(kbd.consumerReport)
 }
 

@@ -1,4 +1,5 @@
 {
 	"inherits": ["feather-m4"],
+	"serial": "uart",
 	"build-tags": ["i2c0"]
 }
