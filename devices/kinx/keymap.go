@@ -25,7 +25,7 @@ func Keymap() keyboard.Keymap {
 	return keyboard.Keymap([]keyboard.Layer{
 		// 0 - Default Layer
 		kinx.Layer(
-			ESC, F1, F2, F3, F4, F5, F6, F7, F8 /*  */, F9, F10, F11, F12, PSCR, SLCK, BRK, FN0, FN1,
+			FN3, F1, F2, F3, F4, F5, F6, F7, F8 /*  */, F9, F10, F11, F12, PSCR, SLCK, BRK, FN0, FN1,
 			EQL, N1, N2, N3, N4, N5 /*                       */, N6, N7, N8, N9, N0, MINS,
 			TAB, Q, W, E, R, T /*                            */, Y, U, I, O, P, BSLS,
 			RCTL, A, S, D, F, G /*                           */, H, J, K, L, SCLN, QUOT,

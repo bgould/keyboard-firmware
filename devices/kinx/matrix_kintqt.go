@@ -19,7 +19,7 @@ var (
 func configureMatrix() {
 	// initialize I2C bus
 	err := i2c.Configure(machine.I2CConfig{
-		Frequency: 400 * machine.KHz,
+		Frequency: 1 * machine.MHz,
 	})
 	if err != nil {
 		errmsg(err)
