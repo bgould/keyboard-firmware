@@ -23,8 +23,10 @@ func initDisplay() error {
 	return nil
 }
 
+func displayTask() {
+}
+
 func setDisplay(on bool) {
-	return nil
 }
 
 func showTime(state *DisplayState, force bool) error {

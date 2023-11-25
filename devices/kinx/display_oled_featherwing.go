@@ -1,4 +1,4 @@
-// go:build oled_featherwing
+//go:build oled_featherwing
 
 package main
 
