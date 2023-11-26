@@ -105,8 +105,20 @@ func (c *Console) Task() {
 	// }
 }
 
+func (c *Console) WriteString(s string) (n int, err error) {
+	c.serial.Write([]byte("\r"))
+	n, err = c.serial.Write([]byte(s))
+	c.serial.Write([]byte("\r\n"))
+	c.prompt()
+	return
+}
+
 func (c *Console) Write(b []byte) (n int, err error) {
-	return c.serial.Write(b)
+	// c.serial.Write([]byte("\r"))
+	n, err = c.serial.Write(b)
+	// c.serial.Write([]byte("\r\n"))
+	// c.prompt()
+	return
 }
 
 func (c *Console) runCommand(line string) {

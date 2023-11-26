@@ -10,8 +10,8 @@ import (
 
 var (
 	cli    = initConsole()
-	host   = configureHost()
-	keymap = Keymap()
+	host   = initHost()
+	keymap = initKeymap()
 	board  = keyboard.New(serial, host, matrix, keymap)
 
 	// keyAction = configureKeyAction()
@@ -33,14 +33,17 @@ func main() {
 		time.Sleep(3 * time.Second)
 	}
 
-	println("initializing hardware")
+	serial.Write([]byte("\r\n"))
+	cli.WriteString("---------------------")
+	cli.WriteString("initializing hardware")
 	configureMatrix()
 	initDisplay()
 	initTime()
 
 	bootBlink()
 
-	println("starting task loop")
+	cli.WriteString("starting task loop")
+	cli.WriteString("---------------------")
 	go deviceLoop()
 	for {
 		runtime.Gosched()
@@ -62,10 +65,8 @@ func deviceLoop() {
 			count = 0
 			last = time.Now()
 			ds.ts, ds.tsOk = last, true
-			// ds.ts, ds.tsOk = readTime()
-			// ds.ts, ds.tsOk = last, true
 			if err := showTime(&ds, false); err != nil {
-				println("\rwarning: error updating display", err)
+				cli.WriteString("warning: error updating display - " + err.Error())
 			}
 		}
 		displayTask()
@@ -94,11 +95,9 @@ func keyAction(key keycodes.Keycode, made bool) {
 		if made {
 			fn1prev = board.ActiveLayer()
 			board.SetActiveLayer(2)
-			println("programming layer on - ", board.ActiveLayer())
 		} else {
 			board.SetActiveLayer(fn1prev)
 			fn1prev = 0
-			println("programming layer off - ", board.ActiveLayer())
 		}
 		if fn1prev == 2 {
 			fn1prev = 0
@@ -125,19 +124,8 @@ func keyAction(key keycodes.Keycode, made bool) {
 			fn3made = time.Now()
 		}
 		if err := showTime(&ds, true); err != nil {
-			println("warning: error updating display", err)
+			cli.WriteString("warning: error updating display: " + err.Error())
 		}
 	}
 
-}
-
-// }
-
-var ds DisplayState
-
-type DisplayState struct {
-	ts   time.Time
-	tsOk bool
-
-	scanRate int
 }

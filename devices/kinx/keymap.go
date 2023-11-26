@@ -21,7 +21,7 @@ const (
 // FN1 -> Toggle "Programming" on and off on key up/down
 // FN2 -> CPU Reset on key down
 
-func Keymap() keyboard.Keymap {
+func initKeymap() keyboard.Keymap {
 	return keyboard.Keymap([]keyboard.Layer{
 		// 0 - Default Layer
 		kinx.Layer(

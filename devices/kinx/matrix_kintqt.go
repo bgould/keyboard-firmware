@@ -17,7 +17,7 @@ var (
 	matrix  = adapter.NewMatrix()
 )
 
-func configureHost() keyboard.Host {
+func initHost() keyboard.Host {
 	return usbhid.New()
 }
 
@@ -29,7 +29,7 @@ func configureMatrix() {
 	if err != nil {
 		errmsg(err)
 	}
-	println("intializing matrix")
+	cli.WriteString("initializing matrix")
 	if err := adapter.Initialize(); err != nil {
 		errmsg(err)
 	}
@@ -74,7 +74,7 @@ func syncLEDs(oldState keyboard.LEDs) keyboard.LEDs {
 	}
 	// println(leds, caps, nlck, slck, kpad)
 	if leds != oldState {
-		println("state change: ", leds, caps, nlck, slck)
+		//println("state change: ", leds, caps, nlck, slck)
 		oldState = leds
 		qtleds := kintqt.LEDs(0)
 		qtleds.Set(kintqt.LEDCapsLock, caps)

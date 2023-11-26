@@ -33,7 +33,7 @@ func showTime(state *DisplayState, force bool) error {
 	tstr := state.ts.Format(timeLayout)
 	dstr := state.ts.Format(dateLayout)
 	if tstr != lastTime || dstr != lastDate {
-		println("tick-tock, it's: " + dstr + " @ " + tstr)
+		cli.WriteString("tick-tock, it's: " + dstr + " @ " + tstr)
 		lastTime = tstr
 		lastDate = dstr
 	}

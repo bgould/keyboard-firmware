@@ -29,7 +29,13 @@ type Commands map[string]CommandHandler
 
 func (cmds Commands) HandleCommand(info CommandInfo) (exitCode int) {
 	if len(info.Argv) < 1 {
-		return CommandUnknown
+		info.Stdout.Write([]byte("    available commands:\n"))
+		for cmd := range cmds {
+			info.Stdout.Write([]byte("      "))
+			info.Stdout.Write([]byte(cmd))
+			info.Stdout.Write([]byte("\n"))
+		}
+		return 0
 	}
 	sub := info.Argv[0]
 	// fmt.Fprintf(info.Stdout, "handling command: %v (%s) with map %v\n", info, sub, cmds)
