@@ -29,13 +29,14 @@ func displayTask() {
 func setDisplay(on bool) {
 }
 
-func showTime(state *DisplayState, force bool) error {
+func showTime(state DisplayState, force bool) error {
 	tstr := state.ts.Format(timeLayout)
 	dstr := state.ts.Format(dateLayout)
-	if tstr != lastTime || dstr != lastDate {
-		cli.WriteString("tick-tock, it's: " + dstr + " @ " + tstr)
-		lastTime = tstr
-		lastDate = dstr
+	if state != lastState { //tstr != lastTime || dstr != lastDate {
+		cli.WriteString("Time: " + dstr + " @ " + tstr + "; TOTP Account: " + state.totpAccount + "; TOTP Numbers: " + state.totpNumbers)
+		lastState = state
+		// lastTime = tstr
+		// lastDate = dstr
 	}
 	return nil
 }

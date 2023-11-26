@@ -61,7 +61,7 @@ func setDisplay(on bool) {
 	}
 }
 
-func showTime(state *DisplayState, force bool) error {
+func showTime(state DisplayState, force bool) error {
 
 	timeout := time.Since(lastOn) > displayTimeout
 
@@ -75,7 +75,7 @@ func showTime(state *DisplayState, force bool) error {
 	secs := state.ts.Second() % 30
 	indicatorH := int16(30-secs)*2 + 4
 
-	if tstr != lastTime || dstr != lastDate || indicatorH != lastInd || force {
+	if state != lastState || force { //tstr != lastTime || dstr != lastDate {force {
 		if !timeout {
 			display.ClearBuffer()
 
@@ -99,8 +99,8 @@ func showTime(state *DisplayState, force bool) error {
 				totpY = 31
 				totpX = 124
 			)
-			account := totpKeys[0].Name
-			digits := "000000"
+			account := state.totpAccount
+			digits := state.totpNumbers
 			displayRightJustified(&notoemoji.NotoEmojiRegular12pt, totpX, totpY+16, digits)
 			displayRightJustified(&proggy.TinySZ8pt7b, totpX, totpY+28, account)
 

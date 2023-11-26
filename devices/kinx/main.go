@@ -1,9 +1,12 @@
 package main
 
 import (
+	"crypto/sha1"
+	"fmt"
 	"runtime"
 	"time"
 
+	"github.com/bgould/keyboard-firmware/devices/kinx/totp"
 	"github.com/bgould/keyboard-firmware/keyboard"
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
@@ -20,6 +23,8 @@ var (
 	fn1prev uint8
 	fn2made time.Time
 	fn3made time.Time
+
+	lastTotp uint64
 )
 
 func init() {
@@ -36,6 +41,12 @@ func main() {
 	serial.Write([]byte("\r\n"))
 	cli.WriteString("---------------------")
 	cli.WriteString("initializing hardware")
+
+	cli.WriteString("hash attempt")
+	// hash := sha1.New()
+	sha1 := sha1.Sum([]byte("testing"))
+	cli.WriteString(fmt.Sprintf("%02x", sha1))
+
 	configureMatrix()
 	initDisplay()
 	initTime()
@@ -58,14 +69,28 @@ func deviceLoop() {
 		timeTask()
 		oldState = syncLEDs(oldState)
 		// runtime.Gosched()
-		if d := time.Since(last); d > time.Second {
+		now := time.Now()
+		if now, d := time.Now(), now.Sub(last); d > time.Second {
+
 			ds.scanRate = (count * 1000) / int(d/time.Millisecond)
+			ds.totpCounter = uint64(totp.TimeBasedCounter(time.Now(), totp.DefaultOpts.Period))
+			if ds.totpCounter != lastTotp {
+				// TODO: un-hardcode index
+				ds.totpAccount = totpKeys[0].Name
+				numbers, err := totp.GenerateCode(string(totpKeys[0].Key), now)
+				if err != nil {
+					cli.WriteString("warning: error updating TOTP - " + err.Error())
+					numbers = "000000"
+				}
+				ds.totpNumbers = numbers
+				lastTotp = ds.totpCounter
+			}
 			// print("\r== scan:", ds.scanRate, " ==> \r")
 			// println("count: ", count, " ", d/time.Millisecond, " ", )
 			count = 0
 			last = time.Now()
 			ds.ts, ds.tsOk = last, true
-			if err := showTime(&ds, false); err != nil {
+			if err := showTime(ds, false); err != nil {
 				cli.WriteString("warning: error updating display - " + err.Error())
 			}
 		}
@@ -123,7 +148,7 @@ func keyAction(key keycodes.Keycode, made bool) {
 			setDisplay(true)
 			fn3made = time.Now()
 		}
-		if err := showTime(&ds, true); err != nil {
+		if err := showTime(ds, true); err != nil {
 			cli.WriteString("warning: error updating display: " + err.Error())
 		}
 	}

@@ -1,5 +1,7 @@
 package main
 
+import "github.com/bgould/keyboard-firmware/keyboard/console"
+
 type TOTPKey struct {
 	Name string
 	Key  SecureString
@@ -13,6 +15,9 @@ func (s SecureString) String() string {
 
 var (
 	totpKeys = []TOTPKey{
-		TOTPKey{Name: "GitHub", Key: "KWNKKXLJYPHGSFCB"},
+		{Name: "GitHub", Key: "KWNKKXLJYPHGSFCB"},
+	}
+	totpCommands = console.Commands{
+		"get": console.CommandHandlerFunc(totpget),
 	}
 )

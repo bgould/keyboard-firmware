@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/bgould/keyboard-firmware/devices/kinx/totp"
 	"github.com/bgould/keyboard-firmware/keyboard/console"
 )
 
@@ -14,6 +15,7 @@ func initConsole() *console.Console {
 			"set": console.CommandHandlerFunc(timeset),
 			"get": console.CommandHandlerFunc(timeget),
 		},
+		"totp": totpCommands,
 	})
 }
 
@@ -65,4 +67,16 @@ func timeget(cmd console.CommandInfo) int {
 	cmd.Stdout.Write([]byte(now.Local().Format(time.RFC3339)))
 	cmd.Stdout.Write([]byte("\n"))
 	return 0
+}
+
+func totpget(cmd console.CommandInfo) int {
+	cmd.Stdout.Write([]byte("totp attempt"))
+	cmd.Stdout.Write([]byte(time.Now().Local().String()))
+	if code, err := totp.GenerateCode(string(totpKeys[0].Key), time.Now()); err != nil {
+		cmd.Stdout.Write([]byte("error generating TOTP: " + err.Error()))
+		return 1
+	} else {
+		cmd.Stdout.Write([]byte("generated code: " + code + "\n"))
+		return 0
+	}
 }
