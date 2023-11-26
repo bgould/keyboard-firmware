@@ -31,3 +31,7 @@ func timeTask() {
 func readTime() (time.Time, bool) {
 	return time.Now(), rtcInit
 }
+
+func setUnixTime(t time.Time) error {
+	return nil
+}

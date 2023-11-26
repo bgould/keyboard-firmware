@@ -3,6 +3,7 @@
 package main
 
 import (
+	"errors"
 	"runtime"
 	"time"
 
@@ -16,6 +17,10 @@ var (
 	rtcErr  error
 
 	rtcLast time.Time
+)
+
+var (
+	ErrNotInitialized = errors.New("not initialized")
 )
 
 func init() {
@@ -41,6 +46,18 @@ func timeTask() {
 		runtime.AdjustTimeOffset(-1 * int64(time.Since(t)))
 		rtcLast = t
 	}
+}
+
+func setUnixTime(t time.Time) error {
+	if !rtcInit {
+		return ErrNotInitialized
+	}
+	if err := rtc.SetTime(t.UTC()); err != nil {
+		return err
+	}
+	runtime.AdjustTimeOffset(-1 * int64(time.Since(t)))
+	rtcLast = t
+	return nil
 }
 
 func readTime() (time.Time, bool) {

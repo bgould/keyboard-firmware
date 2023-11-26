@@ -1,8 +1,6 @@
 package keyboard
 
 import (
-	"io"
-
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 
@@ -20,12 +18,6 @@ type Event struct {
 type Pos struct {
 	Row uint8
 	Col uint8
-}
-
-type Console interface {
-	io.ByteReader
-	io.ByteWriter
-	Buffered() int
 }
 
 type Keyboard struct {
@@ -54,7 +46,7 @@ type Keyboard struct {
 	jumpToBootloader func()
 }
 
-func New(console Console, host Host, matrix *Matrix, keymap Keymap) *Keyboard {
+func New(serial Serialer, host Host, matrix *Matrix, keymap Keymap) *Keyboard {
 	return &Keyboard{
 		// console:   console,
 		matrix:    matrix,

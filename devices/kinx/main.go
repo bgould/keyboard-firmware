@@ -1,19 +1,18 @@
 package main
 
 import (
-	"machine"
 	"runtime"
 	"time"
 
-	"github.com/bgould/keyboard-firmware/hosts/usbhid"
 	"github.com/bgould/keyboard-firmware/keyboard"
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 
 var (
+	cli    = initConsole()
 	host   = configureHost()
 	keymap = Keymap()
-	board  = keyboard.New(console, host, matrix, keymap)
+	board  = keyboard.New(serial, host, matrix, keymap)
 
 	// keyAction = configureKeyAction()
 
@@ -57,22 +56,21 @@ func deviceLoop() {
 		oldState = syncLEDs(oldState)
 		// runtime.Gosched()
 		if d := time.Since(last); d > time.Second {
-			println("count: ", count, " ", d/time.Millisecond, " ", (count*1000)/int(d/time.Millisecond))
+			ds.scanRate = (count * 1000) / int(d/time.Millisecond)
+			// print("\r== scan:", ds.scanRate, " ==> \r")
+			// println("count: ", count, " ", d/time.Millisecond, " ", )
 			count = 0
 			last = time.Now()
 			ds.ts, ds.tsOk = last, true
 			// ds.ts, ds.tsOk = readTime()
 			// ds.ts, ds.tsOk = last, true
 			if err := showTime(&ds, false); err != nil {
-				println("warning: error updating display", err)
+				println("\rwarning: error updating display", err)
 			}
 		}
 		displayTask()
+		cli.Task()
 	}
-}
-
-func configureHost() keyboard.Host {
-	return usbhid.New()
 }
 
 // func configureKeyAction() keyboard.KeyActionFunc {
@@ -114,10 +112,11 @@ func keyAction(key keycodes.Keycode, made bool) {
 			if time.Since(fn2made) > 2*time.Second {
 				jumpToBootloader()
 			} else {
-				machine.CPUReset()
+				cpuReset()
 			}
 		}
 
+	// Status output
 	case keycodes.FN3:
 		if !made && time.Since(fn3made) > time.Second {
 			setDisplay(false)
@@ -139,4 +138,6 @@ var ds DisplayState
 type DisplayState struct {
 	ts   time.Time
 	tsOk bool
+
+	scanRate int
 }

@@ -6,15 +6,20 @@ import (
 	"machine"
 	"time"
 
+	"github.com/bgould/keyboard-firmware/hosts/usbhid"
 	"github.com/bgould/keyboard-firmware/keyboard"
 	"github.com/bgould/keyboard-firmware/matrix/kinx/kintqt"
 )
 
 var (
-	console = machine.Serial
+	serial  = machine.Serial
 	adapter = kintqt.NewAdapter(i2c)
 	matrix  = adapter.NewMatrix()
 )
+
+func configureHost() keyboard.Host {
+	return usbhid.New()
+}
 
 func configureMatrix() {
 	// initialize I2C bus
