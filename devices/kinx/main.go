@@ -6,9 +6,9 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/bgould/keyboard-firmware/devices/kinx/totp"
 	"github.com/bgould/keyboard-firmware/keyboard"
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
+	totp "github.com/bgould/tinytotp"
 )
 
 var (

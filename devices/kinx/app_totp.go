@@ -3,16 +3,16 @@ package main
 import (
 	"time"
 
-	"github.com/bgould/keyboard-firmware/devices/kinx/totp"
 	"github.com/bgould/keyboard-firmware/keyboard/console"
+	totp "github.com/bgould/tinytotp"
 )
 
 var (
 	// defaultTotpAccount string
 	// defaultTotpKey     SecureString
 
-	defaultTotpAccount string       = "keyboard tester"
-	defaultTotpKey     SecureString = "KWNKKXLJYPHGSFCB"
+	defaultTotpAccount string       // = "keyboard tester"
+	defaultTotpKey     SecureString // = "KWNKKXLJYPHGSFCB"
 )
 
 type TOTPKey struct {
