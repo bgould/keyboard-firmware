@@ -55,7 +55,7 @@ func setUnixTime(t time.Time) error {
 	if err := rtc.SetTime(t.UTC()); err != nil {
 		return err
 	}
-	runtime.AdjustTimeOffset(-1 * int64(time.Since(t)))
+	adjustTimeOffset(t)
 	rtcLast = t
 	return nil
 }

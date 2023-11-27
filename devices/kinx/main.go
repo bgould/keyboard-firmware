@@ -1,9 +1,8 @@
 package main
 
 import (
-	"crypto/sha1"
-	"fmt"
 	"runtime"
+	"strconv"
 	"time"
 
 	"github.com/bgould/keyboard-firmware/keyboard"
@@ -17,6 +16,7 @@ var (
 	keymap = initKeymap()
 	board  = keyboard.New(serial, host, matrix, keymap)
 
+	matrixInitialized = false
 	// keyAction = configureKeyAction()
 
 	fn0made bool
@@ -42,14 +42,11 @@ func main() {
 	cli.WriteString("---------------------")
 	cli.WriteString("initializing hardware")
 
-	cli.WriteString("hash attempt")
-	// hash := sha1.New()
-	sha1 := sha1.Sum([]byte("testing"))
-	cli.WriteString(fmt.Sprintf("%02x", sha1))
-
 	configureMatrix()
 	initDisplay()
 	initTime()
+
+	cli.WriteString("matrix initialized: " + strconv.FormatBool(matrixInitialized))
 
 	bootBlink()
 
@@ -65,9 +62,11 @@ func main() {
 func deviceLoop() {
 	var oldState keyboard.LEDs
 	for last, count := time.Now(), 0; true; count++ {
-		board.Task()
 		timeTask()
-		oldState = syncLEDs(oldState)
+		if matrixInitialized {
+			board.Task()
+			oldState = syncLEDs(oldState)
+		}
 		// runtime.Gosched()
 		now := time.Now()
 		if now, d := time.Now(), now.Sub(last); d > time.Second {

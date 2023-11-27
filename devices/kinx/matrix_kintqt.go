@@ -31,14 +31,16 @@ func configureMatrix() {
 	}
 	cli.WriteString("initializing matrix")
 	if err := adapter.Initialize(); err != nil {
-		errmsg(err)
+		cli.WriteString("matrix error: " + err.Error())
+	} else {
+		leds := kintqt.LEDs(0)
+		leds.Set(kintqt.LEDCapsLock, false)
+		leds.Set(kintqt.LEDNumLock, false)
+		leds.Set(kintqt.LEDScrollLock, false)
+		leds.Set(kintqt.LEDKeypad, keypadDefault)
+		adapter.UpdateLEDs(leds)
+		matrixInitialized = true
 	}
-	leds := kintqt.LEDs(0)
-	leds.Set(kintqt.LEDCapsLock, false)
-	leds.Set(kintqt.LEDNumLock, false)
-	leds.Set(kintqt.LEDScrollLock, false)
-	leds.Set(kintqt.LEDKeypad, keypadDefault)
-	adapter.UpdateLEDs(leds)
 }
 
 func errmsg(err error) {
@@ -49,6 +51,9 @@ func errmsg(err error) {
 }
 
 func bootBlink() {
+	if !matrixInitialized {
+		return
+	}
 	for i, leds, on := 0, kintqt.LEDs(0), true; i < 10; i++ {
 		on = !on
 		leds.Set(kintqt.LEDKeypad, on)
@@ -65,6 +70,9 @@ const keypadDefault = true
 
 func syncLEDs(oldState keyboard.LEDs) keyboard.LEDs {
 	leds := board.LEDs()
+	if !matrixInitialized {
+		return leds
+	}
 	caps := leds.Get(keyboard.LEDCapsLock)
 	nlck := leds.Get(keyboard.LEDNumLock)
 	slck := leds.Get(keyboard.LEDScrollLock)

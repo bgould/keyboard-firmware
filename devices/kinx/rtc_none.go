@@ -3,7 +3,6 @@
 package main
 
 import (
-	"runtime"
 	"time"
 
 	"tinygo.org/x/drivers/pcf8523"
@@ -34,6 +33,5 @@ func readTime() (time.Time, bool) {
 }
 
 func setUnixTime(t time.Time) error {
-	runtime.AdjustTimeOffset(-1 * int64(time.Since(t)))
 	return nil
 }
