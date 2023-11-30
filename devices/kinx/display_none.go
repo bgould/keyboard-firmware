@@ -32,11 +32,13 @@ func setDisplay(on bool) {
 func showTime(state DisplayState, force bool) error {
 	tstr := state.ts.Format(timeLayout)
 	dstr := state.ts.Format(dateLayout)
-	if state != lastState { //tstr != lastTime || dstr != lastDate {
-		cli.WriteString("Time: " + dstr + " @ " + tstr + "; TOTP Account: " + state.totpAccount + "; TOTP Numbers: " + state.totpNumbers)
+	compare := state
+	compare.scanRate = 0
+	if state != lastState { // TODO: normalize scan rate so conditional statement below isn't necessary?
+		if tstr != lastTime || dstr != lastDate {
+			cli.WriteString("Time: " + dstr + " @ " + tstr + "; TOTP Account: " + state.totpAccount + "; TOTP Numbers: " + state.totpNumbers)
+		}
 		lastState = state
-		// lastTime = tstr
-		// lastDate = dstr
 	}
 	return nil
 }
