@@ -9,6 +9,11 @@ import (
 
 const consoleBufLen = 64
 
+const (
+	prompt = "==> "
+	result = "<-- "
+)
+
 // const storageBufLen = 512
 
 type Serialer keyboard.Serialer
@@ -134,10 +139,12 @@ func (c *Console) runCommand(line string) {
 	exit := c.handler.HandleCommand(info)
 	if exit != 0 {
 		if exit == CommandUnknown {
-			c.serialPrint([]byte("<-- unknown command: "))
+			c.serialPrint([]byte(result))
+			c.serialPrint([]byte("unknown command: "))
 			c.serialPrint([]byte(line))
 		} else {
-			c.serialPrint([]byte("<-- exit code: "))
+			c.serialPrint([]byte(result))
+			c.serialPrint([]byte("exit code: "))
 			c.serialPrint([]byte(strconv.Itoa(exit)))
 		}
 		c.serialPrint([]byte("\n"))
@@ -147,7 +154,7 @@ func (c *Console) runCommand(line string) {
 }
 
 func (c *Console) prompt() {
-	c.serialPrint([]byte("==> "))
+	c.serialPrint([]byte(prompt))
 }
 
 func (c *Console) serialPrint(buf []byte) {

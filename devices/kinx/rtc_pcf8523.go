@@ -23,11 +23,20 @@ var (
 	ErrNotInitialized = errors.New("not initialized")
 )
 
+type rtcState int
+
+const (
+	rtcStateIdle rtcState = iota
+	rtcStateConn
+	rtcStateErr
+)
+
 func init() {
 	time.Local = time.FixedZone("EST", -5*3600)
 }
 
 func initTime() bool {
+	cli.WriteString("initializing pcf8523")
 	// make sure the battery takes over if power is lost
 	rtcErr = rtc.SetPowerManagement(pcf8523.PowerManagement_SwitchOver_ModeStandard)
 	rtcInit = rtcErr == nil

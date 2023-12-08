@@ -22,6 +22,7 @@ func init() {
 }
 
 func initTime() bool {
+	cli.WriteString("RTC not configured")
 	return true
 }
 
