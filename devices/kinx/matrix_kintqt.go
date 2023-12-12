@@ -3,30 +3,19 @@
 package main
 
 import (
-	"machine"
 	"time"
 
-	"github.com/bgould/keyboard-firmware/hosts/usbhid"
 	"github.com/bgould/keyboard-firmware/keyboard"
 	"github.com/bgould/keyboard-firmware/matrix/kinx/kintqt"
 )
 
 var (
-	serial  = machine.Serial
 	adapter = kintqt.NewAdapter(i2c)
 	matrix  = adapter.NewMatrix()
 )
 
-func initHost() keyboard.Host {
-	return usbhid.New()
-}
-
 func configureMatrix() {
-	// initialize I2C bus
-	err := i2c.Configure(machine.I2CConfig{
-		Frequency: 1 * machine.MHz,
-	})
-	if err != nil {
+	if err := configureI2C(); err != nil {
 		errmsg(err)
 	}
 	cli.WriteString("initializing matrix")
@@ -83,7 +72,7 @@ func syncLEDs(oldState keyboard.LEDs) keyboard.LEDs {
 	// println(leds, caps, nlck, slck, kpad)
 	if leds != oldState {
 		//println("state change: ", leds, caps, nlck, slck)
-		oldState = leds
+		// oldState = leds
 		qtleds := kintqt.LEDs(0)
 		qtleds.Set(kintqt.LEDCapsLock, caps)
 		qtleds.Set(kintqt.LEDNumLock, nlck)

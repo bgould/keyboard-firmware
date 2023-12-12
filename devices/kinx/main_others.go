@@ -7,6 +7,7 @@ package main
 import (
 	"time"
 
+	serialhost "github.com/bgould/keyboard-firmware/hosts/serial"
 	"github.com/bgould/keyboard-firmware/keyboard"
 	"tinygo.org/x/drivers"
 )
@@ -17,4 +18,12 @@ var (
 )
 
 func adjustTimeOffset(t time.Time) {
+}
+
+func configureI2C() error {
+	return nil
+}
+
+func initHost() keyboard.Host {
+	return serialhost.New(nil)
 }
