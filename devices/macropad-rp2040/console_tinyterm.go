@@ -17,9 +17,11 @@ var (
 	display  = sh1106.NewSPI(machine.SPI1, machine.OLED_DC, machine.OLED_RST, machine.OLED_CS)
 	terminal = tinyterm.NewTerminal(&displayer{&display})
 	font     = &proggy.TinySZ8pt7b
+
+	serialer = configureSerialer()
 )
 
-func configureConsole() keyboard.Console {
+func configureSerialer() keyboard.Serialer {
 	machine.SPI1.Configure(machine.SPIConfig{
 		Frequency: 48000000,
 	})

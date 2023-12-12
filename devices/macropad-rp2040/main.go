@@ -22,12 +22,11 @@ var (
 	// TODO: encoder API needs to be improved/revamped
 	encoder = rotary_encoder.New(machine.ROT_A, machine.ROT_B)
 
-	console = configureConsole()
-	host    = multihost.New(usbhid.New(), serial.New(console))
-	matrix  = keyboard.NewMatrix(1, 16, keyboard.RowReaderFunc(ReadRow))
-	keymap  = Keymap()
+	host   = multihost.New(usbhid.New(), serial.New(serialer))
+	matrix = keyboard.NewMatrix(1, 16, keyboard.RowReaderFunc(ReadRow))
+	keymap = Keymap()
 
-	board = keyboard.New(console, host, matrix, keymap)
+	board = keyboard.New(machine.Serial, host, matrix, keymap)
 )
 
 func init() {
@@ -37,14 +36,14 @@ func init() {
 
 func main() {
 
-	console.Write([]byte("testing\n"))
+	serialer.Write([]byte("testing\n"))
 
 	board.SetDebug(_debug)
 
 	board.SetEncoders(
 		[]keyboard.Encoder{encoder},
 		keyboard.EncodersSubscriberFunc(func(index int, clockwise bool) {
-			fmt.Fprintf(console, "encoder: %d %t\n", index, clockwise)
+			fmt.Fprintf(serialer, "encoder: %d %t\n", index, clockwise)
 		}),
 	)
 
@@ -59,10 +58,10 @@ func main() {
 					case 1:
 						board.SetActiveLayer(0)
 					}
-					fmt.Fprintf(console, "layer: %d\n", board.ActiveLayer())
+					fmt.Fprintf(serialer, "layer: %d\n", board.ActiveLayer())
 				}
 			default:
-				fmt.Fprintf(console, "fn: %d %t\n", key-keycodes.FN0, made)
+				fmt.Fprintf(serialer, "fn: %d %t\n", key-keycodes.FN0, made)
 			}
 		},
 	))
