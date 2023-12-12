@@ -1,4 +1,4 @@
-//go:build tinygo
+//go:build tinygo && nrf
 
 package blehid
 
