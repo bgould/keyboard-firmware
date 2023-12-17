@@ -1,5 +1,3 @@
-//go:build tinygo
-
 package serial
 
 import (
@@ -8,7 +6,7 @@ import (
 	"github.com/bgould/keyboard-firmware/keyboard"
 )
 
-const debug = false
+// const debug = false
 
 type Host struct {
 	serial io.Writer

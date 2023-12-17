@@ -3,7 +3,6 @@
 package main
 
 import (
-	"machine"
 	"time"
 
 	"github.com/bgould/keyboard-firmware/keyboard"
@@ -11,29 +10,26 @@ import (
 )
 
 var (
-	console = machine.Serial
 	adapter = kintqt.NewAdapter(i2c)
 	matrix  = adapter.NewMatrix()
 )
 
 func configureMatrix() {
-	// initialize I2C bus
-	err := i2c.Configure(machine.I2CConfig{
-		Frequency: 400 * machine.KHz,
-	})
-	if err != nil {
+	if err := configureI2C(); err != nil {
 		errmsg(err)
 	}
-	println("intializing matrix")
+	cli.WriteString("initializing matrix")
 	if err := adapter.Initialize(); err != nil {
-		errmsg(err)
+		cli.WriteString("matrix error: " + err.Error())
+	} else {
+		leds := kintqt.LEDs(0)
+		leds.Set(kintqt.LEDCapsLock, false)
+		leds.Set(kintqt.LEDNumLock, false)
+		leds.Set(kintqt.LEDScrollLock, false)
+		leds.Set(kintqt.LEDKeypad, keypadDefault)
+		adapter.UpdateLEDs(leds)
+		matrixInitialized = true
 	}
-	leds := kintqt.LEDs(0)
-	leds.Set(kintqt.LEDCapsLock, false)
-	leds.Set(kintqt.LEDNumLock, false)
-	leds.Set(kintqt.LEDScrollLock, false)
-	leds.Set(kintqt.LEDKeypad, keypadDefault)
-	adapter.UpdateLEDs(leds)
 }
 
 func errmsg(err error) {
@@ -44,6 +40,9 @@ func errmsg(err error) {
 }
 
 func bootBlink() {
+	if !matrixInitialized {
+		return
+	}
 	for i, leds, on := 0, kintqt.LEDs(0), true; i < 10; i++ {
 		on = !on
 		leds.Set(kintqt.LEDKeypad, on)
@@ -60,6 +59,9 @@ const keypadDefault = true
 
 func syncLEDs(oldState keyboard.LEDs) keyboard.LEDs {
 	leds := board.LEDs()
+	if !matrixInitialized {
+		return leds
+	}
 	caps := leds.Get(keyboard.LEDCapsLock)
 	nlck := leds.Get(keyboard.LEDNumLock)
 	slck := leds.Get(keyboard.LEDScrollLock)
@@ -69,8 +71,8 @@ func syncLEDs(oldState keyboard.LEDs) keyboard.LEDs {
 	}
 	// println(leds, caps, nlck, slck, kpad)
 	if leds != oldState {
-		println("state change: ", leds, caps, nlck, slck)
-		oldState = leds
+		//println("state change: ", leds, caps, nlck, slck)
+		// oldState = leds
 		qtleds := kintqt.LEDs(0)
 		qtleds.Set(kintqt.LEDCapsLock, caps)
 		qtleds.Set(kintqt.LEDNumLock, nlck)
