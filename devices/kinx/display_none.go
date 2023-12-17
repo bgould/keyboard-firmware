@@ -1,4 +1,4 @@
-//go:build !oled_featherwing && !macropad_rp2040
+//go:build !oled_featherwing
 
 package main
 
