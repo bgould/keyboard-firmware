@@ -46,3 +46,25 @@ func totpget(cmd console.CommandInfo) int {
 		return 0
 	}
 }
+
+func totptask() {
+	// TOTP-related functionality
+	if totpKeys[0].Name != "" && totpKeys[0].Key != "" {
+		ds.totpCounter = uint64(totp.TimeBasedCounter(time.Now(), totp.DefaultOpts.Period))
+		if ds.totpCounter != lastTotp {
+			// TODO: un-hardcode index
+			ds.totpAccount = totpKeys[0].Name
+			numbers, err := totp.GenerateCode(string(totpKeys[0].Key), time.Now())
+			if err != nil {
+				cli.WriteString("warning: error updating TOTP - " + err.Error())
+				numbers = "000000"
+			}
+			ds.totpNumbers = numbers
+			lastTotp = ds.totpCounter
+		}
+	}
+	if err := showTime(ds, false); err != nil {
+		cli.WriteString("warning: error updating display - " + err.Error())
+	}
+	displayTask()
+}

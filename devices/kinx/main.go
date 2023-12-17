@@ -7,7 +7,6 @@ import (
 
 	"github.com/bgould/keyboard-firmware/keyboard"
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
-	totp "github.com/bgould/tinytotp"
 )
 
 var (
@@ -67,39 +66,16 @@ func deviceLoop() {
 			board.Task()
 			oldState = syncLEDs(oldState)
 		}
-		// runtime.Gosched()
 		now := time.Now()
-		if now, d := time.Now(), now.Sub(last); d > time.Second {
-
+		if d := now.Sub(last); d > time.Second {
 			ds.scanRate = (count * 1000) / int(d/time.Millisecond)
-
-			// TOTP-related functionality
-			if totpKeys[0].Name != "" && totpKeys[0].Key != "" {
-				ds.totpCounter = uint64(totp.TimeBasedCounter(time.Now(), totp.DefaultOpts.Period))
-				if ds.totpCounter != lastTotp {
-					// TODO: un-hardcode index
-					ds.totpAccount = totpKeys[0].Name
-					numbers, err := totp.GenerateCode(string(totpKeys[0].Key), now)
-					if err != nil {
-						cli.WriteString("warning: error updating TOTP - " + err.Error())
-						numbers = "000000"
-					}
-					ds.totpNumbers = numbers
-					lastTotp = ds.totpCounter
-				}
-			}
-
 			// print("\r== scan:", ds.scanRate, " ==> \r")
 			// println("count: ", count, " ", d/time.Millisecond, " ", )
 			count = 0
-			last = time.Now()
+			last = now
 			ds.ts, ds.tsOk = last, true
-			if err := showTime(ds, false); err != nil {
-				cli.WriteString("warning: error updating display - " + err.Error())
-			}
-
 		}
-		displayTask()
+		totptask()
 		cli.Task()
 	}
 }
