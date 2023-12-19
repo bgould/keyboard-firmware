@@ -10,7 +10,7 @@ import (
 	rotary_encoder "github.com/bgould/keyboard-firmware/drivers/rotary-encoder"
 	"github.com/bgould/keyboard-firmware/hosts/multihost"
 	"github.com/bgould/keyboard-firmware/hosts/serial"
-	"github.com/bgould/keyboard-firmware/hosts/usbhid"
+	"github.com/bgould/keyboard-firmware/hosts/usbvial"
 	"github.com/bgould/keyboard-firmware/keyboard"
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
@@ -22,7 +22,7 @@ var (
 	// TODO: encoder API needs to be improved/revamped
 	encoder = rotary_encoder.New(machine.ROT_A, machine.ROT_B)
 
-	host   = multihost.New(usbhid.New(), serial.New(serialer))
+	host   = multihost.New(usbvial.New(), serial.New(serialer))
 	matrix = keyboard.NewMatrix(1, 16, keyboard.RowReaderFunc(ReadRow))
 	keymap = Keymap()
 
@@ -31,6 +31,8 @@ var (
 
 func init() {
 	configurePins()
+	loadKeyboardDef()
+	usbvial.SetDevice(&VialKeyMapper{})
 	encoder.Configure(rotary_encoder.Config{})
 }
 

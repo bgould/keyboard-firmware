@@ -16,11 +16,11 @@ func Keymap() keyboard.Keymap {
 			PDOT, KP_0, PENT,
 		),
 		MacroPadRP2040Layer(
-			/*       */ FN12,
+			/*      */ FN12,
 			FN9, FN10, FN11,
 			FN6, FN7, FN8,
 			FN3, FN4, FN5,
-			FN0, FN1, FN2,
+			FN0, FN1, NLCK,
 		),
 	})
 }
