@@ -4,10 +4,11 @@ package main
 
 import (
 	"machine"
+	"machine/usb"
 	"runtime"
 	"time"
 
-	"github.com/bgould/keyboard-firmware/hosts/usbhid"
+	"github.com/bgould/keyboard-firmware/hosts/usbvial"
 	"github.com/bgould/keyboard-firmware/keyboard"
 )
 
@@ -26,5 +27,7 @@ func configureI2C() error {
 }
 
 func initHost() keyboard.Host {
-	return usbhid.New()
+	usb.Manufacturer = "Kinesis"
+	usb.Product = "Advantage2"
+	return usbvial.New()
 }

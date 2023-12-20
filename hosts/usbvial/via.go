@@ -157,10 +157,10 @@ func rxHandler2(b []byte) bool {
 		// DynamicKeymapReadBufferCommand
 		offset := (uint16(b[1]) << 8) + uint16(b[2])
 		sz := b[3]
-		// break
 		//fmt.Printf("  offset : %04X + %d\n", offset, sz)
 		cnt := device.GetMaxKeyCount()
 		// println("  offset : ", offset, "+", sz, cnt)
+		// break
 		for i := 0; i < int(sz/2); i++ {
 			//fmt.Printf("  %02X %02X\n", b[4+i+1], b[4+i+0])
 			tmp := i + int(offset)/2
