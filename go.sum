@@ -1,6 +1,4 @@
 github.com/bgould/http v0.0.0-20190627042742-d268792bdee7/go.mod h1:BTqvVegvwifopl4KTEDth6Zezs9eR+lCWhvGKvkxJHE=
-github.com/bgould/tinygo-rotary-encoder v0.0.0-20231106003644-94bb14d88946 h1:WpPlCYe9fY1nvOxoaIql88KewO1pMMv+/mdcC8zpnsI=
-github.com/bgould/tinygo-rotary-encoder v0.0.0-20231106003644-94bb14d88946/go.mod h1:vozFQeh667GysGEvJ6GKutjAOilleV5usLdxYan+XYM=
 github.com/bgould/tinytotp v0.1.0 h1:hLu09Hj156XxmJlruIjmYfgew0aLUltwU/kNkWjRH+w=
 github.com/bgould/tinytotp v0.1.0/go.mod h1:iEVZ+HYW+jPZrZJEWPWNHl50rEgWnZT76jxSxn9w0vQ=
 github.com/eclipse/paho.mqtt.golang v1.2.0/go.mod h1:H9keYFcgq3Qr5OUJm/JZI/i6U7joQ8SYLhZwfeOo6Ts=
@@ -17,8 +15,6 @@ github.com/kr/pretty v0.2.1/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfn
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
-github.com/sago35/tinygo-keyboard v0.0.0-20231108131318-c40abe2ac19a h1:FCJZ0TOlnenf1Tdy1lmgLUuYZKFmQUDL8PioYWcLQ08=
-github.com/sago35/tinygo-keyboard v0.0.0-20231108131318-c40abe2ac19a/go.mod h1:2B4OvW9LqQqOl8z5hUwEcW2dHqWj+MfaJITb8Cf7mF0=
 github.com/valyala/fastjson v1.6.3/go.mod h1:CLCAqky6SMuOcxStkYQvblddUtoRxhYMGLrsQns1aXY=
 golang.org/x/net v0.0.0-20210614182718-04defd469f4e/go.mod h1:9nx3DQGgdP8bBQD5qxJ1jj9UTztislL4KSBs9R2vV5Y=
 golang.org/x/sys v0.0.0-20201119102817-f84b799fce68/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
