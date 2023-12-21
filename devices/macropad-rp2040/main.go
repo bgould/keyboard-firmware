@@ -36,7 +36,7 @@ var (
 func init() {
 	configurePins()
 	loadKeyboardDef()
-	usb.Serial = "vial:f64c2b3c"
+	usb.Serial = usbvial.MagicSerialNumber("")
 	usbvial.SetDevice(keymap)
 	encoder.Configure(rotary_encoder.Config{})
 }
