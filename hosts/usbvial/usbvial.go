@@ -9,7 +9,9 @@ import (
 	"github.com/bgould/keyboard-firmware/keyboard"
 )
 
-const debug = false
+const (
+	debug = false
+)
 
 type Host struct{}
 

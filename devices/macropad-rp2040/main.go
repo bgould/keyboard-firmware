@@ -5,6 +5,7 @@ package main
 import (
 	"fmt"
 	"machine"
+	"machine/usb"
 	"time"
 
 	rotary_encoder "github.com/bgould/keyboard-firmware/drivers/rotary-encoder"
@@ -15,7 +16,10 @@ import (
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 
-const _debug = false
+const (
+	_debug          = false
+	encoderInterval = 5 * time.Millisecond
+)
 
 var (
 
@@ -32,7 +36,8 @@ var (
 func init() {
 	configurePins()
 	loadKeyboardDef()
-	usbvial.SetDevice(&VialKeyMapper{})
+	usb.Serial = "vial:f64c2b3c"
+	usbvial.SetDevice(keymap)
 	encoder.Configure(rotary_encoder.Config{})
 }
 
@@ -42,12 +47,7 @@ func main() {
 
 	board.SetDebug(_debug)
 
-	board.SetEncoders(
-		[]keyboard.Encoder{encoder},
-		keyboard.EncodersSubscriberFunc(func(index int, clockwise bool) {
-			fmt.Fprintf(serialer, "encoder: %d %t\n", index, clockwise)
-		}),
-	)
+	board.SetEncoders([]keyboard.Encoder{encoder}, keyboard.EncodersSubscriberFunc(encoderCallback))
 
 	board.SetKeyAction(keyboard.KeyActionFunc(
 		func(key keycodes.Keycode, made bool) {

@@ -10,6 +10,24 @@ import (
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 
+const (
+	// MagicSerialPrefix is a value in the serial number of HID devices
+	// that the	Vial desktop app uses to identify compatible devices.
+	MagicSerialPrefix = "vial:f64c2b3c"
+)
+
+// MagicSerialNumber returns a string value that the Vial desktop app
+// can recognize as a Vial-compatible device based on a "magic" value
+// (see MagicSerialPrefix constant in this package).  If the provided
+// string `sn` is not the zero value, it is appended with a separator
+// to the prefix and returned; otherwise just the prefix is returned.
+func MagicSerialNumber(sn string) string {
+	if sn != "" {
+		return MagicSerialPrefix + ":" + sn
+	}
+	return MagicSerialPrefix
+}
+
 func init() {
 	descriptor.CDCHID.Configuration[2] = 0x84
 	descriptor.CDCHID.Configuration[3] = 0x00
@@ -102,15 +120,16 @@ func init() {
 }
 
 var (
-	txb [256]byte
-	// Keys        [][][]Keycode // [row][col]Keycode
-	Changed     bool
-	Changed2    bool
-	wbuf        []byte
+	txb         [256]byte
 	KeyboardDef []byte
+	device      KeyMapper // *keyboard.Device
+
+	// Keys        [][][]Keycode // [row][col]Keycode
+	// Changed     bool
+	// Changed2    bool
 	// dev2        *keyboard.Device
-	device KeyMapper // *keyboard.Device
 	// mapper KeyMapper
+	// wbuf        []byte
 )
 
 type KeyMapper interface {
@@ -159,7 +178,7 @@ func rxHandler2(b []byte) bool {
 		sz := b[3]
 		//fmt.Printf("  offset : %04X + %d\n", offset, sz)
 		cnt := device.GetMaxKeyCount()
-		// println("  offset : ", offset, "+", sz, cnt)
+		println("  offset : ", offset, "+", sz, cnt)
 		// break
 		for i := 0; i < int(sz/2); i++ {
 			//fmt.Printf("  %02X %02X\n", b[4+i+1], b[4+i+0])
@@ -176,6 +195,7 @@ func rxHandler2(b []byte) bool {
 			txb[4+2*i+1] = uint8(kc)
 			txb[4+2*i+0] = uint8(kc >> 8)
 		}
+		println("done")
 
 	case 0x0D:
 		// println("Dsb: 0x0D - DynamicKeymapMacroGetBufferSizeCommand")
@@ -192,10 +212,10 @@ func rxHandler2(b []byte) bool {
 	case 0x02:
 		// println("2usb: 0x02 - id_get_keyboard_value")
 		// id_get_keyboard_value
-		Changed = false
-		Changed2 = false
+		// Changed = false
+		// Changed2 = false
 	case 0x05:
-		// println("5sb: 0x05 - ", len(b), b[1], b[2], b[3], b[4], b[5])
+		println("5sb: 0x05 - ", len(b), b[1], b[2], b[3], b[4], b[5])
 		// fmt.Printf("XXXXXXXXX % X\n", b)
 		//Keys[b[1]][b[2]][b[3]] = Keycode((uint16(b[4]) << 8) + uint16(b[5]))
 		// device.SetKeycodeVia(int(b[1]), int(b[2]), int(b[3]), Keycode((uint16(b[4])<<8)+uint16(b[5])))
@@ -276,6 +296,49 @@ func rxHandler2(b []byte) bool {
 	return true
 }
 
+func keyVia(layer, kbIndex, index int) uint16 {
+	//fmt.Printf("    KeyVia(%d, %d, %d)\n", layer, kbIndex, index)
+	if kbIndex > 0 { // TODO: support multiple keyboards?
+		return 0
+	}
+	if device == nil {
+		return 0
+	}
+	kc := uint16(device.MapKey(layer, index))
+	switch kc {
+	// case jp.MouseLeft:
+	// 	kc = 0x00D1
+	// case jp.MouseRight:
+	// 	kc = 0x00D2
+	// case jp.MouseMiddle:
+	// 	kc = 0x00D3
+	// case jp.MouseBack:
+	// 	kc = 0x00D4
+	// case jp.MouseForward:
+	// 	kc = 0x00D5
+	// case jp.WheelUp:
+	// 	kc = 0x00D9
+	// case jp.WheelDown:
+	// 	kc = 0x00DA
+	// case jp.KeyMediaVolumeInc:
+	// 	kc = 0x00A9
+	// case jp.KeyMediaVolumeDec:
+	// 	kc = 0x00AA
+	// case 0xFF10, 0xFF11, 0xFF12, 0xFF13, 0xFF14, 0xFF15:
+	// 	// TO(x)
+	// 	kc = 0x5200 | (kc & 0x000F)
+	// case 0xFF00, 0xFF01, 0xFF02, 0xFF03, 0xFF04, 0xFF05:
+	// 	// MO(x)
+	// 	kc = 0x5220 | (kc & 0x000F)
+	// case keycodes.KeyRestoreDefaultKeymap:
+	// 	// restore default keymap for QMK
+	// 	kc = keycodes.KeyRestoreDefaultKeymap
+	default:
+		kc = kc & 0x0FFF
+	}
+	return kc
+}
+
 // func Save() error {
 // 	layers := 6
 // 	keyboards := len(device.kb)
@@ -325,47 +388,4 @@ func setupHandler(setup usb.Setup) bool {
 		ok = true
 	}
 	return ok
-}
-
-func keyVia(layer, kbIndex, index int) uint16 {
-	//fmt.Printf("    KeyVia(%d, %d, %d)\n", layer, kbIndex, index)
-	if kbIndex > 0 { // TODO: support multiple keyboards?
-		return 0
-	}
-	if device == nil {
-		return 0
-	}
-	kc := uint16(device.MapKey(layer, index))
-	switch kc {
-	// case jp.MouseLeft:
-	// 	kc = 0x00D1
-	// case jp.MouseRight:
-	// 	kc = 0x00D2
-	// case jp.MouseMiddle:
-	// 	kc = 0x00D3
-	// case jp.MouseBack:
-	// 	kc = 0x00D4
-	// case jp.MouseForward:
-	// 	kc = 0x00D5
-	// case jp.WheelUp:
-	// 	kc = 0x00D9
-	// case jp.WheelDown:
-	// 	kc = 0x00DA
-	// case jp.KeyMediaVolumeInc:
-	// 	kc = 0x00A9
-	// case jp.KeyMediaVolumeDec:
-	// 	kc = 0x00AA
-	// case 0xFF10, 0xFF11, 0xFF12, 0xFF13, 0xFF14, 0xFF15:
-	// 	// TO(x)
-	// 	kc = 0x5200 | (kc & 0x000F)
-	// case 0xFF00, 0xFF01, 0xFF02, 0xFF03, 0xFF04, 0xFF05:
-	// 	// MO(x)
-	// 	kc = 0x5220 | (kc & 0x000F)
-	// case keycodes.KeyRestoreDefaultKeymap:
-	// 	// restore default keymap for QMK
-	// 	kc = keycodes.KeyRestoreDefaultKeymap
-	default:
-		kc = kc & 0x0FFF
-	}
-	return kc
 }
