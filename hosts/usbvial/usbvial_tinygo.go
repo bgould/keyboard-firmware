@@ -113,3 +113,14 @@ func configureVialEndpoints() {
 // 	}
 // 	return ok
 // }
+
+func rxHandler(b []byte) {
+	if host == nil {
+		return
+	}
+	rx := b[:32]
+	tx := host.txb[:32]
+	if host.processPacket(rx, tx) {
+		machine.SendUSBInPacket(6, tx)
+	}
+}

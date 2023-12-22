@@ -1,291 +1,50 @@
-//go:build tinygo
-
 package usbvial
 
-import (
-	"machine"
+type ViaCommand uint8
 
-	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
-)
+//go:generate go run golang.org/x/tools/cmd/stringer -type=ViaCommand
 
 const (
-	// MagicSerialPrefix is a value in the serial number of HID devices
-	// that the	Vial desktop app uses to identify compatible devices.
-	MagicSerialPrefix = "vial:f64c2b3c"
+	ViaCmdGetProtocolVersion       ViaCommand = 0x01
+	ViaCmdGetKeyboardValue         ViaCommand = 0x02
+	ViaCmdSetKeyboardValue         ViaCommand = 0x03
+	ViaCmdDynamicKeymapGetKeycode  ViaCommand = 0x04
+	ViaCmdDynamicKeymapSetKeycode  ViaCommand = 0x05
+	ViaCmdDynamicKeymapReset       ViaCommand = 0x06
+	ViaCmdLightingSetValue         ViaCommand = 0x07
+	ViaCmdLightingGetValue         ViaCommand = 0x08
+	ViaCmdLightingSave             ViaCommand = 0x09
+	ViaCmdEepromReset              ViaCommand = 0x0A
+	ViaCmdBootloaderJump           ViaCommand = 0x0B
+	ViaCmdKeymapMacroGetCount      ViaCommand = 0x0C
+	ViaCmdKeymapMacroGetBufferSize ViaCommand = 0x0D
+	ViaCmdKeymapMacroGetBuffer     ViaCommand = 0x0E
+	ViaCmdKeymapMacroSetBuffer     ViaCommand = 0x0F
+	ViaCmdKeymapMacroReset         ViaCommand = 0x10
+	ViaCmdKeymapGetLayerCount      ViaCommand = 0x11
+	ViaCmdKeymapGetBuffer          ViaCommand = 0x12
+	ViaCmdKeymapSetBuffer          ViaCommand = 0x13
+	ViaCmdVialPrefix               ViaCommand = 0xFE
+	ViaCmdUnhandled                ViaCommand = 0xFF
 )
 
-// MagicSerialNumber returns a string value that the Vial desktop app
-// can recognize as a Vial-compatible device based on a "magic" value
-// (see MagicSerialPrefix constant in this package).  If the provided
-// string `sn` is not the zero value, it is appended with a separator
-// to the prefix and returned; otherwise just the prefix is returned.
-func MagicSerialNumber(sn string) string {
-	if sn != "" {
-		return MagicSerialPrefix + ":" + sn
-	}
-	return MagicSerialPrefix
-}
+type ViaKeyboardValueID uint8
 
-var (
-	txb         [256]byte // FIXME ... max packet size in descriptors is 32 bytes, why is the buffer 256?
-	KeyboardDef []byte    // may be preferable to have a callback function to copy def to tx buffer
-	device      KeyMapper // *keyboard.Device
-
-	// Keys        [][][]Keycode // [row][col]Keycode
-	// Changed     bool
-	// Changed2    bool
-	// dev2        *keyboard.Device
-	// mapper KeyMapper
-	// wbuf        []byte
+const (
+	ViaKbdUptime            ViaKeyboardValueID = 0x01
+	ViaKbdLayoutOptions                        = 0x02
+	ViaKbdSwitchMatrixState                    = 0x03
+	ViaKbdFirmwareVersion                      = 0x04
+	ViaKbdDeviceIndication                     = 0x05
 )
 
-type KeyMapper interface {
-	GetLayerCount() uint8
-	GetMaxKeyCount() int
-	NumRows() int
-	NumCols() int
-	MapKey(layer, idx int) keycodes.Keycode
-}
+type ViaChannelID uint8
 
-func SetDevice(d KeyMapper) {
-	device = d
-}
-
-func rxHandler(b []byte) {
-	rxHandler2(b)
-}
-
-func rxHandler2(b []byte) bool {
-	switch b[0] {
-	//case 0x12, 0x0E:
-	default:
-		//fmt.Printf("RxHandler % X\n", b)
-	}
-
-	copy(txb[:32], b)
-	switch b[0] {
-	case 0x01:
-		// println("usb: 0x01 - GetProtocolVersionCount")
-		// GetProtocolVersionCount
-		txb[2] = 0x09
-	case 0x11:
-		// println("7sb: 0x11 - DynamicKeymapGetLayerCountCommand")
-		// DynamicKeymapGetLayerCountCommand
-		if device != nil {
-			txb[1] = device.GetLayerCount()
-		} else {
-			txb[1] = 0x01
-		}
-	case 0x12:
-		// println("cb: 0x12 - DynamicKeymapReadBufferCommand")
-		if device == nil {
-			println("warning: device was nil")
-			break
-		}
-		// DynamicKeymapReadBufferCommand
-		offset := (uint16(b[1]) << 8) + uint16(b[2])
-		sz := b[3]
-		//fmt.Printf("  offset : %04X + %d\n", offset, sz)
-		cnt := device.GetMaxKeyCount()
-		println("  offset : ", offset, "+", sz, cnt)
-		// break
-		for i := 0; i < int(sz/2); i++ {
-			//fmt.Printf("  %02X %02X\n", b[4+i+1], b[4+i+0])
-			tmp := i + int(offset)/2
-			layer := tmp / (cnt * 1) // len(device.kb))
-			tmp = tmp % (cnt * 1)    // len(device.kb))
-			kbd := tmp / cnt
-			idx := tmp % cnt
-			//layer := 0
-			//idx := tmp & 0xFF
-			kc := keyVia(layer, kbd, idx)
-			// println(layer, idx, kc)
-			//fmt.Printf("  (%d, %d, %d)\n", layer, kbd, idx)
-			txb[4+2*i+1] = uint8(kc)
-			txb[4+2*i+0] = uint8(kc >> 8)
-		}
-		println("done")
-
-	case 0x0D:
-		// println("Dsb: 0x0D - DynamicKeymapMacroGetBufferSizeCommand")
-		// DynamicKeymapMacroGetBufferSizeCommand
-		txb[1] = 0x07
-		txb[2] = 0x9B
-	case 0x0C:
-		// println("Csb: 0x0C - DynamicKeymapMacroGetCountCommand")
-		// DynamicKeymapMacroGetCountCommand
-		txb[1] = 0x10
-	case 0x0E:
-		// println("Esb: 0x0E - DynamicKeymapMacroGetBufferCommand")
-		// DynamicKeymapMacroGetBufferCommand
-	case 0x02:
-		// println("2usb: 0x02 - id_get_keyboard_value")
-		// id_get_keyboard_value
-		// Changed = false
-		// Changed2 = false
-	case 0x05:
-		println("5sb: 0x05 - ", len(b), b[1], b[2], b[3], b[4], b[5])
-		// fmt.Printf("XXXXXXXXX % X\n", b)
-		//Keys[b[1]][b[2]][b[3]] = Keycode((uint16(b[4]) << 8) + uint16(b[5]))
-		// device.SetKeycodeVia(int(b[1]), int(b[2]), int(b[3]), Keycode((uint16(b[4])<<8)+uint16(b[5])))
-		// device.flashCh <- true
-		//Changed = true
-	case 0x08:
-		// println("8sb: 0x08 - id_lighting_get_value")
-		// id_lighting_get_value
-		txb[1] = 0x00
-		txb[2] = 0x00
-	case 0xFE: // vial
-		switch b[1] {
-		case 0x00:
-			// println("vial: 0x00 - Get keyboard ID and Vial protocol version")
-			// Get keyboard ID and Vial protocol version
-			const vialProtocolVersion = 0x00000006
-			txb[0] = vialProtocolVersion
-			txb[1] = vialProtocolVersion >> 8
-			txb[2] = vialProtocolVersion >> 16
-			txb[3] = vialProtocolVersion >> 24
-			txb[4] = 0x9D
-			txb[5] = 0xD0
-			txb[6] = 0xD5
-			txb[7] = 0xE1
-			txb[8] = 0x87
-			txb[9] = 0xF3
-			txb[10] = 0x54
-			txb[11] = 0xE2
-		case 0x01:
-			// println("vial: 0x01 - retrieve keyboard definition size")
-			// Retrieve keyboard definition size
-			size := len(KeyboardDef)
-			txb[0] = uint8(size)
-			txb[1] = uint8(size >> 8)
-			txb[2] = uint8(size >> 16)
-			txb[3] = uint8(size >> 24)
-		case 0x02:
-			// Retrieve 32-bytes block of the definition, page ID encoded within 2 bytes
-			// println("vial: 0x02 - retrieve 32 byte blocks of definition")
-			page := uint16(b[2]) + (uint16(b[3]) << 8)
-			start := page * 32
-			end := start + 32
-			if end < start || int(start) >= len(KeyboardDef) {
-				return false
-			}
-			if int(end) > len(KeyboardDef) {
-				end = uint16(len(KeyboardDef))
-			}
-			//fmt.Printf("vial_get_def : page=%04X start=%04X end=%04X\n", page, start, end)
-			copy(txb[:32], KeyboardDef[start:end])
-		case 0x09:
-			// println("vial: 0x09 - vial_qmk_settings_query")
-			// vial_qmk_settings_query
-			// 未対応
-			for i := range txb[:32] {
-				txb[i] = 0xFF
-			}
-		case 0x0D:
-			// println("vial: 0x0D - vial_dynamic_entry_op")
-			// vial_dynamic_entry_op
-			txb[0] = 0x00
-			txb[1] = 0x00
-			txb[2] = 0x00
-		case 0x05:
-			// println("vial: 0x0D - vial_get_unlock_status")
-			// vial_get_unlock_status
-			txb[0] = 1 // unlocked
-			txb[1] = 0 // unlock_in_progress
-		default:
-			// println("vial: default - ", b[1])
-		}
-	default:
-		return false
-	}
-	machine.SendUSBInPacket(6, txb[:32])
-	//fmt.Printf("Tx        % X\n", txb[:32])
-
-	return true
-}
-
-func keyVia(layer, kbIndex, index int) uint16 {
-	//fmt.Printf("    KeyVia(%d, %d, %d)\n", layer, kbIndex, index)
-	if kbIndex > 0 { // TODO: support multiple keyboards?
-		return 0
-	}
-	if device == nil {
-		return 0
-	}
-	kc := uint16(device.MapKey(layer, index))
-	switch kc {
-	// case jp.MouseLeft:
-	// 	kc = 0x00D1
-	// case jp.MouseRight:
-	// 	kc = 0x00D2
-	// case jp.MouseMiddle:
-	// 	kc = 0x00D3
-	// case jp.MouseBack:
-	// 	kc = 0x00D4
-	// case jp.MouseForward:
-	// 	kc = 0x00D5
-	// case jp.WheelUp:
-	// 	kc = 0x00D9
-	// case jp.WheelDown:
-	// 	kc = 0x00DA
-	// case jp.KeyMediaVolumeInc:
-	// 	kc = 0x00A9
-	// case jp.KeyMediaVolumeDec:
-	// 	kc = 0x00AA
-	// case 0xFF10, 0xFF11, 0xFF12, 0xFF13, 0xFF14, 0xFF15:
-	// 	// TO(x)
-	// 	kc = 0x5200 | (kc & 0x000F)
-	// case 0xFF00, 0xFF01, 0xFF02, 0xFF03, 0xFF04, 0xFF05:
-	// 	// MO(x)
-	// 	kc = 0x5220 | (kc & 0x000F)
-	// case keycodes.KeyRestoreDefaultKeymap:
-	// 	// restore default keymap for QMK
-	// 	kc = keycodes.KeyRestoreDefaultKeymap
-	default:
-		kc = kc & 0x0FFF
-	}
-	return kc
-}
-
-// func Save() error {
-// 	layers := 6
-// 	keyboards := len(device.kb)
-
-// 	cnt := device.GetMaxKeyCount()
-// 	wbuf := make([]byte, 4+layers*keyboards*cnt*2)
-// 	needed := int64(len(wbuf)) / machine.Flash.EraseBlockSize()
-// 	if needed == 0 {
-// 		needed = 1
-// 	}
-
-// 	err := machine.Flash.EraseBlocks(0, needed)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	// TODO: Size should be written last
-// 	sz := machine.Flash.Size()
-// 	wbuf[0] = byte(sz >> 24)
-// 	wbuf[1] = byte(sz >> 16)
-// 	wbuf[2] = byte(sz >> 8)
-// 	wbuf[3] = byte(sz >> 0)
-
-// 	offset := 4
-// 	for layer := 0; layer < layers; layer++ {
-// 		for keyboard := 0; keyboard < keyboards; keyboard++ {
-// 			for key := 0; key < cnt; key++ {
-// 				wbuf[offset+2*key+0] = byte(device.Key(layer, keyboard, key) >> 8)
-// 				wbuf[offset+2*key+1] = byte(device.Key(layer, keyboard, key))
-// 			}
-// 			offset += cnt * 2
-// 		}
-// 	}
-
-// 	_, err = machine.Flash.WriteAt(wbuf[:], 0)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
+const (
+	ViaChannelCustom       ViaChannelID = 0x00
+	ViaChannelBacklight                 = 0x01
+	ViaChannelRGBLight                  = 0x02
+	ViaChannelRGBMatrix                 = 0x03
+	ViaChannelQMKAudio                  = 0x04
+	ViaChannelQMKLEDMatrix              = 0x05
+)

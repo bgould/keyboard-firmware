@@ -26,7 +26,7 @@ var (
 	// TODO: encoder API needs to be improved/revamped
 	encoder = rotary_encoder.New(machine.ROT_A, machine.ROT_B)
 
-	host   = multihost.New(usbvial.New(), serial.New(serialer))
+	host   = multihost.New(usbvial.New(keymap), serial.New(serialer))
 	matrix = keyboard.NewMatrix(1, 16, keyboard.RowReaderFunc(ReadRow))
 	keymap = Keymap()
 
@@ -37,7 +37,6 @@ func init() {
 	configurePins()
 	loadKeyboardDef()
 	usb.Serial = usbvial.MagicSerialNumber("")
-	usbvial.SetDevice(keymap)
 	encoder.Configure(rotary_encoder.Config{})
 }
 

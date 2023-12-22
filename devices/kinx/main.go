@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bgould/keyboard-firmware/hosts/usbvial"
 	"github.com/bgould/keyboard-firmware/keyboard"
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
@@ -29,7 +28,6 @@ var (
 
 func init() {
 	loadKeyboardDef()
-	usbvial.SetDevice(keymap)
 	board.SetDebug(_debug)
 	board.SetKeyAction(keyboard.KeyActionFunc(keyAction))
 }

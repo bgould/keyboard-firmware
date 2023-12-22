@@ -29,5 +29,6 @@ func configureI2C() error {
 func initHost() keyboard.Host {
 	usb.Manufacturer = "Kinesis"
 	usb.Product = "Advantage2"
-	return usbvial.New()
+	usb.Serial = usbvial.MagicSerialNumber("")
+	return usbvial.New(keymap)
 }
