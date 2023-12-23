@@ -174,7 +174,7 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 			rx[4], rx[5], rx[6], rx[7], rx[8],
 			rx[9], rx[10], rx[11], rx[12], rx[13],
 		)
-		if saver, ok := host.km.(KeySaver); ok {
+		if setter, ok := host.km.(KeySetter); ok {
 			layer := int(rx[1])
 			row := int(rx[2])
 			col := int(rx[3])
@@ -188,8 +188,8 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 			// 	SupressedMods:   rx[12],
 			// 	Options:         rx[13],
 			// }
-			saver.SaveKey(layer, row, col, kc)
-			println("-- key override saved successfully")
+			result := setter.SetKey(layer, row, col, kc)
+			println("-- set keycode result: ", result)
 		}
 
 	case ViaCmdDynamicKeymapReset: // 0x06

@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/bgould/keyboard-firmware/hosts/usbvial"
 	"github.com/bgould/keyboard-firmware/keyboard"
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
@@ -25,6 +26,8 @@ var (
 
 	lastTotp uint64
 )
+
+var _ usbvial.KeySetter = (keyboard.Keymap)(nil)
 
 func init() {
 	loadKeyboardDef()

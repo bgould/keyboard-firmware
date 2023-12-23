@@ -40,7 +40,7 @@ func (keymap Keymap) MapKey(layer, row, col int) (kc keycodes.Keycode) {
 	return
 }
 
-func (keymap Keymap) UpdateKey(layer, row, col int, kc keycodes.Keycode) bool {
+func (keymap Keymap) SetKey(layer, row, col int, kc keycodes.Keycode) bool {
 	if uint8(layer) >= keymap.GetLayerCount() || row >= keymap.NumRows() || col >= keymap.NumCols() {
 		return false
 	}

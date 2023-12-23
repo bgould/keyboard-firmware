@@ -80,27 +80,27 @@ type MacroPadRP2040KeyMapper struct {
 
 var (
 	_ usbvial.KeyMapper     = (*MacroPadRP2040KeyMapper)(nil)
-	_ usbvial.KeySaver      = (*MacroPadRP2040KeyMapper)(nil)
+	_ usbvial.KeySetter     = (*MacroPadRP2040KeyMapper)(nil)
 	_ usbvial.EncoderMapper = (*MacroPadRP2040KeyMapper)(nil)
 	_ usbvial.EncoderSaver  = (*MacroPadRP2040KeyMapper)(nil)
 )
 
-func (km *MacroPadRP2040KeyMapper) SaveKey(layer, row, col int, kc keycodes.Keycode) {
-	println(
-		"layer:", layer,
-		"row:", row,
-		"col:", col,
-		"kc:", kc,
-		// "trigger:", entry.Trigger,
-		// "replacement:", entry.Replacement,
-		// "layers:", entry.Layers,
-		// "mods:", entry.TriggerMods,
-		// "negative mask:", entry.NegativeModMask,
-		// "supressed mods:", entry.SupressedMods,
-		// "options:", entry.Options,
-	)
-	km.Keymap.UpdateKey(layer, row, col, kc)
-}
+// func (km *MacroPadRP2040KeyMapper) SaveKey(layer, row, col int, kc keycodes.Keycode) {
+// 	println(
+// 		"layer:", layer,
+// 		"row:", row,
+// 		"col:", col,
+// 		"kc:", kc,
+// 		// "trigger:", entry.Trigger,
+// 		// "replacement:", entry.Replacement,
+// 		// "layers:", entry.Layers,
+// 		// "mods:", entry.TriggerMods,
+// 		// "negative mask:", entry.NegativeModMask,
+// 		// "supressed mods:", entry.SupressedMods,
+// 		// "options:", entry.Options,
+// 	)
+// 	km.Keymap.SetKey(layer, row, col, kc)
+// }
 
 func (km *MacroPadRP2040KeyMapper) MapEncoder(layer, idx int) (ccw, cw keycodes.Keycode) {
 	return km.MapKey(layer, 0, encIndexCCW), km.MapKey(layer, 0, encIndexCW)
@@ -117,7 +117,7 @@ func (km *MacroPadRP2040KeyMapper) SaveEncoder(layer, idx int, clockwise bool, k
 	if clockwise {
 		encIdx = encIndexCW
 	}
-	km.UpdateKey(layer, 0, encIdx, kc)
+	km.SetKey(layer, 0, encIdx, kc)
 	// km.Keymap[layer][0][encIdx] = kc
 	// return km.MapKey(layer, encIndexCCW), km.MapKey(layer, encIndexCW)
 }

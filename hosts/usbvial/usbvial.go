@@ -40,8 +40,8 @@ type KeyMapper interface {
 	MapKey(layer, row, col int) keycodes.Keycode
 }
 
-type KeySaver interface {
-	SaveKey(layer, row, col int, kc keycodes.Keycode)
+type KeySetter interface {
+	SetKey(layer, row, col int, kc keycodes.Keycode) bool
 }
 
 type EncoderMapper interface {
