@@ -33,3 +33,11 @@ type KeyMapper interface {
 	NumCols() int
 	MapKey(layer, idx int) keycodes.Keycode
 }
+
+type EncoderMapper interface {
+	MapEncoder(layer, idx int) (ccw keycodes.Keycode, cw keycodes.Keycode)
+}
+
+type EncoderSaver interface {
+	SaveEncoder(layer, idx int, clockwise bool, kc keycodes.Keycode)
+}

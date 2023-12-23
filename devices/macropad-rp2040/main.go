@@ -26,9 +26,11 @@ var (
 	// TODO: encoder API needs to be improved/revamped
 	encoder = rotary_encoder.New(machine.ROT_A, machine.ROT_B)
 
-	host   = multihost.New(usbvial.New(keymap), serial.New(serialer))
-	matrix = keyboard.NewMatrix(1, 16, keyboard.RowReaderFunc(ReadRow))
 	keymap = Keymap()
+	mapper = &MacroPadRP2040KeyMapper{keymap}
+
+	host   = multihost.New(usbvial.New(mapper), serial.New(serialer))
+	matrix = keyboard.NewMatrix(1, 16, keyboard.RowReaderFunc(ReadRow))
 
 	board = keyboard.New(machine.Serial, host, matrix, keymap)
 )

@@ -6,6 +6,11 @@ import (
 	. "github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 
+const (
+	BRDN = 190
+	BRUP = 189
+)
+
 func Keymap() keyboard.Keymap {
 	return keyboard.Keymap([]keyboard.Layer{
 		MacroPadRP2040Layer(
@@ -17,7 +22,7 @@ func Keymap() keyboard.Keymap {
 			PDOT, KP_0, PENT,
 		),
 		MacroPadRP2040Layer(
-			/* */ VOLD, VOLU,
+			/* */ BRDN, BRUP,
 			/*       */ FN12,
 			FN9, FN10, FN11,
 			FN6, FN7, FN8,

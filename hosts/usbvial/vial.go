@@ -1,5 +1,7 @@
 package usbvial
 
+import "github.com/bgould/keyboard-firmware/keyboard/keycodes"
+
 const (
 	// MagicSerialPrefix is a value in the serial number of HID devices
 	// that the	Vial desktop app uses to identify compatible devices.
@@ -17,6 +19,49 @@ func MagicSerialNumber(sn string) string {
 	}
 	return MagicSerialPrefix
 }
+
+// ViaCommand represents a command from the VIA command set. VIA is a
+// graphical configurator for QMK firmware. Vial is an open source
+// alternative to VIA, and shares some of the same command set as its
+// predecessor. Not all VIA commands are supported by this package,
+// only the ones that are necessary for Vial.
+type ViaCommand uint8
+
+//go:generate go run golang.org/x/tools/cmd/stringer -type=ViaCommand
+
+const (
+	ViaCmdGetProtocolVersion       ViaCommand = 0x01
+	ViaCmdGetKeyboardValue         ViaCommand = 0x02
+	ViaCmdSetKeyboardValue         ViaCommand = 0x03
+	ViaCmdDynamicKeymapGetKeycode  ViaCommand = 0x04
+	ViaCmdDynamicKeymapSetKeycode  ViaCommand = 0x05
+	ViaCmdDynamicKeymapReset       ViaCommand = 0x06
+	ViaCmdLightingSetValue         ViaCommand = 0x07
+	ViaCmdLightingGetValue         ViaCommand = 0x08
+	ViaCmdLightingSave             ViaCommand = 0x09
+	ViaCmdEepromReset              ViaCommand = 0x0A
+	ViaCmdBootloaderJump           ViaCommand = 0x0B
+	ViaCmdKeymapMacroGetCount      ViaCommand = 0x0C
+	ViaCmdKeymapMacroGetBufferSize ViaCommand = 0x0D
+	ViaCmdKeymapMacroGetBuffer     ViaCommand = 0x0E
+	ViaCmdKeymapMacroSetBuffer     ViaCommand = 0x0F
+	ViaCmdKeymapMacroReset         ViaCommand = 0x10
+	ViaCmdKeymapGetLayerCount      ViaCommand = 0x11
+	ViaCmdKeymapGetBuffer          ViaCommand = 0x12
+	ViaCmdKeymapSetBuffer          ViaCommand = 0x13
+	ViaCmdVialPrefix               ViaCommand = 0xFE
+	ViaCmdUnhandled                ViaCommand = 0xFF
+)
+
+type ViaKeyboardValueID uint8
+
+const (
+	ViaKbdUptime            ViaKeyboardValueID = 0x01
+	ViaKbdLayoutOptions                        = 0x02
+	ViaKbdSwitchMatrixState                    = 0x03
+	ViaKbdFirmwareVersion                      = 0x04
+	ViaKbdDeviceIndication                     = 0x05
+)
 
 //go:generate go run golang.org/x/tools/cmd/stringer -type=VialCommand
 
@@ -210,11 +255,16 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 			copy(txb[:32], KeyboardDef[start:end])
 
 		case VialCmdGetEncoder:
-			println("VialCmdGetEncoder: ", rx[0], rx[1], rx[2], rx[3], rx[4], rx[5], rx[6], rx[7], rx[8])
-			tx[0] = 0x0
-			tx[1] = 170
-			tx[2] = 0x0
-			tx[3] = 169
+			if em, ok := host.km.(EncoderMapper); ok {
+				layer := rx[2]
+				idx := rx[3]
+				ccw, cw := em.MapEncoder(int(layer), int(idx))
+				println("VialCmdGetEncoder: ", layer, idx, ccw, cw)
+				tx[0] = 0x0
+				tx[1] = byte(ccw)
+				tx[2] = 0x0
+				tx[3] = byte(cw)
+			}
 			/*
 				case vial_get_encoder: {
 						uint8_t layer = msg[2];
@@ -230,7 +280,23 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 			*/
 
 		case VialCmdSetEncoder:
-			println("VialCmdSetEncoder: ", rx[0], rx[1], rx[2], rx[3], rx[4], rx[5], rx[6], rx[7], rx[8])
+
+			if es, ok := host.km.(EncoderSaver); ok {
+				var kc uint16
+				layer := int(rx[2])
+				idx := int(rx[3])
+				cw := rx[4] > 0
+				kc |= uint16(rx[5]) << 8
+				kc |= uint16(rx[6])
+				println("VialCmdSetEncoder: ", layer, idx, cw, uint8(kc>>8), uint8(kc))
+				if uint8(kc>>8) > 0 {
+					// FIXME: multi-byte keycodes not yet supported
+					break
+				}
+				es.SaveEncoder(layer, idx, cw, keycodes.Keycode(kc))
+				println(" -- encoder value saved successfully")
+			}
+
 			/*
 				case vial_set_encoder: {
 						dynamic_keymap_set_encoder(msg[2], msg[3], msg[4], vial_keycode_firewall((msg[5] << 8) | msg[6]));

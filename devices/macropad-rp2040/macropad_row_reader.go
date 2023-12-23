@@ -6,7 +6,9 @@ import (
 	"machine"
 	"time"
 
+	"github.com/bgould/keyboard-firmware/hosts/usbvial"
 	"github.com/bgould/keyboard-firmware/keyboard"
+	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 
 //go:generate go run github.com/bgould/keyboard-firmware/hosts/usbvial/gen-def vial.json
@@ -70,4 +72,33 @@ func ReadRow(rowIndex uint8) keyboard.Row {
 	default:
 		return 0
 	}
+}
+
+type MacroPadRP2040KeyMapper struct {
+	keyboard.Keymap
+}
+
+var (
+	_ usbvial.KeyMapper     = (*MacroPadRP2040KeyMapper)(nil)
+	_ usbvial.EncoderMapper = (*MacroPadRP2040KeyMapper)(nil)
+	_ usbvial.EncoderSaver  = (*MacroPadRP2040KeyMapper)(nil)
+)
+
+func (km *MacroPadRP2040KeyMapper) MapEncoder(layer, idx int) (ccw, cw keycodes.Keycode) {
+	return km.MapKey(layer, encIndexCCW), km.MapKey(layer, encIndexCW)
+}
+
+func (km *MacroPadRP2040KeyMapper) SaveEncoder(layer, idx int, clockwise bool, kc keycodes.Keycode) {
+	if layer >= len(km.Keymap) {
+		return
+	}
+	if idx > 0 {
+		return
+	}
+	encIdx := encIndexCCW
+	if clockwise {
+		encIdx = encIndexCW
+	}
+	km.Keymap[layer][0][encIdx] = kc
+	// return km.MapKey(layer, encIndexCCW), km.MapKey(layer, encIndexCW)
 }
