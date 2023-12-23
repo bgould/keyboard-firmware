@@ -6,6 +6,8 @@ const (
 	// MagicSerialPrefix is a value in the serial number of HID devices
 	// that the	Vial desktop app uses to identify compatible devices.
 	MagicSerialPrefix = "vial:f64c2b3c"
+
+	VialProtocolVersion = 0x09
 )
 
 // MagicSerialNumber returns a string value that the Vial desktop app
@@ -55,17 +57,19 @@ const (
 
 type ViaKeyboardValueID uint8
 
+//go:generate go run golang.org/x/tools/cmd/stringer -type=ViaKeyboardValueID
+
 const (
 	ViaKbdUptime            ViaKeyboardValueID = 0x01
-	ViaKbdLayoutOptions                        = 0x02
-	ViaKbdSwitchMatrixState                    = 0x03
-	ViaKbdFirmwareVersion                      = 0x04
-	ViaKbdDeviceIndication                     = 0x05
+	ViaKbdLayoutOptions     ViaKeyboardValueID = 0x02
+	ViaKbdSwitchMatrixState ViaKeyboardValueID = 0x03
+	ViaKbdFirmwareVersion   ViaKeyboardValueID = 0x04
+	ViaKbdDeviceIndication  ViaKeyboardValueID = 0x05
 )
 
-//go:generate go run golang.org/x/tools/cmd/stringer -type=VialCommand
-
 type VialCommand uint8
+
+//go:generate go run golang.org/x/tools/cmd/stringer -type=VialCommand
 
 const (
 	VialCmdGetKeyboardID    VialCommand = 0x00
@@ -82,8 +86,29 @@ const (
 	VialCmdQmkSettingsSet   VialCommand = 0x0B
 	VialCmdQmkSettingsReset VialCommand = 0x0C
 	VialCmdDynamicEntryOp   VialCommand = 0x0D
-	/* operate on tapdance, combos, etc */
 )
+
+type UnlockStatus uint8
+
+//go:generate go run golang.org/x/tools/cmd/stringer -type=UnlockStatus
+
+const (
+	Locked UnlockStatus = iota
+	Unlocked
+	UnlockInProgress
+)
+
+// the key override structure as it is stored in eeprom and transferred to vial-gui;
+// it is deserialized into key_override_t by vial_get_key_override
+type KeyOverrideEntry struct {
+	Trigger         uint16
+	Replacement     uint16
+	Layers          uint16
+	TriggerMods     uint8
+	NegativeModMask uint8
+	SupressedMods   uint8
+	Options         uint8
+}
 
 var (
 	// txb         [256]byte // FIXME ... max packet size in descriptors is 32 bytes, why is the buffer 256?
@@ -96,14 +121,17 @@ var (
 // 	device = d
 // }
 
-func (host *Host) keyVia(layer, kbIndex, index int) uint16 {
+func (host *Host) keyVia(layer, kbIndex, idx int) uint16 {
 	if kbIndex > 0 { // TODO: support multiple keyboards?
 		return 0
 	}
 	if host == nil || host.km == nil {
 		return 0
 	}
-	kc := uint16(host.km.MapKey(layer, index))
+	numCols := host.km.NumCols()
+	row := idx / numCols
+	col := idx % numCols
+	kc := uint16(host.km.MapKey(layer, row, col))
 	switch kc {
 	default:
 		kc = kc & 0x0FFF
@@ -128,22 +156,41 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 
 	switch viaCmd {
 
-	case ViaCmdGetProtocolVersion:
-		// println("usb: 0x01 - GetProtocolVersionCount")
-		// GetProtocolVersionCount
-		txb[2] = 0x09
+	case ViaCmdGetProtocolVersion: // 0x01
+		txb[0] = rx[0]
+		txb[1] = rx[1]
+		txb[2] = VialProtocolVersion
 
-	case ViaCmdGetKeyboardValue:
+	case ViaCmdGetKeyboardValue: // 0x02
 
-	case ViaCmdSetKeyboardValue:
+	case ViaCmdSetKeyboardValue: // 0x03
 
-	case ViaCmdDynamicKeymapGetKeycode:
+	case ViaCmdDynamicKeymapGetKeycode: // 0x04
 
-	case ViaCmdDynamicKeymapSetKeycode:
-		println("5sb: 0x05 - ", len(rx), rx[1], rx[2], rx[3], rx[4], rx[5])
-		//Keys[b[1]][b[2]][b[3]] = Keycode((uint16(b[4]) << 8) + uint16(b[5]))
-		// device.SetKeycodeVia(int(b[1]), int(b[2]), int(b[3]), Keycode((uint16(b[4])<<8)+uint16(b[5])))
-		// device.flashCh <- true
+	case ViaCmdDynamicKeymapSetKeycode: // 0x05
+		println(
+			"ViaCmdDynamicKeymapSetKeycode: ",
+			rx[1], rx[2], rx[3],
+			rx[4], rx[5], rx[6], rx[7], rx[8],
+			rx[9], rx[10], rx[11], rx[12], rx[13],
+		)
+		if saver, ok := host.km.(KeySaver); ok {
+			layer := int(rx[1])
+			row := int(rx[2])
+			col := int(rx[3])
+			kc := keycodes.Keycode(uint16(rx[4])>>8 | uint16(rx[5]))
+			// entry := KeyOverrideEntry{
+			// 	Trigger:         uint16(rx[4])>>8 | uint16(rx[5]),
+			// 	Replacement:     uint16(rx[6])>>8 | uint16(rx[7]),
+			// 	Layers:          uint16(rx[8])>>8 | uint16(rx[9]),
+			// 	TriggerMods:     rx[10],
+			// 	NegativeModMask: rx[11],
+			// 	SupressedMods:   rx[12],
+			// 	Options:         rx[13],
+			// }
+			saver.SaveKey(layer, row, col, kc)
+			println("-- key override saved successfully")
+		}
 
 	case ViaCmdDynamicKeymapReset: // 0x06
 
@@ -173,8 +220,6 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 	case ViaCmdKeymapMacroReset: // 0x10
 
 	case ViaCmdKeymapGetLayerCount: // 0x11
-		// println("7sb: 0x11 - DynamicKeymapGetLayerCountCommand")
-		// DynamicKeymapGetLayerCountCommand
 		if device != nil {
 			txb[1] = device.GetLayerCount()
 		} else {
@@ -259,44 +304,29 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 				layer := rx[2]
 				idx := rx[3]
 				ccw, cw := em.MapEncoder(int(layer), int(idx))
-				println("VialCmdGetEncoder: ", layer, idx, ccw, cw)
+				// println("VialCmdGetEncoder: ", layer, idx, ccw, cw)
 				tx[0] = 0x0
 				tx[1] = byte(ccw)
 				tx[2] = 0x0
 				tx[3] = byte(cw)
 			}
-			/*
-				case vial_get_encoder: {
-						uint8_t layer = msg[2];
-						uint8_t idx = msg[3];
-						uint16_t keycode = dynamic_keymap_get_encoder(layer, idx, 0);
-						msg[0]  = keycode >> 8;
-						msg[1]  = keycode & 0xFF;
-						keycode = dynamic_keymap_get_encoder(layer, idx, 1);
-						msg[2] = keycode >> 8;
-						msg[3] = keycode & 0xFF;
-						break;
-				}
-			*/
 
 		case VialCmdSetEncoder:
-
 			if es, ok := host.km.(EncoderSaver); ok {
 				var kc uint16
 				layer := int(rx[2])
-				idx := int(rx[3])
+				index := int(rx[3])
 				cw := rx[4] > 0
 				kc |= uint16(rx[5]) << 8
 				kc |= uint16(rx[6])
-				println("VialCmdSetEncoder: ", layer, idx, cw, uint8(kc>>8), uint8(kc))
+				// println("VialCmdSetEncoder: ", layer, index, cw, uint8(kc>>8), uint8(kc))
 				if uint8(kc>>8) > 0 {
 					// FIXME: multi-byte keycodes not yet supported
 					break
 				}
-				es.SaveEncoder(layer, idx, cw, keycodes.Keycode(kc))
-				println(" -- encoder value saved successfully")
+				es.SaveEncoder(layer, index, cw, keycodes.Keycode(kc))
+				// println(" -- encoder value saved successfully")
 			}
-
 			/*
 				case vial_set_encoder: {
 						dynamic_keymap_set_encoder(msg[2], msg[3], msg[4], vial_keycode_firewall((msg[5] << 8) | msg[6]));
@@ -348,6 +378,14 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 	}
 
 	return true
+}
+
+// TODO: determine correct logic for this function, or if it is even necessary
+func (h *Host) keycodeFirewall(kc keycodes.Keycode) keycodes.Keycode {
+	if kc == keycodes.PROG && !h.unlocked {
+		return 0
+	}
+	return kc
 }
 
 // func Save() error {

@@ -16,6 +16,7 @@ type Event struct {
 }
 
 type Pos struct {
+	// Layer uint8 // TBD
 	Row uint8
 	Col uint8
 }
@@ -23,7 +24,7 @@ type Pos struct {
 type Keyboard struct {
 	// console Console
 	matrix *Matrix
-	layers []Layer
+	layers Keymap
 	host   Host
 
 	prev []Row
@@ -138,10 +139,11 @@ func (kbd *Keyboard) processEvent(ev Event) {
 	if int(l) > len(kbd.layers) {
 		l = 0
 	}
-	key := kbd.layers[l].KeyAt(ev.Pos)
+	key := kbd.layers.MapKey(int(l), int(ev.Pos.Row), int(ev.Pos.Col))
+	// key := kbd.layers[l].KeyAt(ev.Pos)
 	for key == keycodes.TRANSPARENT && l > 0 {
 		l--
-		key = kbd.layers[l].KeyAt(ev.Pos)
+		key = kbd.layers.MapKey(int(l), int(ev.Pos.Row), int(ev.Pos.Col))
 	}
 	switch {
 	case key.IsKey() || key.IsModifier():

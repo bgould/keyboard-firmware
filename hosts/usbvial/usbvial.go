@@ -19,6 +19,8 @@ type Host struct {
 	*usbhid.Host
 	km  KeyMapper
 	txb [32]byte
+
+	unlocked bool
 }
 
 func New(keymap KeyMapper) *Host {
@@ -26,12 +28,20 @@ func New(keymap KeyMapper) *Host {
 	return host
 }
 
+func (h *Host) Unlocked() bool {
+	return h.unlocked
+}
+
 type KeyMapper interface {
 	GetLayerCount() uint8
 	GetMaxKeyCount() int
 	NumRows() int
 	NumCols() int
-	MapKey(layer, idx int) keycodes.Keycode
+	MapKey(layer, row, col int) keycodes.Keycode
+}
+
+type KeySaver interface {
+	SaveKey(layer, row, col int, kc keycodes.Keycode)
 }
 
 type EncoderMapper interface {

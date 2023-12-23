@@ -6,8 +6,8 @@ import (
 
 type Layer [][]keycodes.Keycode
 
-func (layer Layer) KeyAt(position Pos) keycodes.Keycode {
-	return layer[position.Row][position.Col]
+func (layer Layer) KeyAt(row, col int) keycodes.Keycode {
+	return layer[row][col]
 }
 
 type Keymap []Layer
@@ -28,14 +28,23 @@ func (keymap Keymap) NumCols() int {
 	return len(keymap[0][0])
 }
 
-func (keymap Keymap) MapKey(layer, idx int) (kc keycodes.Keycode) {
-	if uint8(layer) >= keymap.GetLayerCount() || idx >= keymap.GetMaxKeyCount() {
+func (keymap Keymap) MapKey(layer, row, col int) (kc keycodes.Keycode) {
+	if uint8(layer) >= keymap.GetLayerCount() || row >= keymap.NumRows() || col >= keymap.NumCols() {
 		return
 	}
-	numCols := keymap.NumCols()
-	row := idx / numCols
-	col := idx % numCols
+	// numCols := keymap.NumCols()
+	// row := idx / numCols
+	// col := idx % numCols
 	kc = keymap[layer][row][col]
 	// println(layer, idx, row, col, kc)
 	return
+}
+
+func (keymap Keymap) UpdateKey(layer, row, col int, kc keycodes.Keycode) bool {
+	if uint8(layer) >= keymap.GetLayerCount() || row >= keymap.NumRows() || col >= keymap.NumCols() {
+		return false
+	}
+	keymap[layer][row][col] = kc
+	// println(layer, idx, row, col, kc)
+	return true
 }
