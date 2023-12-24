@@ -36,3 +36,5 @@ func readTime() (time.Time, bool) {
 func setUnixTime(t time.Time) error {
 	return nil
 }
+
+func rtcSync() {}

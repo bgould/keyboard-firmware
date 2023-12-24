@@ -6,7 +6,7 @@ import (
 	"machine"
 	"time"
 
-	"github.com/bgould/keyboard-firmware/hosts/usbvial"
+	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
 	"github.com/bgould/keyboard-firmware/keyboard"
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
@@ -79,10 +79,10 @@ type MacroPadRP2040KeyMapper struct {
 }
 
 var (
-	_ usbvial.KeyMapper     = (*MacroPadRP2040KeyMapper)(nil)
-	_ usbvial.KeySetter     = (*MacroPadRP2040KeyMapper)(nil)
-	_ usbvial.EncoderMapper = (*MacroPadRP2040KeyMapper)(nil)
-	_ usbvial.EncoderSaver  = (*MacroPadRP2040KeyMapper)(nil)
+	_ vial.KeyMapper     = (*MacroPadRP2040KeyMapper)(nil)
+	_ vial.KeySetter     = (*MacroPadRP2040KeyMapper)(nil)
+	_ vial.EncoderMapper = (*MacroPadRP2040KeyMapper)(nil)
+	_ vial.EncoderSaver  = (*MacroPadRP2040KeyMapper)(nil)
 )
 
 // func (km *MacroPadRP2040KeyMapper) SaveKey(layer, row, col int, kc keycodes.Keycode) {

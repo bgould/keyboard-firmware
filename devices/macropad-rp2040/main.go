@@ -12,6 +12,7 @@ import (
 	"github.com/bgould/keyboard-firmware/hosts/multihost"
 	"github.com/bgould/keyboard-firmware/hosts/serial"
 	"github.com/bgould/keyboard-firmware/hosts/usbvial"
+	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
 	"github.com/bgould/keyboard-firmware/keyboard"
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
@@ -38,7 +39,7 @@ var (
 func init() {
 	configurePins()
 	loadKeyboardDef()
-	usb.Serial = usbvial.MagicSerialNumber("")
+	usb.Serial = vial.MagicSerialNumber("")
 	encoder.Configure(rotary_encoder.Config{})
 }
 

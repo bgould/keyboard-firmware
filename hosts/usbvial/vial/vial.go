@@ -1,6 +1,10 @@
-package usbvial
+package vial
 
-import "github.com/bgould/keyboard-firmware/keyboard/keycodes"
+import (
+	"strconv"
+
+	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
+)
 
 const (
 	// MagicSerialPrefix is a value in the serial number of HID devices
@@ -117,11 +121,26 @@ var (
 
 )
 
+type Device struct {
+	km  KeyMapper
+	txb [32]byte
+
+	unlocked bool
+}
+
+func NewDevice(mapper KeyMapper) *Device {
+	return &Device{km: mapper}
+}
+
+func (h *Device) Unlocked() bool {
+	return h.unlocked
+}
+
 // func SetDevice(d KeyMapper) {
 // 	device = d
 // }
 
-func (host *Host) keyVia(layer, kbIndex, idx int) uint16 {
+func (host *Device) keyVia(layer, kbIndex, idx int) uint16 {
 	if kbIndex > 0 { // TODO: support multiple keyboards?
 		return 0
 	}
@@ -139,27 +158,29 @@ func (host *Host) keyVia(layer, kbIndex, idx int) uint16 {
 	return kc
 }
 
-func (host *Host) processPacket(rx []byte, tx []byte) bool {
+func (host *Device) Handle(rx []byte, tx []byte) bool {
 
 	device := host.km
 
-	txb := host.txb[:32]
-	copy(txb, rx) // FIXME: probably isn't necessary to do this copy
+	// txb := host.txb[:32]
+	// copy(txb, rx) // FIXME: probably isn't necessary to do this copy
 
 	viaCmd := ViaCommand(rx[0])
 
 	if viaCmd != ViaCmdVialPrefix {
 		if debug {
-			println("viaCmd:", viaCmd.String())
+			println("viaCmd:", strconv.FormatUint(uint64(viaCmd), 64))
 		}
 	}
+
+	// println(rx[0], rx[1])
 
 	switch viaCmd {
 
 	case ViaCmdGetProtocolVersion: // 0x01
-		txb[0] = rx[0]
-		txb[1] = rx[1]
-		txb[2] = VialProtocolVersion
+		tx[0] = rx[0]
+		tx[1] = rx[1]
+		tx[2] = VialProtocolVersion
 
 	case ViaCmdGetKeyboardValue: // 0x02
 
@@ -168,12 +189,9 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 	case ViaCmdDynamicKeymapGetKeycode: // 0x04
 
 	case ViaCmdDynamicKeymapSetKeycode: // 0x05
-		println(
-			"ViaCmdDynamicKeymapSetKeycode: ",
-			rx[1], rx[2], rx[3],
-			rx[4], rx[5], rx[6], rx[7], rx[8],
-			rx[9], rx[10], rx[11], rx[12], rx[13],
-		)
+		if debug {
+			println("ViaCmdDynamicKeymapSetKeycode: ", rx[1], rx[2], rx[3], rx[4], rx[5])
+		}
 		if setter, ok := host.km.(KeySetter); ok {
 			layer := int(rx[1])
 			row := int(rx[2])
@@ -189,7 +207,9 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 			// 	Options:         rx[13],
 			// }
 			result := setter.SetKey(layer, row, col, kc)
-			println("-- set keycode result: ", result)
+			if debug {
+				println("-- set keycode result: ", result)
+			}
 		}
 
 	case ViaCmdDynamicKeymapReset: // 0x06
@@ -197,8 +217,8 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 	case ViaCmdLightingSetValue: // 0x07
 
 	case ViaCmdLightingGetValue: // 0x08
-		txb[1] = 0x00
-		txb[2] = 0x00
+		tx[1] = 0x00
+		tx[2] = 0x00
 
 	case ViaCmdLightingSave: // 0x09
 
@@ -207,11 +227,11 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 	case ViaCmdBootloaderJump: // 0x0B
 
 	case ViaCmdKeymapMacroGetCount: // 0x0C
-		txb[1] = 0x10
+		tx[1] = 0x10
 
 	case ViaCmdKeymapMacroGetBufferSize: // 0x0D
-		txb[1] = 0x07
-		txb[2] = 0x9B
+		tx[1] = 0x07
+		tx[2] = 0x9B
 
 	case ViaCmdKeymapMacroGetBuffer: // 0x0E
 
@@ -221,9 +241,9 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 
 	case ViaCmdKeymapGetLayerCount: // 0x11
 		if device != nil {
-			txb[1] = device.GetLayerCount()
+			tx[1] = device.GetLayerCount()
 		} else {
-			txb[1] = 0x01
+			tx[1] = 0x01
 		}
 
 	case ViaCmdKeymapGetBuffer: // 0x12
@@ -244,8 +264,8 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 			kbd := tmp / cnt
 			idx := tmp % cnt
 			kc := host.keyVia(layer, kbd, idx)
-			txb[4+2*i+1] = uint8(kc)
-			txb[4+2*i+0] = uint8(kc >> 8)
+			tx[4+2*i+1] = uint8(kc)
+			tx[4+2*i+0] = uint8(kc >> 8)
 		}
 		// println("done")
 
@@ -255,7 +275,7 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 
 		vialCmd := VialCommand(rx[1])
 		if debug {
-			println("vialCmd:", vialCmd.String())
+			println("vialCmd:", vialCmd)
 		}
 
 		switch vialCmd {
@@ -264,27 +284,27 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 			// println("vial: 0x00 - Get keyboard ID and Vial protocol version")
 			// Get keyboard ID and Vial protocol version
 			const vialProtocolVersion = 0x00000006
-			txb[0] = vialProtocolVersion
-			txb[1] = vialProtocolVersion >> 8
-			txb[2] = vialProtocolVersion >> 16
-			txb[3] = vialProtocolVersion >> 24
-			txb[4] = 0x9D
-			txb[5] = 0xD0
-			txb[6] = 0xD5
-			txb[7] = 0xE1
-			txb[8] = 0x87
-			txb[9] = 0xF3
-			txb[10] = 0x54
-			txb[11] = 0xE2
+			tx[0] = vialProtocolVersion
+			tx[1] = vialProtocolVersion >> 8
+			tx[2] = vialProtocolVersion >> 16
+			tx[3] = vialProtocolVersion >> 24
+			tx[4] = 0x9D
+			tx[5] = 0xD0
+			tx[6] = 0xD5
+			tx[7] = 0xE1
+			tx[8] = 0x87
+			tx[9] = 0xF3
+			tx[10] = 0x54
+			tx[11] = 0xE2
 
 		case VialCmdGetSize:
 			// println("vial: 0x01 - retrieve keyboard definition size")
 			// Retrieve keyboard definition size
 			size := len(KeyboardDef)
-			txb[0] = uint8(size)
-			txb[1] = uint8(size >> 8)
-			txb[2] = uint8(size >> 16)
-			txb[3] = uint8(size >> 24)
+			tx[0] = uint8(size)
+			tx[1] = uint8(size >> 8)
+			tx[2] = uint8(size >> 16)
+			tx[3] = uint8(size >> 24)
 
 		case VialCmdGetDef:
 			// Retrieve 32-bytes block of the definition, page ID encoded within 2 bytes
@@ -297,7 +317,7 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 			if int(end) > len(KeyboardDef) {
 				end = uint16(len(KeyboardDef))
 			}
-			copy(txb[:32], KeyboardDef[start:end])
+			copy(tx[:32], KeyboardDef[start:end])
 
 		case VialCmdGetEncoder:
 			if em, ok := host.km.(EncoderMapper); ok {
@@ -305,9 +325,9 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 				idx := rx[3]
 				ccw, cw := em.MapEncoder(int(layer), int(idx))
 				// println("VialCmdGetEncoder: ", layer, idx, ccw, cw)
-				tx[0] = 0x0
+				tx[0] = byte(ccw >> 8)
 				tx[1] = byte(ccw)
-				tx[2] = 0x0
+				tx[2] = byte(cw >> 8)
 				tx[3] = byte(cw)
 			}
 
@@ -319,25 +339,23 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 				cw := rx[4] > 0
 				kc |= uint16(rx[5]) << 8
 				kc |= uint16(rx[6])
-				// println("VialCmdSetEncoder: ", layer, index, cw, uint8(kc>>8), uint8(kc))
+				if debug {
+					println("VialCmdSetEncoder: ", layer, index, cw, uint8(kc>>8), uint8(kc))
+				}
 				if uint8(kc>>8) > 0 {
 					// FIXME: multi-byte keycodes not yet supported
 					break
 				}
 				es.SaveEncoder(layer, index, cw, keycodes.Keycode(kc))
-				// println(" -- encoder value saved successfully")
-			}
-			/*
-				case vial_set_encoder: {
-						dynamic_keymap_set_encoder(msg[2], msg[3], msg[4], vial_keycode_firewall((msg[5] << 8) | msg[6]));
-						break;
+				if debug {
+					println(" -- encoder value saved successfully")
 				}
-			*/
+			}
 
 		case VialCmdGetUnlockStatus:
 			// println("VialCmdGetUnlockStatus")
-			txb[0] = 1 // unlocked
-			txb[1] = 0 // unlock_in_progress
+			tx[0] = 1 // unlocked
+			tx[1] = 0 // unlock_in_progress
 
 		case VialCmdUnlockStart:
 			// println("VialCmdUnlockStart: ", rx[0], rx[1], rx[2], rx[3], rx[4], rx[5], rx[6], rx[7], rx[8])
@@ -350,8 +368,8 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 
 		case VialCmdQmkSettingsQuery:
 			// println("VialCmdQmkSettingsQuery")
-			for i := range txb[:32] {
-				txb[i] = 0xFF
+			for i := range tx[:32] {
+				tx[i] = 0xFF
 			}
 
 		case VialCmdQmkSettingsGet:
@@ -365,15 +383,24 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 
 		case VialCmdDynamicEntryOp:
 			// println("VialCmdQmkSettingsQuery")
-			txb[0] = 0x00
-			txb[1] = 0x00
-			txb[2] = 0x00
+			tx[0] = 0x00
+			tx[1] = 0x00
+			tx[2] = 0x00
 
 		default:
-			println("vial: default - ", rx[1])
+			if debug {
+				println("vial: default - ", rx[1])
+			}
+
 		}
 
 	default:
+		if debug {
+			println("vial default - ", rx[0])
+		}
+		if handler, ok := host.km.(Handler); ok {
+			return handler.Handle(rx, tx)
+		}
 		return false
 	}
 
@@ -381,12 +408,12 @@ func (host *Host) processPacket(rx []byte, tx []byte) bool {
 }
 
 // TODO: determine correct logic for this function, or if it is even necessary
-func (h *Host) keycodeFirewall(kc keycodes.Keycode) keycodes.Keycode {
-	if kc == keycodes.PROG && !h.unlocked {
-		return 0
-	}
-	return kc
-}
+// func (h *Device) keycodeFirewall(kc keycodes.Keycode) keycodes.Keycode {
+// 	if kc == keycodes.PROG && !h.Unlocked() {
+// 		return 0
+// 	}
+// 	return kc
+// }
 
 // func Save() error {
 // 	layers := 6

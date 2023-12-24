@@ -57,14 +57,17 @@ func timeTask() {
 	}
 }
 
+var newRTCTime time.Time
+
 func setUnixTime(t time.Time) error {
 	if !rtcInit {
 		return ErrNotInitialized
 	}
-	if err := rtc.SetTime(t.UTC()); err != nil {
-		return err
-	}
+	// if err := rtc.SetTime(t.UTC()); err != nil {
+	// 	return err
+	// }
 	adjustTimeOffset(t)
+	// rtcUpdate <- struct{}{}
 	rtcLast = t
 	return nil
 }
@@ -78,4 +81,11 @@ func readTime() (time.Time, bool) {
 		return time.Now(), false
 	}
 	return ts, true
+}
+
+func rtcSync() {
+	if rtcInit {
+		println("sync time")
+		rtc.SetTime(time.Now().UTC())
+	}
 }

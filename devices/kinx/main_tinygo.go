@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/bgould/keyboard-firmware/hosts/usbvial"
+	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
 	"github.com/bgould/keyboard-firmware/keyboard"
 )
 
@@ -29,6 +30,6 @@ func configureI2C() error {
 func initHost() keyboard.Host {
 	usb.Manufacturer = "Kinesis"
 	usb.Product = "Advantage2"
-	usb.Serial = usbvial.MagicSerialNumber("")
-	return usbvial.New(keymap)
+	usb.Serial = vial.MagicSerialNumber("")
+	return usbvial.New(&VialDriver{keymap})
 }

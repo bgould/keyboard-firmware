@@ -1,4 +1,4 @@
-package usbvial
+package vial
 
 type ViaChannelID uint8
 
