@@ -92,6 +92,17 @@ const (
 	VialCmdDynamicEntryOp   VialCommand = 0x0D
 )
 
+type ViaChannelID uint8
+
+const (
+	ViaChannelCustom       ViaChannelID = 0x00
+	ViaChannelBacklight                 = 0x01
+	ViaChannelRGBLight                  = 0x02
+	ViaChannelRGBMatrix                 = 0x03
+	ViaChannelQMKAudio                  = 0x04
+	ViaChannelQMKLEDMatrix              = 0x05
+)
+
 type UnlockStatus uint8
 
 //go:generate go run golang.org/x/tools/cmd/stringer -type=UnlockStatus
@@ -121,11 +132,6 @@ type Device struct {
 
 	unlockStatus UnlockStatus
 }
-
-// type DeviceConfig struct {
-// 	KeyMapper  KeyMapper
-// 	Definition DeviceDefinition
-// }
 
 type DeviceDefinition struct {
 	Name          string       `json:"name"`
@@ -345,16 +351,26 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 			if em, ok := dev.km.(EncoderMapper); ok {
 				layer := rx[2]
 				idx := rx[3]
-				ccw, cw := em.MapEncoder(int(layer), int(idx))
-				// println("VialCmdGetEncoder: ", layer, idx, ccw, cw)
-				tx[0] = byte(ccw >> 8)
-				tx[1] = byte(ccw)
-				tx[2] = byte(cw >> 8)
-				tx[3] = byte(cw)
+				ccwRow, ccwCol, cwRow, cwCol, ok := em.MapEncoder(int(idx))
+				if !ok {
+					tx[0] = 0x0
+					tx[1] = 0x0
+					tx[2] = 0x0
+					tx[3] = 0x0
+				} else {
+					ccw := dev.km.MapKey(int(layer), ccwRow, ccwCol)
+					cw := dev.km.MapKey(int(layer), cwRow, cwCol)
+					tx[0] = byte(ccw >> 8)
+					tx[1] = byte(ccw)
+					tx[2] = byte(cw >> 8)
+					tx[3] = byte(cw)
+				}
 			}
 
 		case VialCmdSetEncoder:
-			if es, ok := dev.km.(EncoderSaver); ok {
+			ks, ksOk := dev.km.(KeySetter)
+			em, emOk := dev.km.(EncoderMapper)
+			if emOk && ksOk {
 				var kc uint16
 				layer := int(rx[2])
 				index := int(rx[3])
@@ -364,13 +380,24 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 				if debug {
 					println("VialCmdSetEncoder: ", layer, index, cw, uint8(kc>>8), uint8(kc))
 				}
-				if uint8(kc>>8) > 0 {
-					// FIXME: multi-byte keycodes not yet supported
-					break
+				var row, col int
+				if ccwRow, ccwCol, cwRow, cwCol, ok := em.MapEncoder(index); ok {
+					if cw {
+						row = cwRow
+						col = cwCol
+					} else {
+						row = ccwRow
+						col = ccwCol
+					}
 				}
-				es.SaveEncoder(layer, index, cw, keycodes.Keycode(kc))
-				if debug {
-					println(" -- encoder value saved successfully")
+				if ok := ks.SetKey(layer, row, col, keycodes.Keycode(kc)); ok {
+					if debug {
+						println(" -- encoder value saved successfully")
+					}
+				} else {
+					if debug {
+						println(" -- encoder value not saved")
+					}
 				}
 			}
 

@@ -15,12 +15,12 @@ type KeySetter interface {
 }
 
 type EncoderMapper interface {
-	MapEncoder(layer, idx int) (ccw keycodes.Keycode, cw keycodes.Keycode)
+	MapEncoder(idx int) (ccwRow, ccwCol int, cwRow, cwCol int, ok bool) // (ccw keycodes.Keycode, cw keycodes.Keycode)
 }
 
-type EncoderSaver interface {
-	SaveEncoder(layer, idx int, clockwise bool, kc keycodes.Keycode)
-}
+// type EncoderSetter interface {
+// 	SetEncoder(layer, idx int, clockwise bool, kc keycodes.Keycode)
+// }
 
 type Handler interface {
 	Handle(rx []byte, tx []byte) bool
