@@ -30,7 +30,7 @@ var (
 	keymap = Keymap()
 	mapper = &MacroPadRP2040KeyMapper{keymap}
 
-	host   = multihost.New(usbvial.New(mapper), serial.New(serialer))
+	host   = multihost.New(usbvial.New(VialDeviceDefinition, mapper), serial.New(serialer))
 	matrix = keyboard.NewMatrix(1, 16, keyboard.RowReaderFunc(ReadRow))
 
 	board = keyboard.New(machine.Serial, host, matrix, keymap)
@@ -38,7 +38,6 @@ var (
 
 func init() {
 	configurePins()
-	loadKeyboardDef()
 	usb.Serial = vial.MagicSerialNumber("")
 	encoder.Configure(rotary_encoder.Config{})
 }

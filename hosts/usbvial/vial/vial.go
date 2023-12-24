@@ -1,8 +1,6 @@
 package vial
 
 import (
-	"strconv"
-
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 
@@ -11,7 +9,9 @@ const (
 	// that the	Vial desktop app uses to identify compatible devices.
 	MagicSerialPrefix = "vial:f64c2b3c"
 
-	VialProtocolVersion = 0x09
+	ViaProtocolVersion = 0x09
+
+	VialProtocolVersion = 0x00000006
 )
 
 // MagicSerialNumber returns a string value that the Vial desktop app
@@ -114,43 +114,62 @@ type KeyOverrideEntry struct {
 	Options         uint8
 }
 
-var (
-	// txb         [256]byte // FIXME ... max packet size in descriptors is 32 bytes, why is the buffer 256?
-	KeyboardDef []byte // may be preferable to have a callback function to copy def to tx buffer
-	// device      KeyMapper // *keyboard.Device
-
-)
-
 type Device struct {
 	km  KeyMapper
 	txb [32]byte
+	def DeviceDefinition
 
-	unlocked bool
+	unlockStatus UnlockStatus
 }
 
-func NewDevice(mapper KeyMapper) *Device {
-	return &Device{km: mapper}
-}
-
-func (h *Device) Unlocked() bool {
-	return h.unlocked
-}
-
-// func SetDevice(d KeyMapper) {
-// 	device = d
+// type DeviceConfig struct {
+// 	KeyMapper  KeyMapper
+// 	Definition DeviceDefinition
 // }
 
-func (host *Device) keyVia(layer, kbIndex, idx int) uint16 {
+type DeviceDefinition struct {
+	Name          string       `json:"name"`
+	VendorID      string       `json:"vendorId"`
+	ProductID     string       `json:"productId"`
+	Matrix        DeviceMatrix `json:"matrix"`
+	LzmaDefLength uint16       `json:"-"`
+	LzmaDefWriter LzmaDefPageWriter
+}
+
+type LzmaDefPageWriter interface {
+	WriteLzmaDefPage(buf []byte, page uint16) bool
+}
+
+type LzmaDefPageWriterFunc func(buf []byte, page uint16) bool
+
+func (fn LzmaDefPageWriterFunc) WriteLzmaDefPage(buf []byte, page uint16) bool {
+	return fn(buf, page)
+}
+
+type DeviceMatrix struct {
+	Rows int `json:"rows"`
+	Cols int `json:"cols"`
+}
+
+func NewDevice(def DeviceDefinition, mapper KeyMapper) *Device {
+	return &Device{km: mapper, def: def}
+}
+
+func (dev *Device) UnlockStatus() UnlockStatus {
+	return dev.unlockStatus
+}
+
+func (dev *Device) keyVia(layer, kbIndex, idx int) uint16 {
 	if kbIndex > 0 { // TODO: support multiple keyboards?
 		return 0
 	}
-	if host == nil || host.km == nil {
+	if dev == nil || dev.km == nil {
 		return 0
 	}
-	numCols := host.km.NumCols()
+	numCols := dev.km.NumCols()
 	row := idx / numCols
 	col := idx % numCols
-	kc := uint16(host.km.MapKey(layer, row, col))
+	kc := uint16(dev.km.MapKey(layer, row, col))
 	switch kc {
 	default:
 		kc = kc & 0x0FFF
@@ -158,9 +177,9 @@ func (host *Device) keyVia(layer, kbIndex, idx int) uint16 {
 	return kc
 }
 
-func (host *Device) Handle(rx []byte, tx []byte) bool {
+func (dev *Device) Handle(rx []byte, tx []byte) bool {
 
-	device := host.km
+	mapper := dev.km
 
 	// txb := host.txb[:32]
 	// copy(txb, rx) // FIXME: probably isn't necessary to do this copy
@@ -169,7 +188,7 @@ func (host *Device) Handle(rx []byte, tx []byte) bool {
 
 	if viaCmd != ViaCmdVialPrefix {
 		if debug {
-			println("viaCmd:", strconv.FormatUint(uint64(viaCmd), 64))
+			println("viaCmd:", viaCmd) //)strconv.FormatUint(uint64(viaCmd), 16))
 		}
 	}
 
@@ -180,7 +199,7 @@ func (host *Device) Handle(rx []byte, tx []byte) bool {
 	case ViaCmdGetProtocolVersion: // 0x01
 		tx[0] = rx[0]
 		tx[1] = rx[1]
-		tx[2] = VialProtocolVersion
+		tx[2] = ViaProtocolVersion
 
 	case ViaCmdGetKeyboardValue: // 0x02
 
@@ -192,7 +211,7 @@ func (host *Device) Handle(rx []byte, tx []byte) bool {
 		if debug {
 			println("ViaCmdDynamicKeymapSetKeycode: ", rx[1], rx[2], rx[3], rx[4], rx[5])
 		}
-		if setter, ok := host.km.(KeySetter); ok {
+		if setter, ok := mapper.(KeySetter); ok {
 			layer := int(rx[1])
 			row := int(rx[2])
 			col := int(rx[3])
@@ -217,6 +236,7 @@ func (host *Device) Handle(rx []byte, tx []byte) bool {
 	case ViaCmdLightingSetValue: // 0x07
 
 	case ViaCmdLightingGetValue: // 0x08
+		tx[0] = rx[0]
 		tx[1] = 0x00
 		tx[2] = 0x00
 
@@ -227,9 +247,11 @@ func (host *Device) Handle(rx []byte, tx []byte) bool {
 	case ViaCmdBootloaderJump: // 0x0B
 
 	case ViaCmdKeymapMacroGetCount: // 0x0C
+		tx[0] = rx[0]
 		tx[1] = 0x10
 
 	case ViaCmdKeymapMacroGetBufferSize: // 0x0D
+		tx[0] = rx[0]
 		tx[1] = 0x07
 		tx[2] = 0x9B
 
@@ -240,21 +262,17 @@ func (host *Device) Handle(rx []byte, tx []byte) bool {
 	case ViaCmdKeymapMacroReset: // 0x10
 
 	case ViaCmdKeymapGetLayerCount: // 0x11
-		if device != nil {
-			tx[1] = device.GetLayerCount()
-		} else {
-			tx[1] = 0x01
-		}
+		tx[1] = mapper.GetLayerCount()
 
 	case ViaCmdKeymapGetBuffer: // 0x12
-		if device == nil {
-			println("warning: device was nil")
-			break
-		}
+		// if mapper == nil {
+		// 	println("warning: device was nil")
+		// 	break
+		// }
 		// DynamicKeymapReadBufferCommand
 		offset := (uint16(rx[1]) << 8) + uint16(rx[2])
 		sz := rx[3]
-		cnt := device.GetMaxKeyCount()
+		cnt := mapper.GetMaxKeyCount()
 		// println("  offset : ", offset, "+", sz, cnt)
 		for i := 0; i < int(sz/2); i++ {
 			//fmt.Printf("  %02X %02X\n", b[4+i+1], b[4+i+0])
@@ -263,7 +281,7 @@ func (host *Device) Handle(rx []byte, tx []byte) bool {
 			tmp = tmp % (cnt * 1)    // len(device.kb))
 			kbd := tmp / cnt
 			idx := tmp % cnt
-			kc := host.keyVia(layer, kbd, idx)
+			kc := dev.keyVia(layer, kbd, idx)
 			tx[4+2*i+1] = uint8(kc)
 			tx[4+2*i+0] = uint8(kc >> 8)
 		}
@@ -283,11 +301,10 @@ func (host *Device) Handle(rx []byte, tx []byte) bool {
 		case VialCmdGetKeyboardID:
 			// println("vial: 0x00 - Get keyboard ID and Vial protocol version")
 			// Get keyboard ID and Vial protocol version
-			const vialProtocolVersion = 0x00000006
-			tx[0] = vialProtocolVersion
-			tx[1] = vialProtocolVersion >> 8
-			tx[2] = vialProtocolVersion >> 16
-			tx[3] = vialProtocolVersion >> 24
+			tx[0] = VialProtocolVersion
+			tx[1] = VialProtocolVersion >> 8
+			tx[2] = VialProtocolVersion >> 16
+			tx[3] = VialProtocolVersion >> 24
 			tx[4] = 0x9D
 			tx[5] = 0xD0
 			tx[6] = 0xD5
@@ -300,27 +317,32 @@ func (host *Device) Handle(rx []byte, tx []byte) bool {
 		case VialCmdGetSize:
 			// println("vial: 0x01 - retrieve keyboard definition size")
 			// Retrieve keyboard definition size
-			size := len(KeyboardDef)
+			size := dev.def.LzmaDefLength
 			tx[0] = uint8(size)
 			tx[1] = uint8(size >> 8)
-			tx[2] = uint8(size >> 16)
-			tx[3] = uint8(size >> 24)
+			tx[2] = 0x0 // uint8(size >> 16) // size is uint16
+			tx[3] = 0x0 // uint8(size >> 24) // size is uint16
 
 		case VialCmdGetDef:
 			// Retrieve 32-bytes block of the definition, page ID encoded within 2 bytes
 			page := uint16(rx[2]) + (uint16(rx[3]) << 8)
-			start := page * 32
-			end := start + 32
-			if end < start || int(start) >= len(KeyboardDef) {
-				return false
+			if !dev.def.LzmaDefWriter.WriteLzmaDefPage(tx[:32], page) {
+				return false // TODO: error handling
 			}
-			if int(end) > len(KeyboardDef) {
-				end = uint16(len(KeyboardDef))
-			}
-			copy(tx[:32], KeyboardDef[start:end])
+			/*
+				start := page * 32
+				end := start + 32
+				if end < start || start >= dev.def.LzmaDefLength { //len(dev.def.LzmaDef) {
+					return false
+				}
+				if end > dev.def.LzmaDefLength {
+					end = uint16(dev.def.LzmaDefLength)
+				}
+				copy(tx[:32], dev.def.LzmaDef[start:end])
+			*/
 
 		case VialCmdGetEncoder:
-			if em, ok := host.km.(EncoderMapper); ok {
+			if em, ok := dev.km.(EncoderMapper); ok {
 				layer := rx[2]
 				idx := rx[3]
 				ccw, cw := em.MapEncoder(int(layer), int(idx))
@@ -332,7 +354,7 @@ func (host *Device) Handle(rx []byte, tx []byte) bool {
 			}
 
 		case VialCmdSetEncoder:
-			if es, ok := host.km.(EncoderSaver); ok {
+			if es, ok := dev.km.(EncoderSaver); ok {
 				var kc uint16
 				layer := int(rx[2])
 				index := int(rx[3])
@@ -398,7 +420,7 @@ func (host *Device) Handle(rx []byte, tx []byte) bool {
 		if debug {
 			println("vial default - ", rx[0])
 		}
-		if handler, ok := host.km.(Handler); ok {
+		if handler, ok := dev.km.(Handler); ok {
 			return handler.Handle(rx, tx)
 		}
 		return false

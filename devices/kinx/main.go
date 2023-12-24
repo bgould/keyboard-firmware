@@ -32,7 +32,6 @@ var (
 var _ vial.KeySetter = (keyboard.Keymap)(nil)
 
 func init() {
-	loadKeyboardDef()
 	board.SetDebug(_debug)
 	board.SetKeyAction(keyboard.KeyActionFunc(keyAction))
 }

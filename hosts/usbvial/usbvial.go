@@ -25,8 +25,8 @@ type Host struct {
 	txb [32]byte
 }
 
-func New(keymap vial.KeyMapper) *Host {
-	host = &Host{Host: usbhid.New(), dev: vial.NewDevice(keymap)}
+func New(def vial.DeviceDefinition, keymap vial.KeyMapper) *Host {
+	host = &Host{Host: usbhid.New(), dev: vial.NewDevice(def, keymap)}
 	return host
 }
 
