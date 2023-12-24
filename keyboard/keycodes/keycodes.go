@@ -15,7 +15,7 @@ package keycodes
 
 */
 
-type Keycode uint8
+type Keycode uint16
 
 func (code Keycode) IsError() bool {
 	return (ROLL_OVER <= (code) && (code) <= UNDEFINED)
@@ -238,8 +238,11 @@ const (
 	EXSEL /* 0xA4 */
 )
 
-/* Special keycodes for 8-bit keymap
-   NOTE: 0xA5-DF and 0xE8-FF are used for internal special purpose */
+/*
+Special keycodes for 8-bit keymap
+
+	NOTE: 0xA5-DF and 0xE8-FF are used for internal special purpose
+*/
 const (
 	/* System Control */
 	SYSTEM_POWER = iota + 0xA5

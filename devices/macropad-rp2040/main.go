@@ -12,6 +12,7 @@ import (
 	"github.com/bgould/keyboard-firmware/hosts/multihost"
 	"github.com/bgould/keyboard-firmware/hosts/serial"
 	"github.com/bgould/keyboard-firmware/hosts/usbvial"
+	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
 	"github.com/bgould/keyboard-firmware/keyboard"
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
@@ -26,17 +27,18 @@ var (
 	// TODO: encoder API needs to be improved/revamped
 	encoder = rotary_encoder.New(machine.ROT_A, machine.ROT_B)
 
-	host   = multihost.New(usbvial.New(keymap), serial.New(serialer))
-	matrix = keyboard.NewMatrix(1, 16, keyboard.RowReaderFunc(ReadRow))
 	keymap = Keymap()
+	mapper = &MacroPadRP2040KeyMapper{keymap}
+
+	host   = multihost.New(usbvial.New(VialDeviceDefinition, mapper), serial.New(serialer))
+	matrix = keyboard.NewMatrix(1, 16, keyboard.RowReaderFunc(ReadRow))
 
 	board = keyboard.New(machine.Serial, host, matrix, keymap)
 )
 
 func init() {
 	configurePins()
-	loadKeyboardDef()
-	usb.Serial = usbvial.MagicSerialNumber("")
+	usb.Serial = vial.MagicSerialNumber("")
 	encoder.Configure(rotary_encoder.Config{})
 }
 

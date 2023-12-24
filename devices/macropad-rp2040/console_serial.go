@@ -1,4 +1,4 @@
-//go:build !console.tinyterm
+//go:build macropad_rp2040 && !console.tinyterm
 
 package main
 
