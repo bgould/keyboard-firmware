@@ -21,11 +21,12 @@ type encoders struct {
 	values     []int
 }
 
-func NewEncoders(encs []Encoders, subs ...EncodersSubscriber) Encoders {
-	return &encoders{}
-}
+// func NewEncoders(encs []Encoders, subs ...EncodersSubscriber) Encoders {
+// 	return &encoders{}
+// }
 
 func (encs *encoders) Task() {
+	// println("encoder task")
 	for i, enc := range encs.encoders {
 		_, _ = i, enc
 		if newValue, oldValue := enc.Value(), encs.values[i]; newValue != oldValue {
@@ -37,6 +38,7 @@ func (encs *encoders) Task() {
 			encs.values[i] = newValue
 			for i := 0; i < change; i++ {
 				for _, sub := range encs.subcribers {
+					// println("encoder value changed", i, clockwise)
 					sub.EncoderChanged(i, clockwise)
 				}
 			}

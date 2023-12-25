@@ -4,7 +4,6 @@ package main
 
 import (
 	"machine"
-	"time"
 
 	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
 	"github.com/bgould/keyboard-firmware/keyboard"
@@ -34,17 +33,17 @@ func configurePins() {
 	}
 }
 
-var (
-	// TODO: make this more generic and move into core library
-	encTurned    time.Time
-	encClockwise bool
-)
+// var (
+// 	// TODO: make this more generic and move into core library
+// 	encTurned    time.Time
+// 	encClockwise bool
+// )
 
-func encoderCallback(index int, clockwise bool) {
-	encTurned = time.Now()
-	encClockwise = clockwise
-	// fmt.Fprintf(serialer, "encoder: %d %t\n", index, clockwise)
-}
+// func encoderCallback(index int, clockwise bool) {
+// 	encTurned = time.Now()
+// 	encClockwise = clockwise
+// 	// fmt.Fprintf(serialer, "encoder: %d %t\n", index, clockwise)
+// }
 
 const (
 	encIndexCW  = 14
@@ -60,13 +59,13 @@ func ReadRow(rowIndex uint8) keyboard.Row {
 				v |= (1 << i)
 			}
 		}
-		if time.Since(encTurned) < encoderInterval {
-			if encClockwise {
-				v |= (1 << encIndexCW)
-			} else {
-				v |= (1 << encIndexCCW)
-			}
-		}
+		// if time.Since(encTurned) < encoderInterval {
+		// 	if encClockwise {
+		// 		v |= (1 << encIndexCW)
+		// 	} else {
+		// 		v |= (1 << encIndexCCW)
+		// 	}
+		// }
 		return v
 	default:
 		return 0
