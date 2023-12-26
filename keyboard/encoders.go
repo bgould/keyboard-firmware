@@ -1,7 +1,7 @@
 package keyboard
 
 type Encoders interface {
-	Task()
+	EncodersTask()
 }
 
 type Encoder interface {
@@ -21,11 +21,7 @@ type encoders struct {
 	values     []int
 }
 
-// func NewEncoders(encs []Encoders, subs ...EncodersSubscriber) Encoders {
-// 	return &encoders{}
-// }
-
-func (encs *encoders) Task() {
+func (encs *encoders) EncodersTask() {
 	// println("encoder task")
 	for i, enc := range encs.encoders {
 		_, _ = i, enc

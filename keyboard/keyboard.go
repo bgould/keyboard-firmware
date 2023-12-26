@@ -130,7 +130,7 @@ func (kbd *Keyboard) Task() {
 		kbd.host.Send(kbd.mouseReport)
 	}
 	if kbd.encoders != nil {
-		kbd.encoders.Task()
+		kbd.encoders.EncodersTask()
 	}
 }
 
@@ -146,9 +146,9 @@ func (kbd *Keyboard) processEvent(ev Event) {
 		key = kbd.layers.MapKey(int(l), int(ev.Pos.Row), int(ev.Pos.Col))
 	}
 	switch {
-	case key.IsKey() || key.IsModifier():
+	case key.IsBasic() || key.IsModifier():
 		kbd.processKey(key, ev.Made)
-	case key.IsMouseKey():
+	case key.IsMouse():
 		kbd.processMouseKey(key, ev.Made)
 	case key.IsConsumer():
 		kbd.processConsumerKey(key, ev.Made)
@@ -156,8 +156,8 @@ func (kbd *Keyboard) processEvent(ev Event) {
 		kbd.processSystemKey(key, ev.Made)
 	case key.IsFn():
 		kbd.processFn(key, ev.Made)
-	case key.IsSpecial():
-		kbd.processSpecialKey(key, ev.Made)
+		// case key.IsSpecial():
+		// 	kbd.processSpecialKey(key, ev.Made)
 	}
 }
 
@@ -196,18 +196,18 @@ func (kbd *Keyboard) processSystemKey(key keycodes.Keycode, made bool) {
 	// }
 }
 
-func (kbd *Keyboard) processSpecialKey(key keycodes.Keycode, made bool) {
-	switch {
-	case key == keycodes.QK_BOOTLOADER:
-		if !made {
-			break
-		}
-		if kbd.jumpToBootloader != nil {
-			kbd.jumpToBootloader()
-		}
-		return
-	}
-}
+// func (kbd *Keyboard) processSpecialKey(key keycodes.Keycode, made bool) {
+// 	switch {
+// 	case key == keycodes.QK_BOOTLOADER:
+// 		if !made {
+// 			break
+// 		}
+// 		if kbd.jumpToBootloader != nil {
+// 			kbd.jumpToBootloader()
+// 		}
+// 		return
+// 	}
+// }
 
 func (kbd *Keyboard) processFn(key keycodes.Keycode, made bool) {
 	if !key.IsFn() { // sanity check

@@ -8,68 +8,6 @@ package keycodes
 // This file is auto-generated, do not edit.
 
 const (
-	// Ranges
-	QK_BASIC                   = 0x0000
-	QK_BASIC_MAX               = 0x00FF
-	QK_MODS                    = 0x0100
-	QK_MODS_MAX                = 0x1FFF
-	QK_MOD_TAP                 = 0x2000
-	QK_MOD_TAP_MAX             = 0x3FFF
-	QK_LAYER_TAP               = 0x4000
-	QK_LAYER_TAP_MAX           = 0x4FFF
-	QK_LAYER_MOD               = 0x5000
-	QK_LAYER_MOD_MAX           = 0x51FF
-	QK_TO                      = 0x5200
-	QK_TO_MAX                  = 0x521F
-	QK_MOMENTARY               = 0x5220
-	QK_MOMENTARY_MAX           = 0x523F
-	QK_DEF_LAYER               = 0x5240
-	QK_DEF_LAYER_MAX           = 0x525F
-	QK_TOGGLE_LAYER            = 0x5260
-	QK_TOGGLE_LAYER_MAX        = 0x527F
-	QK_ONE_SHOT_LAYER          = 0x5280
-	QK_ONE_SHOT_LAYER_MAX      = 0x529F
-	QK_ONE_SHOT_MOD            = 0x52A0
-	QK_ONE_SHOT_MOD_MAX        = 0x52BF
-	QK_LAYER_TAP_TOGGLE        = 0x52C0
-	QK_LAYER_TAP_TOGGLE_MAX    = 0x52DF
-	QK_SWAP_HANDS              = 0x5600
-	QK_SWAP_HANDS_MAX          = 0x56FF
-	QK_TAP_DANCE               = 0x5700
-	QK_TAP_DANCE_MAX           = 0x57FF
-	QK_MAGIC                   = 0x7000
-	QK_MAGIC_MAX               = 0x70FF
-	QK_MIDI                    = 0x7100
-	QK_MIDI_MAX                = 0x71FF
-	QK_SEQUENCER               = 0x7200
-	QK_SEQUENCER_MAX           = 0x73FF
-	QK_JOYSTICK                = 0x7400
-	QK_JOYSTICK_MAX            = 0x743F
-	QK_PROGRAMMABLE_BUTTON     = 0x7440
-	QK_PROGRAMMABLE_BUTTON_MAX = 0x747F
-	QK_AUDIO                   = 0x7480
-	QK_AUDIO_MAX               = 0x74BF
-	QK_STENO                   = 0x74C0
-	QK_STENO_MAX               = 0x74FF
-	QK_MACRO                   = 0x7700
-	QK_MACRO_MAX               = 0x777F
-	QK_LIGHTING                = 0x7800
-	QK_LIGHTING_MAX            = 0x78FF
-	QK_QUANTUM                 = 0x7C00
-	QK_QUANTUM_MAX             = 0x7DFF
-	QK_KB                      = 0x7E00
-	QK_KB_MAX                  = 0x7E3F
-	QK_USER                    = 0x7E40
-	QK_USER_MAX                = 0x7FFF
-	QK_UNICODEMAP              = 0x8000
-	QK_UNICODEMAP_MAX          = 0xBFFF
-	QK_UNICODE                 = 0x8000
-	QK_UNICODE_MAX             = 0xFFFF
-	QK_UNICODEMAP_PAIR         = 0xC000
-	QK_UNICODEMAP_PAIR_MAX     = 0xFFFF
-)
-
-const (
 	// Keycodes
 	NO                                           Keycode = 0x0000
 	TRANSPARENT                                  Keycode = 0x0001
@@ -1350,54 +1288,281 @@ const (
 )
 
 // Range Helpers
-// #define IS_QK_BASIC(code) ((code) >= QK_BASIC && (code) <= QK_BASIC_MAX)
-// #define IS_QK_MODS(code) ((code) >= QK_MODS && (code) <= QK_MODS_MAX)
-// #define IS_QK_MOD_TAP(code) ((code) >= QK_MOD_TAP && (code) <= QK_MOD_TAP_MAX)
-// #define IS_QK_LAYER_TAP(code) ((code) >= QK_LAYER_TAP && (code) <= QK_LAYER_TAP_MAX)
-// #define IS_QK_LAYER_MOD(code) ((code) >= QK_LAYER_MOD && (code) <= QK_LAYER_MOD_MAX)
-// #define IS_QK_TO(code) ((code) >= QK_TO && (code) <= QK_TO_MAX)
-// #define IS_QK_MOMENTARY(code) ((code) >= QK_MOMENTARY && (code) <= QK_MOMENTARY_MAX)
-// #define IS_QK_DEF_LAYER(code) ((code) >= QK_DEF_LAYER && (code) <= QK_DEF_LAYER_MAX)
-// #define IS_QK_TOGGLE_LAYER(code) ((code) >= QK_TOGGLE_LAYER && (code) <= QK_TOGGLE_LAYER_MAX)
-// #define IS_QK_ONE_SHOT_LAYER(code) ((code) >= QK_ONE_SHOT_LAYER && (code) <= QK_ONE_SHOT_LAYER_MAX)
-// #define IS_QK_ONE_SHOT_MOD(code) ((code) >= QK_ONE_SHOT_MOD && (code) <= QK_ONE_SHOT_MOD_MAX)
-// #define IS_QK_LAYER_TAP_TOGGLE(code) ((code) >= QK_LAYER_TAP_TOGGLE && (code) <= QK_LAYER_TAP_TOGGLE_MAX)
-// #define IS_QK_SWAP_HANDS(code) ((code) >= QK_SWAP_HANDS && (code) <= QK_SWAP_HANDS_MAX)
-// #define IS_QK_TAP_DANCE(code) ((code) >= QK_TAP_DANCE && (code) <= QK_TAP_DANCE_MAX)
-// #define IS_QK_MAGIC(code) ((code) >= QK_MAGIC && (code) <= QK_MAGIC_MAX)
-// #define IS_QK_MIDI(code) ((code) >= QK_MIDI && (code) <= QK_MIDI_MAX)
-// #define IS_QK_SEQUENCER(code) ((code) >= QK_SEQUENCER && (code) <= QK_SEQUENCER_MAX)
-// #define IS_QK_JOYSTICK(code) ((code) >= QK_JOYSTICK && (code) <= QK_JOYSTICK_MAX)
-// #define IS_QK_PROGRAMMABLE_BUTTON(code) ((code) >= QK_PROGRAMMABLE_BUTTON && (code) <= QK_PROGRAMMABLE_BUTTON_MAX)
-// #define IS_QK_AUDIO(code) ((code) >= QK_AUDIO && (code) <= QK_AUDIO_MAX)
-// #define IS_QK_STENO(code) ((code) >= QK_STENO && (code) <= QK_STENO_MAX)
-// #define IS_QK_MACRO(code) ((code) >= QK_MACRO && (code) <= QK_MACRO_MAX)
-// #define IS_QK_LIGHTING(code) ((code) >= QK_LIGHTING && (code) <= QK_LIGHTING_MAX)
-// #define IS_QK_QUANTUM(code) ((code) >= QK_QUANTUM && (code) <= QK_QUANTUM_MAX)
-// #define IS_QK_KB(code) ((code) >= QK_KB && (code) <= QK_KB_MAX)
-// #define IS_QK_USER(code) ((code) >= QK_USER && (code) <= QK_USER_MAX)
-// #define IS_QK_UNICODEMAP(code) ((code) >= QK_UNICODEMAP && (code) <= QK_UNICODEMAP_MAX)
-// #define IS_QK_UNICODE(code) ((code) >= QK_UNICODE && (code) <= QK_UNICODE_MAX)
-// #define IS_QK_UNICODEMAP_PAIR(code) ((code) >= QK_UNICODEMAP_PAIR && (code) <= QK_UNICODEMAP_PAIR_MAX)
+func IsQkBasic(code Keycode) bool {
+	return ((code) >= QK_BASIC && (code) <= QK_BASIC_MAX)
+}
+
+func IsQkMods(code Keycode) bool {
+	return ((code) >= QK_MODS && (code) <= QK_MODS_MAX)
+}
+
+func IsQkModTap(code Keycode) bool {
+	return ((code) >= QK_MOD_TAP && (code) <= QK_MOD_TAP_MAX)
+}
+
+func IsQkLayerTap(code Keycode) bool {
+	return ((code) >= QK_LAYER_TAP && (code) <= QK_LAYER_TAP_MAX)
+}
+
+func IsQkLayerMod(code Keycode) bool {
+	return ((code) >= QK_LAYER_MOD && (code) <= QK_LAYER_MOD_MAX)
+}
+
+func IsQkTo(code Keycode) bool {
+	return ((code) >= QK_TO && (code) <= QK_TO_MAX)
+}
+
+func IsQkMomentary(code Keycode) bool {
+	return ((code) >= QK_MOMENTARY && (code) <= QK_MOMENTARY_MAX)
+}
+
+func IsQkDefLayer(code Keycode) bool {
+	return ((code) >= QK_DEF_LAYER && (code) <= QK_DEF_LAYER_MAX)
+}
+
+func IsQkToggleLayer(code Keycode) bool {
+	return ((code) >= QK_TOGGLE_LAYER && (code) <= QK_TOGGLE_LAYER_MAX)
+}
+
+func IsQkOneShotLayer(code Keycode) bool {
+	return ((code) >= QK_ONE_SHOT_LAYER && (code) <= QK_ONE_SHOT_LAYER_MAX)
+}
+
+func IsQkOneShotMod(code Keycode) bool {
+	return ((code) >= QK_ONE_SHOT_MOD && (code) <= QK_ONE_SHOT_MOD_MAX)
+}
+
+func IsQkLayerTapToggle(code Keycode) bool {
+	return ((code) >= QK_LAYER_TAP_TOGGLE && (code) <= QK_LAYER_TAP_TOGGLE_MAX)
+}
+
+func IsQkSwapHands(code Keycode) bool {
+	return ((code) >= QK_SWAP_HANDS && (code) <= QK_SWAP_HANDS_MAX)
+}
+
+func IsQkTapDance(code Keycode) bool {
+	return ((code) >= QK_TAP_DANCE && (code) <= QK_TAP_DANCE_MAX)
+}
+
+func IsQkMagic(code Keycode) bool {
+	return ((code) >= QK_MAGIC && (code) <= QK_MAGIC_MAX)
+}
+
+func IsQkMidi(code Keycode) bool {
+	return ((code) >= QK_MIDI && (code) <= QK_MIDI_MAX)
+}
+
+func IsQkSequencer(code Keycode) bool {
+	return ((code) >= QK_SEQUENCER && (code) <= QK_SEQUENCER_MAX)
+}
+
+func IsQkJoystick(code Keycode) bool {
+	return ((code) >= QK_JOYSTICK && (code) <= QK_JOYSTICK_MAX)
+}
+
+func IsQkProgrammableButton(code Keycode) bool {
+	return ((code) >= QK_PROGRAMMABLE_BUTTON && (code) <= QK_PROGRAMMABLE_BUTTON_MAX)
+}
+
+func IsQkAudio(code Keycode) bool {
+	return ((code) >= QK_AUDIO && (code) <= QK_AUDIO_MAX)
+}
+
+func IsQkSteno(code Keycode) bool {
+	return ((code) >= QK_STENO && (code) <= QK_STENO_MAX)
+}
+
+func IsQkMacro(code Keycode) bool {
+	return ((code) >= QK_MACRO && (code) <= QK_MACRO_MAX)
+}
+
+func IsQkLighting(code Keycode) bool {
+	return ((code) >= QK_LIGHTING && (code) <= QK_LIGHTING_MAX)
+}
+
+func IsQkQuantum(code Keycode) bool {
+	return ((code) >= QK_QUANTUM && (code) <= QK_QUANTUM_MAX)
+}
+
+func IsQkKb(code Keycode) bool {
+	return ((code) >= QK_KB && (code) <= QK_KB_MAX)
+}
+
+func IsQkUser(code Keycode) bool {
+	return ((code) >= QK_USER && (code) <= QK_USER_MAX)
+}
+
+func IsQkUnicodemap(code Keycode) bool {
+	return ((code) >= QK_UNICODEMAP && (code) <= QK_UNICODEMAP_MAX)
+}
+
+func IsQkUnicode(code Keycode) bool {
+	return ((code) >= QK_UNICODE && (code) <= QK_UNICODE_MAX)
+}
+
+func IsQkUnicodemapPair(code Keycode) bool {
+	return ((code) >= QK_UNICODEMAP_PAIR && (code) <= QK_UNICODEMAP_PAIR_MAX)
+}
 
 // Group Helpers
 // #define IS_INTERNAL_KEYCODE(code) ((code) >= KC_NO && (code) <= KC_TRANSPARENT)
+func (code Keycode) IsInternal() bool {
+	return ((code) >= NO && (code) <= TRANSPARENT)
+}
+
 // #define IS_BASIC_KEYCODE(code) ((code) >= KC_A && (code) <= KC_EXSEL)
+func (code Keycode) IsBasic() bool {
+	return ((code) >= A && (code) <= EXSEL)
+}
+
 // #define IS_SYSTEM_KEYCODE(code) ((code) >= KC_SYSTEM_POWER && (code) <= KC_SYSTEM_WAKE)
+func (code Keycode) IsSystem() bool {
+	return ((code) >= SYSTEM_POWER && (code) <= SYSTEM_WAKE)
+}
+
 // #define IS_CONSUMER_KEYCODE(code) ((code) >= KC_AUDIO_MUTE && (code) <= KC_LAUNCHPAD)
+func (code Keycode) IsConsumer() bool {
+	return ((code) >= AUDIO_MUTE && (code) <= LAUNCHPAD)
+}
+
 // #define IS_MOUSE_KEYCODE(code) ((code) >= KC_MS_UP && (code) <= KC_MS_ACCEL2)
+func (code Keycode) IsMouse() bool {
+	return ((code) >= MS_UP && (code) <= MS_ACCEL2)
+}
+
 // #define IS_MODIFIER_KEYCODE(code) ((code) >= KC_LEFT_CTRL && (code) <= KC_RIGHT_GUI)
+func (code Keycode) IsModifier() bool {
+	return ((code) >= LEFT_CTRL && (code) <= RIGHT_GUI)
+}
+
 // #define IS_SWAP_HANDS_KEYCODE(code) ((code) >= QK_SWAP_HANDS_TOGGLE && (code) <= QK_SWAP_HANDS_ONE_SHOT)
+func (code Keycode) IsSwapHands() bool {
+	return ((code) >= QK_SWAP_HANDS_TOGGLE && (code) <= QK_SWAP_HANDS_ONE_SHOT)
+}
+
 // #define IS_MAGIC_KEYCODE(code) ((code) >= QK_MAGIC_SWAP_CONTROL_CAPS_LOCK && (code) <= QK_MAGIC_TOGGLE_ESCAPE_CAPS_LOCK)
+func (code Keycode) IsMagic() bool {
+	return ((code) >= QK_MAGIC_SWAP_CONTROL_CAPS_LOCK && (code) <= QK_MAGIC_TOGGLE_ESCAPE_CAPS_LOCK)
+}
+
 // #define IS_MIDI_KEYCODE(code) ((code) >= QK_MIDI_ON && (code) <= QK_MIDI_PITCH_BEND_UP)
+func (code Keycode) IsMidi() bool {
+	return ((code) >= QK_MIDI_ON && (code) <= QK_MIDI_PITCH_BEND_UP)
+}
+
 // #define IS_SEQUENCER_KEYCODE(code) ((code) >= QK_SEQUENCER_ON && (code) <= QK_SEQUENCER_STEPS_CLEAR)
+func (code Keycode) IsSequencer() bool {
+	return ((code) >= QK_SEQUENCER_ON && (code) <= QK_SEQUENCER_STEPS_CLEAR)
+}
+
 // #define IS_JOYSTICK_KEYCODE(code) ((code) >= QK_JOYSTICK_BUTTON_0 && (code) <= QK_JOYSTICK_BUTTON_31)
+func (code Keycode) IsJoystick() bool {
+	return ((code) >= QK_JOYSTICK_BUTTON_0 && (code) <= QK_JOYSTICK_BUTTON_31)
+}
+
 // #define IS_PROGRAMMABLE_BUTTON_KEYCODE(code) ((code) >= QK_PROGRAMMABLE_BUTTON_1 && (code) <= QK_PROGRAMMABLE_BUTTON_32)
+func (code Keycode) IsProgrammableButton() bool {
+	return ((code) >= QK_PROGRAMMABLE_BUTTON_1 && (code) <= QK_PROGRAMMABLE_BUTTON_32)
+}
+
 // #define IS_AUDIO_KEYCODE(code) ((code) >= QK_AUDIO_ON && (code) <= QK_AUDIO_VOICE_PREVIOUS)
+func (code Keycode) IsAudio() bool {
+	return ((code) >= QK_AUDIO_ON && (code) <= QK_AUDIO_VOICE_PREVIOUS)
+}
+
 // #define IS_STENO_KEYCODE(code) ((code) >= QK_STENO_BOLT && (code) <= QK_STENO_COMB_MAX)
+func (code Keycode) IsSteno() bool {
+	return ((code) >= QK_STENO_BOLT && (code) <= QK_STENO_COMB_MAX)
+}
+
 // #define IS_MACRO_KEYCODE(code) ((code) >= QK_MACRO_0 && (code) <= QK_MACRO_31)
+func (code Keycode) IsMacro() bool {
+	return ((code) >= QK_MACRO_0 && (code) <= QK_MACRO_31)
+}
+
 // #define IS_BACKLIGHT_KEYCODE(code) ((code) >= QK_BACKLIGHT_ON && (code) <= QK_BACKLIGHT_TOGGLE_BREATHING)
+func (code Keycode) IsBacklight() bool {
+	return ((code) >= QK_BACKLIGHT_ON && (code) <= QK_BACKLIGHT_TOGGLE_BREATHING)
+}
+
 // #define IS_RGB_KEYCODE(code) ((code) >= RGB_TOG && (code) <= RGB_MODE_TWINKLE)
+func (code Keycode) IsRgb() bool {
+	return ((code) >= RGB_TOG && (code) <= RGB_MODE_TWINKLE)
+}
+
 // #define IS_QUANTUM_KEYCODE(code) ((code) >= QK_BOOTLOADER && (code) <= QK_ALT_REPEAT_KEY)
+func (code Keycode) IsQuantum() bool {
+	return ((code) >= QK_BOOTLOADER && (code) <= QK_ALT_REPEAT_KEY)
+}
+
 // #define IS_KB_KEYCODE(code) ((code) >= QK_KB_0 && (code) <= QK_KB_31)
+func (code Keycode) IsKb() bool {
+	return ((code) >= QK_KB_0 && (code) <= QK_KB_31)
+}
+
 // #define IS_USER_KEYCODE(code) ((code) >= QK_USER_0 && (code) <= QK_USER_31)
+func (code Keycode) IsUser() bool {
+	return ((code) >= QK_USER_0 && (code) <= QK_USER_31)
+}
+
+const (
+	// Ranges
+	QK_BASIC                   = 0x0000
+	QK_BASIC_MAX               = 0x00FF
+	QK_MODS                    = 0x0100
+	QK_MODS_MAX                = 0x1FFF
+	QK_MOD_TAP                 = 0x2000
+	QK_MOD_TAP_MAX             = 0x3FFF
+	QK_LAYER_TAP               = 0x4000
+	QK_LAYER_TAP_MAX           = 0x4FFF
+	QK_LAYER_MOD               = 0x5000
+	QK_LAYER_MOD_MAX           = 0x51FF
+	QK_TO                      = 0x5200
+	QK_TO_MAX                  = 0x521F
+	QK_MOMENTARY               = 0x5220
+	QK_MOMENTARY_MAX           = 0x523F
+	QK_DEF_LAYER               = 0x5240
+	QK_DEF_LAYER_MAX           = 0x525F
+	QK_TOGGLE_LAYER            = 0x5260
+	QK_TOGGLE_LAYER_MAX        = 0x527F
+	QK_ONE_SHOT_LAYER          = 0x5280
+	QK_ONE_SHOT_LAYER_MAX      = 0x529F
+	QK_ONE_SHOT_MOD            = 0x52A0
+	QK_ONE_SHOT_MOD_MAX        = 0x52BF
+	QK_LAYER_TAP_TOGGLE        = 0x52C0
+	QK_LAYER_TAP_TOGGLE_MAX    = 0x52DF
+	QK_SWAP_HANDS              = 0x5600
+	QK_SWAP_HANDS_MAX          = 0x56FF
+	QK_TAP_DANCE               = 0x5700
+	QK_TAP_DANCE_MAX           = 0x57FF
+	QK_MAGIC                   = 0x7000
+	QK_MAGIC_MAX               = 0x70FF
+	QK_MIDI                    = 0x7100
+	QK_MIDI_MAX                = 0x71FF
+	QK_SEQUENCER               = 0x7200
+	QK_SEQUENCER_MAX           = 0x73FF
+	QK_JOYSTICK                = 0x7400
+	QK_JOYSTICK_MAX            = 0x743F
+	QK_PROGRAMMABLE_BUTTON     = 0x7440
+	QK_PROGRAMMABLE_BUTTON_MAX = 0x747F
+	QK_AUDIO                   = 0x7480
+	QK_AUDIO_MAX               = 0x74BF
+	QK_STENO                   = 0x74C0
+	QK_STENO_MAX               = 0x74FF
+	QK_MACRO                   = 0x7700
+	QK_MACRO_MAX               = 0x777F
+	QK_LIGHTING                = 0x7800
+	QK_LIGHTING_MAX            = 0x78FF
+	QK_QUANTUM                 = 0x7C00
+	QK_QUANTUM_MAX             = 0x7DFF
+	QK_KB                      = 0x7E00
+	QK_KB_MAX                  = 0x7E3F
+	QK_USER                    = 0x7E40
+	QK_USER_MAX                = 0x7FFF
+	QK_UNICODEMAP              = 0x8000
+	QK_UNICODEMAP_MAX          = 0xBFFF
+	QK_UNICODE                 = 0x8000
+	QK_UNICODE_MAX             = 0xFFFF
+	QK_UNICODEMAP_PAIR         = 0xC000
+	QK_UNICODEMAP_PAIR_MAX     = 0xFFFF
+)

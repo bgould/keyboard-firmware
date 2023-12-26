@@ -27,7 +27,7 @@ func (code Keycode) IsAny() bool {
 	return (A <= (code) && (code) <= 0xFF)
 }
 
-func (code Keycode) IsKey() bool {
+func (code Keycode) IsBasic() bool {
 	return (A <= (code) && (code) <= EXSEL)
 }
 
@@ -35,9 +35,9 @@ func (code Keycode) IsModifier() bool {
 	return LCTRL <= code && code <= RGUI
 }
 
-func (code Keycode) IsSpecial() bool {
-	return ((0xA5 <= (code) && (code) <= 0xDF) || (0xE8 <= (code) && (code) <= 0xFF))
-}
+// func (code Keycode) IsSpecial() bool {
+// 	return ((0xA5 <= (code) && (code) <= 0xDF) || (0xE8 <= (code) && (code) <= 0xFF))
+// }
 
 func (code Keycode) IsSystem() bool {
 	return (PWR <= (code) && (code) <= WAKE)
@@ -51,7 +51,7 @@ func (code Keycode) IsFn() bool {
 	return (FN0 <= (code) && (code) <= FN31)
 }
 
-func (code Keycode) IsMouseKey() bool {
+func (code Keycode) IsMouse() bool {
 	return (MS_UP <= (code) && (code) <= MS_ACCEL2)
 }
 

@@ -158,7 +158,7 @@ func (m *Matrix) Scan() (changed bool) {
 
 		// update matrix state with encoder state if applicable
 		if m.encoders != nil {
-			m.encoders.Task()
+			m.encoders.EncodersTask()
 			for _, state := range m.encStates {
 				if state.isInRow(i) && time.Since(state.turned) < encoderInterval {
 					var col = uint8(255)
