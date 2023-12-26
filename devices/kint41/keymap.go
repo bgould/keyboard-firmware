@@ -6,6 +6,10 @@ import (
 	. "github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 
+const (
+	PROG = QK_BOOTLOADER
+)
+
 func KinTKeymap() keyboard.Keymap {
 	return keyboard.Keymap([]keyboard.Layer{KinesisAdvantageLayer(
 		ESC, F1, F2, F3, F4, F5, F6, F7, F8 /*  */, F9, F10, F11, F12, PSCR, SLCK, BRK, FN0, PROG,
