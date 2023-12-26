@@ -143,15 +143,15 @@ func (mk *MouseKeys) Make(code keycodes.Keycode) {
 	case keycodes.MS_WH_RIGHT:
 		mk.report.h = mk.wheelUnit()
 	case keycodes.MS_BTN1:
-		mk.report.buttons |= keycodes.BTN1
+		mk.report.buttons |= uint8(keycodes.BTN1) & 0xD0 // FIXME: hardcoded to QMK code
 	case keycodes.MS_BTN2:
-		mk.report.buttons |= keycodes.BTN2
+		mk.report.buttons |= uint8(keycodes.BTN2) & 0xD0 // FIXME: hardcoded to QMK code
 	case keycodes.MS_BTN3:
-		mk.report.buttons |= keycodes.BTN3
+		mk.report.buttons |= uint8(keycodes.BTN3) & 0xD0 // FIXME: hardcoded to QMK code
 	case keycodes.MS_BTN4:
-		mk.report.buttons |= keycodes.BTN4
+		mk.report.buttons |= uint8(keycodes.BTN4) & 0xD0 // FIXME: hardcoded to QMK code
 	case keycodes.MS_BTN5:
-		mk.report.buttons |= keycodes.BTN5
+		mk.report.buttons |= uint8(keycodes.BTN5) & 0xD0 // FIXME: hardcoded to QMK code
 	case keycodes.MS_ACCEL0:
 		mk.accel |= (1 << 0)
 	case keycodes.MS_ACCEL1:
@@ -196,15 +196,15 @@ func (mk *MouseKeys) Break(code keycodes.Keycode) {
 			mk.report.h = 0
 		}
 	case keycodes.MS_BTN1:
-		mk.report.buttons &= ^uint8(keycodes.BTN1)
+		mk.report.buttons &= ^uint8(keycodes.BTN1 & 0x0D) // FIXME: hardcoded to QMK code
 	case keycodes.MS_BTN2:
-		mk.report.buttons &= ^uint8(keycodes.BTN2)
+		mk.report.buttons &= ^uint8(keycodes.BTN2 & 0x0D) // FIXME: hardcoded to QMK code
 	case keycodes.MS_BTN3:
-		mk.report.buttons &= ^uint8(keycodes.BTN3)
+		mk.report.buttons &= ^uint8(keycodes.BTN3 & 0x0D) // FIXME: hardcoded to QMK code
 	case keycodes.MS_BTN4:
-		mk.report.buttons &= ^uint8(keycodes.BTN4)
+		mk.report.buttons &= ^uint8(keycodes.BTN4 & 0x0D) // FIXME: hardcoded to QMK code
 	case keycodes.MS_BTN5:
-		mk.report.buttons &= ^uint8(keycodes.BTN5)
+		mk.report.buttons &= ^uint8(keycodes.BTN5 & 0x0D) // FIXME: hardcoded to QMK code
 	case keycodes.MS_ACCEL0:
 		mk.accel &= ^uint16(1 << 0)
 	case keycodes.MS_ACCEL1:

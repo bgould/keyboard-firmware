@@ -1,3 +1,5 @@
+//go:build keycodes.alt && keycodes.tmk
+
 package keycodes
 
 /*

@@ -305,14 +305,14 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 			tx[1] = VialProtocolVersion >> 8
 			tx[2] = VialProtocolVersion >> 16
 			tx[3] = VialProtocolVersion >> 24
-			tx[4] = 0x9D
-			tx[5] = 0xD0
-			tx[6] = 0xD5
-			tx[7] = 0xE1
-			tx[8] = 0x87
-			tx[9] = 0xF3
-			tx[10] = 0x54
-			tx[11] = 0xE2
+			tx[4] = 0x9D  // TODO
+			tx[5] = 0xD0  // TODO
+			tx[6] = 0xD5  // TODO
+			tx[7] = 0xE1  // TODO
+			tx[8] = 0x87  // TODO
+			tx[9] = 0xF3  // TODO
+			tx[10] = 0x54 // TODO
+			tx[11] = 0xE2 // TODO
 
 		case VialCmdGetSize:
 			// println("vial: 0x01 - retrieve keyboard definition size")

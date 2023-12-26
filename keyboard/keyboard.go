@@ -198,7 +198,7 @@ func (kbd *Keyboard) processSystemKey(key keycodes.Keycode, made bool) {
 
 func (kbd *Keyboard) processSpecialKey(key keycodes.Keycode, made bool) {
 	switch {
-	case key == keycodes.BOOTLOADER:
+	case key == keycodes.QK_BOOTLOADER:
 		if !made {
 			break
 		}
