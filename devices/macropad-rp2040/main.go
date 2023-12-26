@@ -44,11 +44,22 @@ func init() {
 
 func main() {
 
+	// time.Sleep(time.Second)
 	serialer.Write([]byte("testing\n"))
+
+	// println("Adding encoders")
+	matrix.WithEncoders(
+		keyboard.EncoderPos{
+			Encoder: encoder,
+			PosCW:   keyboard.Pos{Row: 0, Col: encIndexCW},
+			PosCCW:  keyboard.Pos{Row: 0, Col: encIndexCCW},
+		},
+	)
 
 	board.SetDebug(_debug)
 
-	board.SetEncoders([]keyboard.Encoder{encoder}, keyboard.EncodersSubscriberFunc(encoderCallback))
+	// board.SetEncoders([]keyboard.Encoder{encoder}, keyboard.EncodersSubscriberFunc(encoderCallback))
+	// board.SetEncoders([]keyboard.Encoder{encoder}, keyboard.EncodersSubscriberFunc(encoderCallback))
 
 	board.SetKeyAction(keyboard.KeyActionFunc(
 		func(key keycodes.Keycode, made bool) {
