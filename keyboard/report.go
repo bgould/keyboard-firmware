@@ -8,9 +8,10 @@ import (
 )
 
 const (
-	RptKeyboard ReportType = 0x0
-	RptMouse    ReportType = 0x2
-	RptConsumer ReportType = 0x3
+	RptKeyboard     ReportType = 0x00
+	RptKeyboardNKRO ReportType = 0x01
+	RptMouse        ReportType = 0x02
+	RptConsumer     ReportType = 0x03
 )
 
 type ReportType byte
@@ -19,6 +20,8 @@ func (t ReportType) String() string {
 	switch t {
 	case RptKeyboard:
 		return "Keyboard"
+	case RptKeyboardNKRO:
+		return "Keyboard[NKRO]"
 	case RptMouse:
 		return "Mouse"
 	case RptConsumer:
@@ -28,7 +31,7 @@ func (t ReportType) String() string {
 	}
 }
 
-type Report [8]byte
+type Report [16]byte
 
 type KeyboardModifier byte
 
@@ -149,19 +152,27 @@ func (r *Report) Mouse(buttons MouseButton, x int8, y int8, v int8, h int8) {
 
 func (r *Report) String() string {
 	return r.Type().String() + "[" +
-		" " + hex(r[0]) +
-		" " + hex(r[1]) +
-		" " + hex(r[2]) +
-		" " + hex(r[3]) +
-		" " + hex(r[4]) +
-		" " + hex(r[5]) +
-		" " + hex(r[6]) +
-		" " + hex(r[7]) +
+		" " + hex(r[0x0]) +
+		" " + hex(r[0x1]) +
+		" " + hex(r[0x2]) +
+		" " + hex(r[0x3]) +
+		" " + hex(r[0x4]) +
+		" " + hex(r[0x5]) +
+		" " + hex(r[0x6]) +
+		" " + hex(r[0x7]) +
+		" " + hex(r[0x8]) +
+		" " + hex(r[0x9]) +
+		" " + hex(r[0xA]) +
+		" " + hex(r[0xB]) +
+		" " + hex(r[0xC]) +
+		" " + hex(r[0xD]) +
+		" " + hex(r[0xE]) +
+		" " + hex(r[0xF]) +
 		" ]"
 }
 
 func (r *Report) WriteDebug(w io.Writer) {
-	for i := 0; i < 8; i++ {
+	for i := 0; i < 16; i++ {
 		w.Write([]byte(hex(r[i])))
 	}
 }

@@ -14,7 +14,7 @@ func init() {
 }
 
 var (
-	keybuf   = make([]byte, 9)
+	keybuf   = make([]byte, 16)
 	conbuf   = make([]byte, 9)
 	mousebuf = make([]byte, 5)
 
@@ -22,17 +22,7 @@ var (
 )
 
 func sendKeyboardReport(mod, k1, k2, k3, k4, k5, k6 byte) {
-	// var b [9]byte
-	// b[0] = 0x02
-	// b[1] = mod
-	// b[2] = 0
-	// b[3] = k1
-	// b[4] = k2
-	// b[5] = k3
-	// b[6] = k4
-	// b[7] = k5
-	// b[8] = k6
-	keybuf[0] = 0x02
+	keybuf[0] = 0x02 // REPORT_ID
 	keybuf[1] = mod
 	keybuf[2] = 0
 	keybuf[3] = k1
@@ -42,21 +32,23 @@ func sendKeyboardReport(mod, k1, k2, k3, k4, k5, k6 byte) {
 	keybuf[7] = k5
 	keybuf[8] = k6
 	port.tx(keybuf)
+}
 
-	// b := []byte{0x02, mod, 0, k1, k2, k3, k4, k5, k6}
-	// if port.txc {
-	// 	port.buf.Put(b)
-	// } else {
-	// 	port.txc = true
-	// 	machine.SendUSBInPacket(usb.HID_ENDPOINT_IN, b)
-	// 	// hid.SendUSBPacket(b)
-	// }
-
-	//port.tx([]byte{0x02, mod, 0, k1, k2, k3, k4, k5, k6})
+func sendNKROKeyboardReport(mod, b1, b2, b3, b4, b5, b6 byte) {
+	keybuf[0] = 0x02 // REPORT_ID
+	keybuf[1] = mod
+	keybuf[2] = 0
+	keybuf[3] = b1
+	keybuf[4] = b2
+	keybuf[5] = b3
+	keybuf[6] = b4
+	keybuf[7] = b5
+	keybuf[8] = b6
+	port.tx(keybuf)
 }
 
 func sendMouseReport(buttons, x, y, wheel byte) {
-	mousebuf[0] = 0x01
+	mousebuf[0] = 0x01 // REPORT_ID
 	mousebuf[1] = buttons
 	mousebuf[2] = x
 	mousebuf[3] = y
