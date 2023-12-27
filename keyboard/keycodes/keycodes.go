@@ -6,13 +6,13 @@ type Keycode uint16
 // 	return (ROLL_OVER <= (code) && (code) <= UNDEFINED)
 // }
 
-func (code Keycode) IsAny() bool {
-	return (A <= (code) && (code) <= 0xFF)
-}
+// func (code Keycode) IsAny() bool {
+// 	return (A <= (code) && (code) <= 0xFF)
+// }
 
-func (code Keycode) IsKey() bool {
-	return code.IsBasic() // (A <= (code) && (code) <= EXSEL)
-}
+// func (code Keycode) IsKey() bool {
+// 	return code.IsBasic() // (A <= (code) && (code) <= EXSEL)
+// }
 
 // func (code Keycode) IsModifier() bool {
 // 	return LCTL <= code && code <= RGUI
@@ -30,9 +30,9 @@ func (code Keycode) IsKey() bool {
 // 	return (MUTE <= (code) && (code) <= WFAV)
 // }
 
-func (code Keycode) IsFn() bool {
-	return (FN0 <= (code) && (code) <= FN31)
-}
+// func (code Keycode) IsFn() bool {
+// 	return (FN0 <= (code) && (code) <= FN31)
+// }
 
 // func (code Keycode) IsMouseKey() bool {
 // 	return (MS_UP <= (code) && (code) <= MS_ACCEL2)

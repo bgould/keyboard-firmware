@@ -12,6 +12,8 @@ const (
 	ViaProtocolVersion = 0x09
 
 	VialProtocolVersion = 0x00000006
+
+	VialUnlockCounterMax = 50
 )
 
 // MagicSerialNumber returns a string value that the Vial desktop app

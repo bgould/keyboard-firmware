@@ -154,8 +154,8 @@ func (kbd *Keyboard) processEvent(ev Event) {
 		kbd.processConsumerKey(key, ev.Made)
 	case key.IsSystem():
 		kbd.processSystemKey(key, ev.Made)
-	case key.IsFn():
-		kbd.processFn(key, ev.Made)
+	case key.IsUser():
+		kbd.processUser(key, ev.Made)
 		// case key.IsSpecial():
 		// 	kbd.processSpecialKey(key, ev.Made)
 	}
@@ -209,8 +209,8 @@ func (kbd *Keyboard) processSystemKey(key keycodes.Keycode, made bool) {
 // 	}
 // }
 
-func (kbd *Keyboard) processFn(key keycodes.Keycode, made bool) {
-	if !key.IsFn() { // sanity check
+func (kbd *Keyboard) processUser(key keycodes.Keycode, made bool) {
+	if !key.IsUser() { // sanity check
 		return
 	}
 	// fnIndex := uint8(key - keycodes.FN0)

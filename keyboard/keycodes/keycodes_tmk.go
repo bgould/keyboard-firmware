@@ -47,7 +47,7 @@ func (code Keycode) IsConsumer() bool {
 	return (MUTE <= (code) && (code) <= WFAV)
 }
 
-func (code Keycode) IsFn() bool {
+func (code Keycode) IsUser() bool {
 	return (FN0 <= (code) && (code) <= FN31)
 }
 
