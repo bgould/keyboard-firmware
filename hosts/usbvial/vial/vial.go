@@ -132,12 +132,12 @@ type KeyOverrideEntry struct {
 
 type DeviceDriver interface {
 	GetLayerCount() uint8
+	GetMatrixRowState(rowIndex int) uint32
+	MapKey(layer, row, col int) keycodes.Keycode
+	SetKey(layer, row, col int, kc keycodes.Keycode) bool
 	// GetMaxKeyCount() int
 	// NumRows() int
 	// NumCols() int
-	MapKey(layer, row, col int) keycodes.Keycode
-	SetKey(layer, row, col int, kc keycodes.Keycode) bool
-	GetMatrixRowState(rowIndex int) uint32
 }
 
 type Device struct {

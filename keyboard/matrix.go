@@ -93,6 +93,17 @@ func (m *Matrix) encoderChanged(index int, clockwise bool) {
 	// println("encoder state changed:", index, state.turned.String(), state.clockwise)
 }
 
+func (m *Matrix) EncoderCount() int {
+	return len(m.encStates)
+}
+
+func (m *Matrix) MapEncoder(idx int) (ccw Pos, cw Pos, ok bool) {
+	if idx < m.EncoderCount() {
+		return m.encStates[idx].PosCCW, m.encStates[idx].PosCW, true
+	}
+	return
+}
+
 func (m *Matrix) Rows() uint8 {
 	return m.nRows
 }

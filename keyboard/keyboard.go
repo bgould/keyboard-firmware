@@ -220,3 +220,20 @@ func (kbd *Keyboard) processUser(key keycodes.Keycode, made bool) {
 		fn.KeyAction(key, made)
 	}
 }
+
+func (kbd *Keyboard) GetLayerCount() uint8 {
+	return kbd.layers.GetLayerCount()
+}
+
+func (kbd *Keyboard) MapKey(layer, row, col int) keycodes.Keycode {
+	return kbd.layers.MapKey(layer, row, col)
+}
+
+// TODO: Keep track of "dirty" keys and implement keypress for saving
+func (kbd *Keyboard) SetKey(layer, row, col int, kc keycodes.Keycode) bool {
+	return kbd.layers.SetKey(layer, row, col, kc)
+}
+
+func (kbd *Keyboard) GetMatrixRowState(idx int) uint32 {
+	return uint32(kbd.matrix.GetRow(uint8(idx)))
+}

@@ -5,7 +5,6 @@ package main
 import (
 	"machine"
 
-	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
 	"github.com/bgould/keyboard-firmware/keyboard"
 )
 
@@ -27,28 +26,16 @@ var keys = []machine.Pin{
 	machine.KEY12,
 }
 
+const (
+	encIndexCW  = 14
+	encIndexCCW = 13
+)
+
 func configurePins() {
 	for _, pin := range keys {
 		pin.Configure(machine.PinConfig{Mode: machine.PinInputPullup})
 	}
 }
-
-// var (
-// 	// TODO: make this more generic and move into core library
-// 	encTurned    time.Time
-// 	encClockwise bool
-// )
-
-// func encoderCallback(index int, clockwise bool) {
-// 	encTurned = time.Now()
-// 	encClockwise = clockwise
-// 	// fmt.Fprintf(serialer, "encoder: %d %t\n", index, clockwise)
-// }
-
-const (
-	encIndexCW  = 14
-	encIndexCCW = 13
-)
 
 func ReadRow(rowIndex uint8) keyboard.Row {
 	switch rowIndex {
@@ -59,71 +46,8 @@ func ReadRow(rowIndex uint8) keyboard.Row {
 				v |= (1 << i)
 			}
 		}
-		// if time.Since(encTurned) < encoderInterval {
-		// 	if encClockwise {
-		// 		v |= (1 << encIndexCW)
-		// 	} else {
-		// 		v |= (1 << encIndexCCW)
-		// 	}
-		// }
 		return v
 	default:
 		return 0
 	}
 }
-
-type MacroPadRP2040KeyMapper struct {
-	keyboard.Keymap
-}
-
-var (
-	// _ vial.KeyMapper     = (*MacroPadRP2040KeyMapper)(nil)
-	// _ vial.KeySetter     = (*MacroPadRP2040KeyMapper)(nil)
-	// _ vial.EncoderMapper = (*MacroPadRP2040KeyMapper)(nil)
-	// _ vial.Matrixer      = (*MacroPadRP2040KeyMapper)(nil)
-	_ vial.DeviceDriver = (*MacroPadRP2040KeyMapper)(nil)
-)
-
-// func (km *MacroPadRP2040KeyMapper) SaveKey(layer, row, col int, kc keycodes.Keycode) {
-// 	println(
-// 		"layer:", layer,
-// 		"row:", row,
-// 		"col:", col,
-// 		"kc:", kc,
-// 		// "trigger:", entry.Trigger,
-// 		// "replacement:", entry.Replacement,
-// 		// "layers:", entry.Layers,
-// 		// "mods:", entry.TriggerMods,
-// 		// "negative mask:", entry.NegativeModMask,
-// 		// "supressed mods:", entry.SupressedMods,
-// 		// "options:", entry.Options,
-// 	)
-// 	km.Keymap.SetKey(layer, row, col, kc)
-// }
-
-func (km *MacroPadRP2040KeyMapper) GetMatrixRowState(idx int) uint32 {
-	return uint32(matrix.GetRow(uint8(idx)))
-}
-
-func (km *MacroPadRP2040KeyMapper) MapEncoder(idx int) (ccwRow, ccwCol, cwRow, cwCol int, ok bool) {
-	if idx > 0 {
-		return -1, -1, -1, -1, false
-	}
-	return 0, encIndexCCW, 0, encIndexCW, true //km.MapKey(layer, 0, encIndexCCW), km.MapKey(layer, 0, encIndexCW)
-}
-
-// func (km *MacroPadRP2040KeyMapper) SetEncoder(layer, idx int, clockwise bool, kc keycodes.Keycode) {
-// 	if layer >= len(km.Keymap) {
-// 		return
-// 	}
-// 	if idx > 0 {
-// 		return
-// 	}
-// 	encIdx := encIndexCCW
-// 	if clockwise {
-// 		encIdx = encIndexCW
-// 	}
-// 	km.SetKey(layer, 0, encIdx, kc)
-// 	// km.Keymap[layer][0][encIdx] = kc
-// 	// return km.MapKey(layer, encIndexCCW), km.MapKey(layer, encIndexCW)
-// }
