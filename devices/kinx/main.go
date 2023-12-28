@@ -29,8 +29,6 @@ var (
 	rtcUpdate = make(chan struct{}, 1)
 )
 
-var _ vial.KeySetter = (keyboard.Keymap)(nil)
-
 func init() {
 	board.SetDebug(_debug)
 	board.SetKeyAction(keyboard.KeyActionFunc(keyAction))
@@ -153,7 +151,10 @@ type VialDriver struct {
 	keyboard.Keymap
 }
 
-var _ vial.Handler = (*VialDriver)(nil)
+var (
+	_ vial.Handler      = (*VialDriver)(nil)
+	_ vial.DeviceDriver = (*VialDriver)(nil)
+)
 
 func (d *VialDriver) Handle(rx []byte, tx []byte) (sendTx bool) {
 	// println("called Handle()", rx[0], rx[1])
@@ -181,4 +182,8 @@ func (d *VialDriver) Handle(rx []byte, tx []byte) (sendTx bool) {
 		}
 	}
 	return false
+}
+
+func (km *VialDriver) GetMatrixRowState(idx int) uint32 {
+	return uint32(matrix.GetRow(uint8(idx)))
 }

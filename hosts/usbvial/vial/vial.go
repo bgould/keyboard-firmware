@@ -1,6 +1,8 @@
 package vial
 
 import (
+	"time"
+
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 
@@ -13,7 +15,8 @@ const (
 
 	VialProtocolVersion = 0x00000006
 
-	VialUnlockCounterMax = 50
+	VialUnlockCounterMax   = 50
+	VialUnlockHoldDuration = 2 * time.Second
 )
 
 // MagicSerialNumber returns a string value that the Vial desktop app
@@ -63,7 +66,7 @@ const (
 
 type ViaKeyboardValueID uint8
 
-//go:generate go run golang.org/x/tools/cmd/stringer -type=ViaKeyboardValueID
+//go:generate go run golang.org/x/tools/cmd/stringer -type=ViaKeyboardValueID -trimprefix=ViaKbd
 
 const (
 	ViaKbdUptime            ViaKeyboardValueID = 0x01
@@ -127,12 +130,32 @@ type KeyOverrideEntry struct {
 	Options         uint8
 }
 
+type DeviceDriver interface {
+	GetLayerCount() uint8
+	// GetMaxKeyCount() int
+	// NumRows() int
+	// NumCols() int
+	MapKey(layer, row, col int) keycodes.Keycode
+	SetKey(layer, row, col int, kc keycodes.Keycode) bool
+	GetMatrixRowState(rowIndex int) uint32
+}
+
 type Device struct {
-	km  KeyMapper
+	km  DeviceDriver
 	txb [32]byte
 	def DeviceDefinition
 
-	unlockStatus UnlockStatus
+	// unlocker Unlocker
+
+	unlockStatus  UnlockStatus
+	unlockCounter int
+	unlockStart   time.Time
+	unlockKeyPos  []Pos
+}
+
+type Pos struct {
+	Row uint8
+	Col uint8
 }
 
 type DeviceDefinition struct {
@@ -140,6 +163,7 @@ type DeviceDefinition struct {
 	VendorID      string       `json:"vendorId"`
 	ProductID     string       `json:"productId"`
 	Matrix        DeviceMatrix `json:"matrix"`
+	UnlockKeys    []Pos        `json:"-"`
 	LzmaDefLength uint16       `json:"-"`
 	LzmaDefWriter LzmaDefPageWriter
 }
@@ -159,11 +183,15 @@ type DeviceMatrix struct {
 	Cols int `json:"cols"`
 }
 
-func NewDevice(def DeviceDefinition, mapper KeyMapper) *Device {
-	return &Device{km: mapper, def: def}
+func NewDevice(def DeviceDefinition, driver DeviceDriver) *Device {
+	return &Device{km: driver, def: def, unlockKeyPos: []Pos{{0, 0}}}
 }
 
 func (dev *Device) UnlockStatus() UnlockStatus {
+	// if dev.unlocker == nil {
+	// 	return Locked
+	// }
+	// return dev.unlocker.UnlockStatus()
 	return dev.unlockStatus
 }
 
@@ -174,7 +202,7 @@ func (dev *Device) keyVia(layer, kbIndex, idx int) uint16 {
 	if dev == nil || dev.km == nil {
 		return 0
 	}
-	numCols := dev.km.NumCols()
+	numCols := dev.def.Matrix.Cols //dev.km.NumCols()
 	row := idx / numCols
 	col := idx % numCols
 	kc := uint16(dev.km.MapKey(layer, row, col))
@@ -191,6 +219,11 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 
 	// txb := host.txb[:32]
 	// copy(txb, rx) // FIXME: probably isn't necessary to do this copy
+
+	// ensure tx buffer is zero'd
+	for i := range tx {
+		tx[i] = 0
+	}
 
 	viaCmd := ViaCommand(rx[0])
 
@@ -211,6 +244,69 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 
 	case ViaCmdGetKeyboardValue: // 0x02
 
+		if debug {
+			println("getting keyboard value:", rx[1])
+		}
+
+		switch ViaKeyboardValueID(rx[1]) {
+		case ViaKbdUptime:
+			if debug {
+				println("uptime not yet implemented")
+			}
+
+		case ViaKbdLayoutOptions:
+			if debug {
+				println("layout options not yet implemented")
+			}
+
+		case ViaKbdSwitchMatrixState:
+			// matrix, ok := dev.km.(Matrixer)
+			if debug {
+				println("get keyboard value: switch matrix state", dev.unlockStatus)
+			}
+			tx[0] = rx[0]
+			tx[1] = rx[1]
+			// TODO: #if ((MATRIX_COLS / 8 + 1) * MATRIX_ROWS <= 28)
+			if dev.UnlockStatus() == Unlocked {
+				nRows, nCols, i := dev.def.Matrix.Rows, dev.def.Matrix.Cols, 2
+				for rowIndex := 0; rowIndex < nRows; rowIndex++ {
+					value := dev.km.GetMatrixRowState(rowIndex)
+					switch {
+					case nCols > 24:
+						tx[i] = uint8(value >> 24)
+						i++
+						fallthrough
+					case nCols > 16:
+						tx[i] = uint8(value >> 16)
+						i++
+						fallthrough
+					case nCols > 8:
+						tx[i] = uint8(value >> 8)
+						i++
+						fallthrough
+					default:
+						tx[i] = uint8(value)
+						i++
+					}
+					if debug {
+						println("matrix state", rowIndex, ":", tx[i-4], tx[i-3], tx[i-2], tx[i-1])
+					}
+				}
+			}
+			// TODO: #endif
+
+		case ViaKbdFirmwareVersion:
+			if debug {
+				println("firmware version not yet implemented")
+			}
+
+		case ViaKbdDeviceIndication:
+			if debug {
+				println("device indication not yet implemented")
+			}
+
+		}
+
 	case ViaCmdSetKeyboardValue: // 0x03
 
 	case ViaCmdDynamicKeymapGetKeycode: // 0x04
@@ -219,25 +315,16 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 		if debug {
 			println("ViaCmdDynamicKeymapSetKeycode: ", rx[1], rx[2], rx[3], rx[4], rx[5])
 		}
-		if setter, ok := mapper.(KeySetter); ok {
-			layer := int(rx[1])
-			row := int(rx[2])
-			col := int(rx[3])
-			kc := keycodes.Keycode(uint16(rx[4])>>8 | uint16(rx[5]))
-			// entry := KeyOverrideEntry{
-			// 	Trigger:         uint16(rx[4])>>8 | uint16(rx[5]),
-			// 	Replacement:     uint16(rx[6])>>8 | uint16(rx[7]),
-			// 	Layers:          uint16(rx[8])>>8 | uint16(rx[9]),
-			// 	TriggerMods:     rx[10],
-			// 	NegativeModMask: rx[11],
-			// 	SupressedMods:   rx[12],
-			// 	Options:         rx[13],
-			// }
-			result := setter.SetKey(layer, row, col, kc)
-			if debug {
-				println("-- set keycode result: ", result)
-			}
+		// if setter, ok := mapper.(KeySetter); ok {
+		layer := int(rx[1])
+		row := int(rx[2])
+		col := int(rx[3])
+		kc := keycodes.Keycode(uint16(rx[4])>>8 | uint16(rx[5]))
+		result := dev.km.SetKey(layer, row, col, kc)
+		if debug {
+			println("-- set keycode result: ", result)
 		}
+		// }
 
 	case ViaCmdDynamicKeymapReset: // 0x06
 
@@ -273,27 +360,19 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 		tx[1] = mapper.GetLayerCount()
 
 	case ViaCmdKeymapGetBuffer: // 0x12
-		// if mapper == nil {
-		// 	println("warning: device was nil")
-		// 	break
-		// }
-		// DynamicKeymapReadBufferCommand
 		offset := (uint16(rx[1]) << 8) + uint16(rx[2])
 		sz := rx[3]
-		cnt := mapper.GetMaxKeyCount()
-		// println("  offset : ", offset, "+", sz, cnt)
+		cnt := dev.def.Matrix.Rows * dev.def.Matrix.Cols //mapper.GetMaxKeyCount()
 		for i := 0; i < int(sz/2); i++ {
-			//fmt.Printf("  %02X %02X\n", b[4+i+1], b[4+i+0])
 			tmp := i + int(offset)/2
-			layer := tmp / (cnt * 1) // len(device.kb))
-			tmp = tmp % (cnt * 1)    // len(device.kb))
+			layer := tmp / (cnt * 1) // len(device.kb)) // TODO: support multiple "keyboards"?
+			tmp = tmp % (cnt * 1)    // len(device.kb))  // TODO: support multiple "keyboards"?
 			kbd := tmp / cnt
 			idx := tmp % cnt
 			kc := dev.keyVia(layer, kbd, idx)
 			tx[4+2*i+1] = uint8(kc)
 			tx[4+2*i+0] = uint8(kc >> 8)
 		}
-		// println("done")
 
 	case ViaCmdKeymapSetBuffer: // 0x13
 
@@ -323,7 +402,6 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 			tx[11] = 0xE2 // TODO
 
 		case VialCmdGetSize:
-			// println("vial: 0x01 - retrieve keyboard definition size")
 			// Retrieve keyboard definition size
 			size := dev.def.LzmaDefLength
 			tx[0] = uint8(size)
@@ -337,17 +415,6 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 			if !dev.def.LzmaDefWriter.WriteLzmaDefPage(tx[:32], page) {
 				return false // TODO: error handling
 			}
-			/*
-				start := page * 32
-				end := start + 32
-				if end < start || start >= dev.def.LzmaDefLength { //len(dev.def.LzmaDef) {
-					return false
-				}
-				if end > dev.def.LzmaDefLength {
-					end = uint16(dev.def.LzmaDefLength)
-				}
-				copy(tx[:32], dev.def.LzmaDef[start:end])
-			*/
 
 		case VialCmdGetEncoder:
 			if em, ok := dev.km.(EncoderMapper); ok {
@@ -370,9 +437,8 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 			}
 
 		case VialCmdSetEncoder:
-			ks, ksOk := dev.km.(KeySetter)
 			em, emOk := dev.km.(EncoderMapper)
-			if emOk && ksOk {
+			if emOk {
 				var kc uint16
 				layer := int(rx[2])
 				index := int(rx[3])
@@ -392,7 +458,7 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 						col = ccwCol
 					}
 				}
-				if ok := ks.SetKey(layer, row, col, keycodes.Keycode(kc)); ok {
+				if ok := dev.km.SetKey(layer, row, col, keycodes.Keycode(kc)); ok {
 					if debug {
 						println(" -- encoder value saved successfully")
 					}
@@ -404,17 +470,90 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 			}
 
 		case VialCmdGetUnlockStatus:
-			// println("VialCmdGetUnlockStatus")
-			tx[0] = 1 // unlocked
-			tx[1] = 0 // unlock_in_progress
+			// TODO: implement equivalent of VIAL_INSECURE
+			switch dev.UnlockStatus() {
+			case Locked:
+				tx[0] = byte(Locked) // locked
+				tx[1] = 0            // unlock NOT in progress
+			case Unlocked:
+				tx[0] = byte(Unlocked) // unlocked
+				tx[1] = 0              // unlock NOT in progress
+			case UnlockInProgress:
+				tx[0] = byte(Locked) // locked
+				tx[1] = 1            // unlock in progress
+			}
+			if dev.unlockKeyPos != nil {
+				for i, pos := range dev.unlockKeyPos {
+					tx[2+i*2] = pos.Row
+					tx[3+i*2] = pos.Col
+				}
+			}
+			// println("get unlock status:", tx[0])
 
 		case VialCmdUnlockStart:
+			if debug {
+				println("unlock start")
+			}
+			dev.unlockStatus = UnlockInProgress
+			dev.unlockStart = time.Now()
+			// TODO: implement equivalent of VIAL_INSECURE
+			// if dev.unlocker != nil {
+			// 	dev.unlocker.StartUnlock()
+			// }
+			// dev.unlockStatus = UnlockInProgress
+			// dev.unlockCounter = VialUnlockCounterMax
+			// dev.unlockStarted = time.Now()
 			// println("VialCmdUnlockStart: ", rx[0], rx[1], rx[2], rx[3], rx[4], rx[5], rx[6], rx[7], rx[8])
 
 		case VialCmdUnlockPoll:
-			// println("VialCmdUnlockPoll: ", rx[0], rx[1], rx[2], rx[3], rx[4], rx[5], rx[6], rx[7], rx[8])
+			if debug {
+				println("unlock poll")
+			}
+			var dur = time.Since(dev.unlockStart)
+			if dev.UnlockStatus() == UnlockInProgress {
+				if matrix := dev.km; len(dev.unlockKeyPos) > 0 {
+					holding := true
+					for _, pos := range dev.unlockKeyPos {
+						if holding {
+							rowState := matrix.GetMatrixRowState(int(pos.Row))
+							holding = (rowState & (1 << pos.Col)) > 0
+							// println("rowState: ", holding)
+						}
+					}
+					if !holding {
+						dev.unlockStart = time.Now()
+						dur = 0
+					}
+					// println("unlock in progress: ", time.Since(dev.unlockStart)/time.Millisecond, holding)
+					if holding && dur > VialUnlockHoldDuration {
+						// println("unlocked!")
+						dev.unlockStatus = Unlocked
+						dev.unlockStart = time.Time{}
+						dur = 0
+					}
+				}
+			}
+			switch dev.UnlockStatus() {
+			case Locked:
+				tx[0] = byte(Locked) // locked
+				tx[1] = 0            // unlock NOT in progress
+				tx[2] = 0
+			case Unlocked:
+				tx[0] = byte(Unlocked) // unlocked
+				tx[1] = 0              // unlock NOT in progress
+				tx[2] = VialUnlockCounterMax
+			case UnlockInProgress:
+				tx[0] = byte(Locked) // locked
+				tx[1] = 1            // unlock in progress
+				tx[2] = VialUnlockCounterMax - byte((float32(dur)/float32(VialUnlockHoldDuration))*VialUnlockCounterMax)
+			}
+			if debug {
+				println("VialCmdUnlockPoll: ", tx[0], tx[1], VialUnlockCounterMax-tx[2])
+			}
 
 		case VialCmdLock:
+			dev.unlockStatus = Locked
+			dev.unlockStart = time.Time{}
 			// println("VialCmdLock: ", rx[0], rx[1], rx[2], rx[3], rx[4], rx[5], rx[6], rx[7], rx[8])
 
 		case VialCmdQmkSettingsQuery:

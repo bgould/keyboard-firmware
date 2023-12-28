@@ -25,14 +25,18 @@ type Host struct {
 	txb [32]byte
 }
 
-func New(def vial.DeviceDefinition, keymap vial.KeyMapper) *Host {
-	host = &Host{Host: usbhid.New(), dev: vial.NewDevice(def, keymap)}
+func New(def vial.DeviceDefinition, driver vial.DeviceDriver) *Host {
+	host = &Host{Host: usbhid.New(), dev: vial.NewDevice(def, driver)}
 	return host
 }
 
 // TODO: consider moving out of init
 func init() {
 	configureVialEndpoints()
+}
+
+func UnlockStatus() vial.UnlockStatus {
+	return host.dev.UnlockStatus()
 }
 
 func configureVialEndpoints() {

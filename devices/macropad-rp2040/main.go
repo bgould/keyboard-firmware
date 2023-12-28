@@ -3,14 +3,12 @@
 package main
 
 import (
-	"fmt"
 	"machine"
 	"machine/usb"
 	"time"
 
 	rotary_encoder "github.com/bgould/keyboard-firmware/drivers/rotary-encoder"
 	"github.com/bgould/keyboard-firmware/hosts/multihost"
-	"github.com/bgould/keyboard-firmware/hosts/serial"
 	"github.com/bgould/keyboard-firmware/hosts/usbvial"
 	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
 	"github.com/bgould/keyboard-firmware/keyboard"
@@ -30,7 +28,7 @@ var (
 	keymap = Keymap()
 	mapper = &MacroPadRP2040KeyMapper{keymap}
 
-	host   = multihost.New(usbvial.New(VialDeviceDefinition, mapper), serial.New(serialer))
+	host   = multihost.New(usbvial.New(VialDeviceDefinition, mapper)) // , serial.New(serialer))
 	matrix = keyboard.NewMatrix(1, 16, keyboard.RowReaderFunc(ReadRow))
 
 	board = keyboard.New(machine.Serial, host, matrix, keymap)
@@ -46,6 +44,11 @@ func main() {
 
 	// time.Sleep(time.Second)
 	serialer.Write([]byte("testing\n"))
+
+	// time.Sleep(2 * time.Second)
+	// driver := &vial.Driver{}
+	// println("map key test")
+	// println(driver.MapKey(0, 0, 0))
 
 	// println("Adding encoders")
 	matrix.WithEncoders(
@@ -63,19 +66,21 @@ func main() {
 
 	board.SetKeyAction(keyboard.KeyActionFunc(
 		func(key keycodes.Keycode, made bool) {
-			switch key {
-			case keycodes.FN12:
-				if made {
-					switch board.ActiveLayer() {
-					case 0:
-						board.SetActiveLayer(1)
-					case 1:
-						board.SetActiveLayer(0)
+			if usbvial.UnlockStatus() != vial.UnlockInProgress {
+				switch key {
+				case keycodes.FN12:
+					if made {
+						switch board.ActiveLayer() {
+						case 0:
+							board.SetActiveLayer(1)
+						case 1:
+							board.SetActiveLayer(0)
+						}
+						// fmt.Fprintf(serialer, "layer: %d\n", board.ActiveLayer())
 					}
-					fmt.Fprintf(serialer, "layer: %d\n", board.ActiveLayer())
+				default:
+					// fmt.Fprintf(serialer, "fn: %d %t\n", key-keycodes.FN0, made)
 				}
-			default:
-				fmt.Fprintf(serialer, "fn: %d %t\n", key-keycodes.FN0, made)
 			}
 		},
 	))

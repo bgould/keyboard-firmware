@@ -2,25 +2,31 @@ package vial
 
 import "github.com/bgould/keyboard-firmware/keyboard/keycodes"
 
-type KeyMapper interface {
-	GetLayerCount() uint8
-	GetMaxKeyCount() int
-	NumRows() int
-	NumCols() int
-	MapKey(layer, row, col int) keycodes.Keycode
-}
+// type KeyMapper interface {
+// 	GetLayerCount() uint8
+// 	NumRows() int
+// 	NumCols() int
+// 	GetMaxKeyCount() int
+// 	MapKey(layer, row, col int) keycodes.Keycode
+// }
 
-type KeySetter interface {
-	SetKey(layer, row, col int, kc keycodes.Keycode) bool
-}
+// type Matrixer interface {
+// 	NumRows() int
+// 	NumCols() int
+// }
+
+// type KeySetter interface {
+// 	SetKey(layer, row, col int, kc keycodes.Keycode) bool
+// }
 
 type EncoderMapper interface {
-	MapEncoder(idx int) (ccwRow, ccwCol int, cwRow, cwCol int, ok bool) // (ccw keycodes.Keycode, cw keycodes.Keycode)
+	MapEncoder(idx int) (ccwRow, ccwCol int, cwRow, cwCol int, ok bool)
+	// (ccw keycodes.Keycode, cw keycodes.Keycode)
 }
 
-// type EncoderSetter interface {
-// 	SetEncoder(layer, idx int, clockwise bool, kc keycodes.Keycode)
-// }
+type EncoderSetter interface {
+	SetEncoder(layer, idx int, clockwise bool, kc keycodes.Keycode)
+}
 
 type Handler interface {
 	Handle(rx []byte, tx []byte) bool

@@ -77,10 +77,11 @@ type MacroPadRP2040KeyMapper struct {
 }
 
 var (
-	_ vial.KeyMapper     = (*MacroPadRP2040KeyMapper)(nil)
-	_ vial.KeySetter     = (*MacroPadRP2040KeyMapper)(nil)
-	_ vial.EncoderMapper = (*MacroPadRP2040KeyMapper)(nil)
-	// _ vial.EncoderSetter = (*MacroPadRP2040KeyMapper)(nil)
+	// _ vial.KeyMapper     = (*MacroPadRP2040KeyMapper)(nil)
+	// _ vial.KeySetter     = (*MacroPadRP2040KeyMapper)(nil)
+	// _ vial.EncoderMapper = (*MacroPadRP2040KeyMapper)(nil)
+	// _ vial.Matrixer      = (*MacroPadRP2040KeyMapper)(nil)
+	_ vial.DeviceDriver = (*MacroPadRP2040KeyMapper)(nil)
 )
 
 // func (km *MacroPadRP2040KeyMapper) SaveKey(layer, row, col int, kc keycodes.Keycode) {
@@ -99,6 +100,10 @@ var (
 // 	)
 // 	km.Keymap.SetKey(layer, row, col, kc)
 // }
+
+func (km *MacroPadRP2040KeyMapper) GetMatrixRowState(idx int) uint32 {
+	return uint32(matrix.GetRow(uint8(idx)))
+}
 
 func (km *MacroPadRP2040KeyMapper) MapEncoder(idx int) (ccwRow, ccwCol, cwRow, cwCol int, ok bool) {
 	if idx > 0 {
