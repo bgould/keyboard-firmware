@@ -19,15 +19,15 @@ func initKeymap() keyboard.Keymap {
 	return keyboard.Keymap([]keyboard.Layer{
 		// 0 - Default Layer
 		kinx.Layer(
-			FN3, F1, F2, F3, F4, F5, F6, F7, F8 /*  */, F9, F10, F11, F12, PSCR, SCRL, BRK, FN0, FN1,
-			EQL, N1, N2, N3, N4, N5 /*                       */, N6, N7, N8, N9, N0, MINS,
-			TAB, Q, W, E, R, T /*                            */, Y, U, I, O, P, BSLS,
-			RCTL, A, S, D, F, G /*                           */, H, J, K, L, SCLN, QUOT,
-			LSFT, Z, X, C, V, B /*                           */, N, M, COMM, DOT, SLSH, RSFT,
-			/**/ GRV, INS, LEFT, RGHT /*                     */, UP, DOWN, LBRC, RBRC,
-			/*                 */ ESC, LGUI /*         */, LALT, LCTL,
-			/*                      */ HOME /*         */, PGUP,
-			/*            */ BSPC, DEL, END /*         */, PGDN, ENT, SPC, /**/
+			/**/ FN3, F1, F2, F3, F4, F5, F6, F7, F8 /*                    */, F9, F10, F11, F12, PSCR, SCRL, BRK, FN0, FN1,
+			/**/ EQL, N1, N2, N3, N4, N5 /*                                                     */, N6, N7, N8, N9, N0, MINS,
+			/**/ TAB, Q, W, E, R, T /*                                                               */, Y, U, I, O, P, BSLS,
+			/**/ RCTL, A, S, D, F, G /*                                                           */, H, J, K, L, SCLN, QUOT,
+			/**/ LSFT, Z, X, C, V, B /*                                                      */, N, M, COMM, DOT, SLSH, RSFT,
+			/*   */ GRV, INS, LEFT, RGHT /*                                                  */, UP, DOWN, LBRC, RBRC,
+			/*                        */ ESC, LGUI /*                             */, LALT, LCTL,
+			/*                             */ HOME /*                             */, PGUP,
+			/*                   */ BSPC, DEL, END /*                             */, PGDN, ENT, SPC, /**/
 		),
 		// 1 - Keypad Layer
 		kinx.Layer(
