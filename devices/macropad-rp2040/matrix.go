@@ -5,10 +5,20 @@ package main
 import (
 	"machine"
 
+	rotary_encoder "github.com/bgould/keyboard-firmware/drivers/rotary-encoder"
 	"github.com/bgould/keyboard-firmware/keyboard"
 )
 
-//go:generate go run github.com/bgould/keyboard-firmware/hosts/usbvial/gen-def vial.json
+var (
+	encoder = rotary_encoder.New(machine.ROT_A, machine.ROT_B)
+	encPos  = keyboard.EncoderPos{
+		Encoder: encoder,
+		PosCW:   keyboard.Pos{Row: 0, Col: encIndexCW},
+		PosCCW:  keyboard.Pos{Row: 0, Col: encIndexCCW},
+	}
+	reader = keyboard.RowReaderFunc(ReadRow)
+	matrix = keyboard.NewMatrix(1, 16, reader).WithEncoders(encPos)
+)
 
 var keys = []machine.Pin{
 	machine.SWITCH,

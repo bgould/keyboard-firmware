@@ -14,21 +14,13 @@ import (
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 
+//go:generate go run github.com/bgould/keyboard-firmware/hosts/usbvial/gen-def vial.json
+
 const (
-	_debug          = false
-	encoderInterval = 5 * time.Millisecond
+	_debug = false
 )
 
 var (
-	encoder = rotary_encoder.New(machine.ROT_A, machine.ROT_B)
-	encPos  = keyboard.EncoderPos{
-		Encoder: encoder,
-		PosCW:   keyboard.Pos{Row: 0, Col: encIndexCW},
-		PosCCW:  keyboard.Pos{Row: 0, Col: encIndexCCW},
-	}
-	reader = keyboard.RowReaderFunc(ReadRow)
-	matrix = keyboard.NewMatrix(1, 16, reader).WithEncoders(encPos)
-
 	keymap = Keymap()
 	host   = usbvial.NewKeyboard(VialDeviceDefinition, keymap, matrix)
 	board  = keyboard.New(machine.Serial, host, matrix, keymap)
