@@ -9,7 +9,6 @@ require (
 	tinygo.org/x/drivers v0.26.1-0.20231124171304-93cbba5d8b9d
 	tinygo.org/x/tinydraw v0.3.0
 	tinygo.org/x/tinyfont v0.3.0
-	tinygo.org/x/tinyterm v0.1.1-0.20220222045623-7f7de77c9c8e
 )
 
 require (
