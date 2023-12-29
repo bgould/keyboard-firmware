@@ -48,7 +48,7 @@ func main() {
 		func(key keycodes.Keycode, made bool) {
 			if usbvial.UnlockStatus() != vial.UnlockInProgress {
 				switch key {
-				case keycodes.FN12:
+				case keycodes.KC_FN12:
 					if made {
 						switch board.ActiveLayer() {
 						case 0:
@@ -56,6 +56,7 @@ func main() {
 						case 1:
 							board.SetActiveLayer(0)
 						}
+						println("layer:", board.ActiveLayer())
 						// fmt.Fprintf(serialer, "layer: %d\n", board.ActiveLayer())
 					}
 				default:

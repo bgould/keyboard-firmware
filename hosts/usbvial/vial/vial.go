@@ -206,10 +206,6 @@ func (dev *Device) keyVia(layer, kbIndex, idx int) uint16 {
 	row := idx / numCols
 	col := idx % numCols
 	kc := uint16(dev.km.MapKey(layer, row, col))
-	switch kc {
-	default:
-		kc = kc & 0x0FFF
-	}
 	return kc
 }
 
@@ -312,18 +308,18 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 	case ViaCmdDynamicKeymapGetKeycode: // 0x04
 
 	case ViaCmdDynamicKeymapSetKeycode: // 0x05
-		if debug {
-			println("ViaCmdDynamicKeymapSetKeycode: ", rx[1], rx[2], rx[3], rx[4], rx[5])
-		}
+		// if debug {
+		println("ViaCmdDynamicKeymapSetKeycode: ", rx[1], rx[2], rx[3], rx[4], rx[5])
+		// }
 		// if setter, ok := mapper.(KeySetter); ok {
 		layer := int(rx[1])
 		row := int(rx[2])
 		col := int(rx[3])
-		kc := keycodes.Keycode(uint16(rx[4])>>8 | uint16(rx[5]))
+		kc := keycodes.Keycode(uint16(rx[4])<<8 | uint16(rx[5]))
 		result := dev.km.SetKey(layer, row, col, kc)
-		if debug {
-			println("-- set keycode result: ", result)
-		}
+		// if debug {
+		println("-- set keycode result: ", kc, result)
+		// }
 		// }
 
 	case ViaCmdDynamicKeymapReset: // 0x06

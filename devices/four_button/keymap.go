@@ -9,7 +9,7 @@ import (
 func FourButtonDefaultKeymap() keyboard.Keymap {
 	return keyboard.Keymap([]keyboard.Layer{
 		// FourButtonLayer(W, A, S, D),
-		FourButtonLayer(MS_UP, MS_L, MS_D, MS_R),
+		FourButtonLayer(KC_MS_UP, KC_MS_L, KC_MS_D, KC_MS_R),
 	})
 }
 

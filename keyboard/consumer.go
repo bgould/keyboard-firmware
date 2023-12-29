@@ -48,54 +48,54 @@ const (
 
 func keycode2consumer(keycode keycodes.Keycode) ConsumerKey {
 	switch keycode {
-	case keycodes.AUDIO_MUTE:
+	case keycodes.KC_AUDIO_MUTE:
 		return consumer_AUDIO_MUTE
-	case keycodes.AUDIO_VOL_UP:
+	case keycodes.KC_AUDIO_VOL_UP:
 		return consumer_AUDIO_VOL_UP
-	case keycodes.AUDIO_VOL_DOWN:
+	case keycodes.KC_AUDIO_VOL_DOWN:
 		return consumer_AUDIO_VOL_DOWN
-	case keycodes.MEDIA_NEXT_TRACK:
+	case keycodes.KC_MEDIA_NEXT_TRACK:
 		return consumer_TRANSPORT_NEXT_TRACK
-	case keycodes.MEDIA_PREV_TRACK:
+	case keycodes.KC_MEDIA_PREV_TRACK:
 		return consumer_TRANSPORT_PREV_TRACK
-	case keycodes.MEDIA_FAST_FORWARD:
+	case keycodes.KC_MEDIA_FAST_FORWARD:
 		return consumer_TRANSPORT_FAST_FORWARD
-	case keycodes.MEDIA_REWIND:
+	case keycodes.KC_MEDIA_REWIND:
 		return consumer_TRANSPORT_REWIND
-	case keycodes.MEDIA_STOP:
+	case keycodes.KC_MEDIA_STOP:
 		return consumer_TRANSPORT_STOP
-	case keycodes.MEDIA_EJECT:
+	case keycodes.KC_MEDIA_EJECT:
 		return consumer_TRANSPORT_STOP_EJECT
-	case keycodes.MEDIA_PLAY_PAUSE:
+	case keycodes.KC_MEDIA_PLAY_PAUSE:
 		return consumer_TRANSPORT_PLAY_PAUSE
-	case keycodes.MEDIA_SELECT:
+	case keycodes.KC_MEDIA_SELECT:
 		return consumer_APPLAUNCH_CC_CONFIG
-	case keycodes.MAIL:
+	case keycodes.KC_MAIL:
 		return consumer_APPLAUNCH_EMAIL
-	case keycodes.CALCULATOR:
+	case keycodes.KC_CALCULATOR:
 		return consumer_APPLAUNCH_CALCULATOR
-	case keycodes.MY_COMPUTER:
+	case keycodes.KC_MY_COMPUTER:
 		return consumer_APPLAUNCH_LOCAL_BROWSER
-	case keycodes.WWW_SEARCH:
+	case keycodes.KC_WWW_SEARCH:
 		return consumer_APPCONTROL_SEARCH
-	case keycodes.WWW_HOME:
+	case keycodes.KC_WWW_HOME:
 		return consumer_APPCONTROL_HOME
-	case keycodes.WWW_BACK:
+	case keycodes.KC_WWW_BACK:
 		return consumer_APPCONTROL_BACK
-	case keycodes.WWW_FORWARD:
+	case keycodes.KC_WWW_FORWARD:
 		return consumer_APPCONTROL_FORWARD
-	case keycodes.WWW_STOP:
+	case keycodes.KC_WWW_STOP:
 		return consumer_APPCONTROL_STOP
-	case keycodes.WWW_REFRESH:
+	case keycodes.KC_WWW_REFRESH:
 		return consumer_APPCONTROL_REFRESH
-	case keycodes.WWW_FAVORITES:
+	case keycodes.KC_WWW_FAVORITES:
 		return consumer_APPCONTROL_BOOKMARKS
-		/* FIXME
-		case keycodes.BRIGHTNESS_INCREMENT:
-			return consumer_BRIGHTNESS_INCREMENT
-		case keycodes.BRIGHTNESS_DEC:
-			return consumer_BRIGHTNESS_DECREMENT
-		*/
+	// /* FIXME
+	case keycodes.KC_BRIGHTNESS_UP: //BRIGHTNESS_INCREMENT:
+		return consumer_BRIGHTNESS_INCREMENT
+	case keycodes.KC_BRIGHTNESS_DOWN:
+		return consumer_BRIGHTNESS_DECREMENT
+	// */
 	default:
 		return 0
 	}

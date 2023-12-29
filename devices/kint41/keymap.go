@@ -7,30 +7,30 @@ import (
 )
 
 const (
-	PROG = QK_BOOTLOADER
+	KC_PROG = QK_BOOTLOADER
 )
 
 func KinTKeymap() keyboard.Keymap {
 	return keyboard.Keymap([]keyboard.Layer{KinesisAdvantageLayer(
-		ESC, F1, F2, F3, F4, F5, F6, F7, F8 /*  */, F9, F10, F11, F12, PSCR, SLCK, BRK, FN0, PROG,
-		EQL, N1, N2, N3, N4, N5 /*                       */, N6, N7, N8, N9, N0, MINS,
-		TAB, Q, W, E, R, T /*                            */, Y, U, I, O, P, BSLS,
-		LCTL, A, S, D, F, G /*                           */, H, J, K, L, SCLN, QUOT,
-		LSFT, Z, X, C, V, B /*                           */, N, M, COMM, DOT, SLSH, RSFT,
-		/**/ GRV, INS, LEFT, RGHT /*                     */, UP, DOWN, LBRC, RBRC,
-		/*           */ ESC, LGUI /*                */, LALT, RCTL,
-		/*                */ HOME /*                */, PGUP,
-		/*      */ BSPC, DEL, END /*                */, PGDN, ENT, SPC, /**/
+		KC_ESC_, KC_F1__, KC_F2__, KC_F3__, KC_F4__, KC_F5__, KC_F6__, KC_F7__, KC_F8__ /*  */, KC_F9__, KC_F10_, KC_F11_, KC_F12_, KC_PSCR, KC_SCRL, KC_BRK_, KC_FN0_, KC_PROG,
+		KC_EQL_, KC_N1__, KC_N2__, KC_N3__, KC_N4__, KC_N5__ /*                                                        */, KC_N6__, KC_N7__, KC_N8__, KC_N9__, KC_N0__, KC_MINS,
+		KC_TAB_, KC_Q___, KC_W___, KC_E___, KC_R___, KC_T___ /*                                                        */, KC_Y___, KC_U___, KC_I___, KC_O___, KC_P___, KC_BSLS,
+		KC_LCTL, KC_A___, KC_S___, KC_D___, KC_F___, KC_G___ /*                                                        */, KC_H___, KC_J___, KC_K___, KC_L___, KC_SCLN, KC_QUOT,
+		KC_LSFT, KC_Z___, KC_X___, KC_C___, KC_V___, KC_B___ /*                                                        */, KC_N___, KC_M___, KC_COMM, KC_DOT_, KC_SLSH, KC_RSFT,
+		/*    */ KC_GRV_, KC_INS_, KC_LEFT, KC_RGHT /*                                                                          */, KC_UP__, KC_DOWN, KC_LBRC, KC_RBRC,
+		/*                                        */ KC_ESC_, KC_LGUI /*                                      */, KC_LALT, KC_RCTL,
+		/*                                                 */ KC_HOME /*                                      */, KC_PGUP,
+		/*                               */ KC_BSPC, KC_DEL_, KC_END_ /*                                      */, KC_PGDN, KC_ENT_, KC_SPC_, /**/
 	), KinesisAdvantageLayer(
-		TRNS, TRNS, TRNS, TRNS, TRNS, TRNS, TRNS, TRNS, TRNS /*  */, TRNS, TRNS, TRNS, TRNS, TRNS, TRNS, TRNS, TRNS, TRNS,
-		TRNS, TRNS, TRNS, TRNS, TRNS, TRNS /*                                      */, TRNS, TRNS, TRNS, TRNS, TRNS, TRNS,
-		TRNS, TRNS, TRNS, TRNS, TRNS, TRNS /*                                      */, TRNS, TRNS, MS_U, TRNS, TRNS, TRNS,
-		TRNS, TRNS, TRNS, TRNS, TRNS, TRNS /*                                      */, TRNS, MS_L, MS_D, MS_R, TRNS, TRNS,
-		TRNS, TRNS, TRNS, TRNS, TRNS, TRNS /*                                      */, TRNS, TRNS, TRNS, TRNS, TRNS, TRNS,
-		/* */ TRNS, TRNS, TRNS, TRNS /*                                                  */, TRNS, TRNS, TRNS, TRNS,
-		/*                         */ TRNS, TRNS /*                          */, TRNS, TRNS,
-		/*                               */ TRNS /*                          */, TRNS,
-		/*                   */ TRNS, TRNS, TRNS /*                          */, TRNS, TRNS, TRNS, /**/
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS /*  */, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS /*                                                        */, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS /*                                                        */, KC_TRNS, KC_TRNS, KC_MS_U, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS /*                                                        */, KC_TRNS, KC_MS_L, KC_MS_D, KC_MS_R, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS /*                                                        */, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		/*    */ KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS /*                                                                          */, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		/*                                        */ KC_TRNS, KC_TRNS /*                                      */, KC_TRNS, KC_TRNS,
+		/*                                                 */ KC_TRNS /*                                      */, KC_TRNS,
+		/*                               */ KC_TRNS, KC_TRNS, KC_TRNS /*                                      */, KC_TRNS, KC_TRNS, KC_TRNS, /**/
 	)})
 }
 

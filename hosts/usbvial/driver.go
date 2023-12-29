@@ -23,6 +23,13 @@ type KeyboardDeviceDriver struct {
 	matrix *keyboard.Matrix
 }
 
+func NewKeyboardDriver(keymap keyboard.Keymap, matrix *keyboard.Matrix) *KeyboardDeviceDriver {
+	return &KeyboardDeviceDriver{
+		keymap: keymap,
+		matrix: matrix,
+	}
+}
+
 var (
 	_ vial.DeviceDriver  = (*KeyboardDeviceDriver)(nil)
 	_ vial.EncoderMapper = (*KeyboardDeviceDriver)(nil)

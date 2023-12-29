@@ -8,7 +8,7 @@ import (
 
 func CircuitPlaygroundDefaultKeymap() keyboard.Keymap {
 	return keyboard.Keymap([]keyboard.Layer{
-		CircuitPlaygroundLayer(BSPC, A),
+		CircuitPlaygroundLayer(KC_BSPC, KC_A),
 	})
 }
 

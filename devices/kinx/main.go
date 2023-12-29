@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/bgould/keyboard-firmware/hosts/usbvial"
 	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
 	"github.com/bgould/keyboard-firmware/keyboard"
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
@@ -97,7 +98,7 @@ func keyAction(key keycodes.Keycode, made bool) {
 	switch key {
 
 	// Toggle keypad layer on keypress
-	case keycodes.FN0:
+	case keycodes.KC_FN0:
 		if fn0made && !made {
 			if board.ActiveLayer() == 1 {
 				board.SetActiveLayer(0)
@@ -108,7 +109,7 @@ func keyAction(key keycodes.Keycode, made bool) {
 		fn0made = made
 
 	// Toggle programming layer on key down/up
-	case keycodes.FN1:
+	case keycodes.KC_FN1:
 		if made {
 			fn1prev = board.ActiveLayer()
 			board.SetActiveLayer(2)
@@ -121,7 +122,7 @@ func keyAction(key keycodes.Keycode, made bool) {
 		}
 
 	// Handle "reset" press
-	case keycodes.FN2:
+	case keycodes.KC_FN2:
 		if made {
 			fn2made = time.Now()
 		} else {
@@ -133,7 +134,7 @@ func keyAction(key keycodes.Keycode, made bool) {
 		}
 
 	// Status output
-	case keycodes.FN3:
+	case keycodes.KC_FN3:
 		if !made && time.Since(fn3made) > time.Second {
 			setDisplay(false)
 		} else if made {
@@ -148,7 +149,7 @@ func keyAction(key keycodes.Keycode, made bool) {
 }
 
 type VialDriver struct {
-	keyboard.Keymap
+	*usbvial.KeyboardDeviceDriver
 }
 
 var (
@@ -182,8 +183,4 @@ func (d *VialDriver) Handle(rx []byte, tx []byte) (sendTx bool) {
 		}
 	}
 	return false
-}
-
-func (km *VialDriver) GetMatrixRowState(idx int) uint32 {
-	return uint32(matrix.GetRow(uint8(idx)))
 }

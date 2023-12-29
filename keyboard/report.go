@@ -68,7 +68,7 @@ func (r *Report) Make(key keycodes.Keycode) {
 	firstZero := 0
 	for i := 2; i < 8; i++ {
 		switch keycodes.Keycode(r[i]) {
-		case keycodes.NO:
+		case keycodes.KC_NO:
 			if firstZero == 0 {
 				firstZero = i
 			}

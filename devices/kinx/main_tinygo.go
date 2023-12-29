@@ -15,6 +15,7 @@ import (
 
 var (
 	serial = machine.Serial
+	driver = &VialDriver{usbvial.NewKeyboardDriver(keymap, matrix)}
 )
 
 func adjustTimeOffset(t time.Time) {
@@ -31,5 +32,5 @@ func initHost() keyboard.Host {
 	usb.Manufacturer = "Kinesis"
 	usb.Product = "Advantage2"
 	usb.Serial = vial.MagicSerialNumber("")
-	return usbvial.New(VialDeviceDefinition, &VialDriver{keymap})
+	return usbvial.New(VialDeviceDefinition, driver)
 }

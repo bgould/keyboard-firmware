@@ -9,13 +9,13 @@ import (
 func ANSI101DefaultLayer() keyboard.Keymap {
 	return keyboard.Keymap([]keyboard.Layer{ANSI101Layer(
 
-		ESC, F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, PSCR, SLCK, BRK,
+		KC_ESC_, KC_F1__, KC_F2__, KC_F3__, KC_F4__, KC_F5__, KC_F6__, KC_F7__, KC_F8__, KC_F9__, KC_F10_, KC_F11_, KC_F12_, KC_PSCR, KC_SCRL, KC_BRK_,
 
-		GRV, N1, N2, N3, N4, N5, N6, N7, N8, N9, N0, MINS, EQL, BSPC, INS, HOME, PGUP, NLCK, PSLS, PAST, PMNS,
-		TAB, Q, W, E, R, T, Y, U, I, O, P, LBRC, RBRC, BSLS, DEL, END, PGDN, P7, P8, P9, PPLS,
-		CAPS, A, S, D, F, G, H, J, K, L, SCLN, QUOT, ENT, P4, P5, P6,
-		LSFT, Z, X, C, V, B, N, M, COMM, DOT, SLSH, RSFT, UP, P1, P2, P3, PENT,
-		LCTL, LALT, SPC, RALT, RCTL, LEFT, DOWN, RGHT, P0, PDOT,
+		KC_GRV_, KC_N1__, KC_N2__, KC_N3__, KC_N4__, KC_N5__, KC_N6__, KC_N7__, KC_N8__, KC_N9__, KC_N0__, KC_MINS, KC_EQL_, KC_BSPC, KC_INS_, KC_HOME, KC_PGUP, KC_NUM_, KC_PSLS, KC_PAST, KC_PMNS,
+		KC_TAB_, KC_Q___, KC_W___, KC_E___, KC_R___, KC_T___, KC_Y___, KC_U___, KC_I___, KC_O___, KC_P___, KC_LBRC, KC_RBRC, KC_BSLS, KC_DEL_, KC_END_, KC_PGDN, KC_P7__, KC_P8__, KC_P9__, KC_PPLS,
+		KC_CAPS, KC_A___, KC_S___, KC_D___, KC_F___, KC_G___, KC_H___, KC_J___, KC_K___, KC_L___, KC_SCLN, KC_QUOT, KC_ENT_, KC_P4__, KC_P5__, KC_P6__,
+		KC_LSFT, KC_Z___, KC_X___, KC_C___, KC_V___, KC_B___, KC_N___, KC_M___, KC_COMM, KC_DOT_, KC_SLSH, KC_RSFT, KC_UP__, KC_P1__, KC_P2__, KC_P3__, KC_PENT,
+		KC_LCTL, KC_LALT, KC_SPC_, KC_RALT, KC_RCTL, KC_LEFT, KC_DOWN, KC_RGHT, KC_P0__, KC_PDOT,
 	)})
 }
 

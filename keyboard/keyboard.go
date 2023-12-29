@@ -141,7 +141,7 @@ func (kbd *Keyboard) processEvent(ev Event) {
 	}
 	key := kbd.layers.MapKey(int(l), int(ev.Pos.Row), int(ev.Pos.Col))
 	// key := kbd.layers[l].KeyAt(ev.Pos)
-	for key == keycodes.TRANSPARENT && l > 0 {
+	for key == keycodes.KC_TRANSPARENT && l > 0 {
 		l--
 		key = kbd.layers.MapKey(int(l), int(ev.Pos.Row), int(ev.Pos.Col))
 	}
@@ -154,8 +154,8 @@ func (kbd *Keyboard) processEvent(ev Event) {
 		kbd.processConsumerKey(key, ev.Made)
 	case key.IsSystem():
 		kbd.processSystemKey(key, ev.Made)
-	case key.IsUser():
-		kbd.processUser(key, ev.Made)
+	case key.IsKb():
+		kbd.processKb(key, ev.Made)
 		// case key.IsSpecial():
 		// 	kbd.processSpecialKey(key, ev.Made)
 	}
@@ -209,8 +209,8 @@ func (kbd *Keyboard) processSystemKey(key keycodes.Keycode, made bool) {
 // 	}
 // }
 
-func (kbd *Keyboard) processUser(key keycodes.Keycode, made bool) {
-	if !key.IsUser() { // sanity check
+func (kbd *Keyboard) processKb(key keycodes.Keycode, made bool) {
+	if !key.IsKb() { // sanity check
 		return
 	}
 	// fnIndex := uint8(key - keycodes.FN0)
