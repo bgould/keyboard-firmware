@@ -8,10 +8,11 @@ require (
 	github.com/sstallion/go-hid v0.14.1
 	tinygo.org/x/drivers v0.26.1-0.20231124171304-93cbba5d8b9d
 	tinygo.org/x/tinydraw v0.3.0
-	tinygo.org/x/tinyfont v0.3.0
+	tinygo.org/x/tinyfont v0.4.0
+	tinygo.org/x/tinyfs v0.3.0
 )
 
 require (
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
-	golang.org/x/sys v0.8.0 // indirect
+	golang.org/x/sys v0.11.0 // indirect
 )

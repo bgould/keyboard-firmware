@@ -10,11 +10,15 @@ import (
 	serialhost "github.com/bgould/keyboard-firmware/hosts/serial"
 	"github.com/bgould/keyboard-firmware/keyboard"
 	"tinygo.org/x/drivers"
+	"tinygo.org/x/tinyfs"
 )
 
 var (
 	i2c    = (drivers.I2C)(nil)
 	serial = (keyboard.Serialer)(nil)
+
+	blockdev tinyfs.BlockDevice = nil
+	keymapfs tinyfs.Filesystem  = nil
 )
 
 func adjustTimeOffset(t time.Time) {

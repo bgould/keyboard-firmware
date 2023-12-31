@@ -4,17 +4,10 @@ package main
 
 import (
 	"time"
-
-	"tinygo.org/x/drivers/pcf8523"
 )
 
 var (
-	rtc = pcf8523.New(i2c)
-
 	rtcInit bool
-	rtcErr  error
-
-	rtcLast time.Time
 )
 
 func init() {
