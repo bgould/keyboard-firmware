@@ -4,18 +4,21 @@ package main
 
 import (
 	"machine"
+	"machine/usb"
 
-	"github.com/bgould/keyboard-firmware/hosts/multihost"
 	"github.com/bgould/keyboard-firmware/hosts/serial"
-	"github.com/bgould/keyboard-firmware/hosts/usbhid"
+	"github.com/bgould/keyboard-firmware/hosts/usbvial"
+	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
 	"github.com/bgould/keyboard-firmware/keyboard"
 )
+
+//go:generate go run github.com/bgould/keyboard-firmware/hosts/usbvial/gen-def vial.json
 
 const _debug = true
 
 var (
 	pins   = []machine.Pin{machine.BUTTONA, machine.BUTTONB}
-	layers = CircuitPlaygroundDefaultKeymap()
+	keymap = CircuitPlaygroundDefaultKeymap()
 	matrix = keyboard.NewMatrix(1, 2, keyboard.RowReaderFunc(ReadRow))
 )
 
@@ -30,13 +33,10 @@ func main() {
 
 	configurePins()
 
-	// NOTE: use this multihost configuration for debugging
-	host := multihost.New(usbhid.New(), serial.New(machine.Serial))
+	usb.Serial = vial.MagicSerialNumber("")
+	host := usbvial.NewKeyboard(VialDeviceDefinition, keymap, matrix)
 
-	// host configuration like this is more appropriate for production
-	// host := usbhid.New()
-
-	board := keyboard.New(console, host, matrix, layers)
+	board := keyboard.New(console, host, matrix, keymap)
 	board.SetDebug(_debug)
 
 	machine.LED.High()

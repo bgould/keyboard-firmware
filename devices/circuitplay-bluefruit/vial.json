@@ -1,0 +1,11 @@
+{
+  "name": "tinygo-circuitplay-bluefruit",
+  "vendorId": "0x239A",
+  "productId": "0x8045",
+  "matrix": {"rows": 1, "cols": 2},
+  "layouts": {
+    "keymap": [
+      [ "0,0", { "x" : 2.0 }, "0,1" ]
+    ]
+  }
+}
