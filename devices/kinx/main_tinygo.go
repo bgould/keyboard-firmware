@@ -11,16 +11,14 @@ import (
 	"github.com/bgould/keyboard-firmware/hosts/usbvial"
 	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
 	"github.com/bgould/keyboard-firmware/keyboard"
-	"tinygo.org/x/tinyfs"
-	"tinygo.org/x/tinyfs/littlefs"
 )
 
 var (
 	serial = machine.Serial
 	driver = &VialDriver{usbvial.NewKeyboardDriver(keymap, matrix)}
 
-	blockdev tinyfs.BlockDevice = machine.Flash
-	keymapfs tinyfs.Filesystem  = littlefs.New(blockdev)
+	// blockdev tinyfs.BlockDevice = machine.Flash
+	// keymapfs tinyfs.Filesystem  = littlefs.New(blockdev)
 )
 
 func adjustTimeOffset(t time.Time) {
