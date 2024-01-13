@@ -2,8 +2,13 @@
 
 package keyboard
 
+func DefaultCPUReset() error {
+	return ErrBootloaderNoDefault
+}
+
 func DefaultEnterBootloader() error {
 	return ErrBootloaderNoDefault
 }
 
 var _ EnterBootloaderFunc = DefaultEnterBootloader
+var _ EnterBootloaderFunc = DefaultCPUReset

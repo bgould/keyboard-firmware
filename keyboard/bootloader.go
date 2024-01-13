@@ -26,3 +26,10 @@ func (kbd *Keyboard) EnterBootloader() error {
 	}
 	return kbd.jumpToBootloader()
 }
+
+func (kbd *Keyboard) CPUReset() error {
+	if kbd.cpuReset == nil {
+		return ErrBootloaderNotSet
+	}
+	return kbd.cpuReset()
+}

@@ -45,6 +45,7 @@ type Keyboard struct {
 	keyActionFunc KeyAction
 
 	jumpToBootloader EnterBootloaderFunc
+	cpuReset         EnterBootloaderFunc
 }
 
 func New(serial Serialer, host Host, matrix *Matrix, keymap Keymap) *Keyboard {
@@ -73,6 +74,10 @@ func (kbd *Keyboard) SetDebug(dbg bool) {
 
 func (kbd *Keyboard) SetEnterBootloaderFunc(fn EnterBootloaderFunc) {
 	kbd.jumpToBootloader = fn
+}
+
+func (kbd *Keyboard) SetCPUResetFunc(fn EnterBootloaderFunc) {
+	kbd.cpuReset = fn
 }
 
 func (kbd *Keyboard) LEDs() LEDs {
