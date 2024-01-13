@@ -33,6 +33,7 @@ var (
 func init() {
 	board.SetDebug(_debug)
 	board.SetKeyAction(keyboard.KeyActionFunc(keyAction))
+	board.SetEnterBootloaderFunc(keyboard.DefaultEnterBootloader)
 }
 
 func main() {
@@ -127,7 +128,7 @@ func keyAction(key keycodes.Keycode, made bool) {
 			fn2made = time.Now()
 		} else {
 			if time.Since(fn2made) > 2*time.Second {
-				jumpToBootloader()
+				board.EnterBootloader()
 			} else {
 				cpuReset()
 			}

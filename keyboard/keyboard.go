@@ -44,7 +44,7 @@ type Keyboard struct {
 
 	keyActionFunc KeyAction
 
-	jumpToBootloader func()
+	jumpToBootloader EnterBootloaderFunc
 }
 
 func New(serial Serialer, host Host, matrix *Matrix, keymap Keymap) *Keyboard {
@@ -71,7 +71,7 @@ func (kbd *Keyboard) SetDebug(dbg bool) {
 	// kbd.debug = dbg
 }
 
-func (kbd *Keyboard) SetBootloaderJump(fn func()) {
+func (kbd *Keyboard) SetEnterBootloaderFunc(fn EnterBootloaderFunc) {
 	kbd.jumpToBootloader = fn
 }
 
@@ -89,7 +89,7 @@ func (kbd *Keyboard) ActiveLayer() uint8 {
 }
 
 func (kbd *Keyboard) SetEncoders(encs []Encoder, subscriber EncodersSubscriber) {
-	if encs == nil || len(encs) == 0 {
+	if len(encs) == 0 {
 		kbd.encoders = nil
 	}
 	kbd.encoders = &encoders{
