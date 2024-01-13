@@ -67,7 +67,7 @@ func setUnixTime(t time.Time) error {
 	// 	return err
 	// }
 	adjustTimeOffset(t)
-	// rtcUpdate <- struct{}{}
+	rtcUpdate <- struct{}{}
 	rtcLast = t
 	return nil
 }
