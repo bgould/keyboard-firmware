@@ -27,14 +27,19 @@ var (
 
 	lastTotp uint64
 
-	rtcUpdate = make(chan struct{}, 1)
+	// rtcUpdate = make(chan struct{}, 1)
 )
 
 func init() {
+	// TODO: make configurable
+	time.Local = time.FixedZone("EST", -5*3600)
+
 	board.SetDebug(_debug)
 	board.SetKeyAction(keyboard.KeyActionFunc(keyAction))
 	board.SetEnterBootloaderFunc(keyboard.DefaultEnterBootloader)
 	board.SetCPUResetFunc(keyboard.DefaultCPUReset)
+
+	// initRTC()
 }
 
 func main() {
@@ -49,19 +54,19 @@ func main() {
 
 	configureMatrix()
 	initDisplay()
-	initTime()
+	initRTC()
 
 	cli.WriteString("matrix initialized: " + strconv.FormatBool(matrixInitialized))
 
 	bootBlink()
 
-	go func() {
-		for {
-			<-rtcUpdate
-			cli.WriteString("syncing time")
-			rtcSync()
-		}
-	}()
+	// go func() {
+	// 	for {
+	// 		<-rtcUpdate
+	// 		cli.WriteString("syncing time")
+	// 		rtcSync()
+	// 	}
+	// }()
 
 	cli.WriteString("starting task loop")
 	cli.WriteString("---------------------")
@@ -75,7 +80,7 @@ func main() {
 func deviceLoop() {
 	var oldState keyboard.LEDs
 	for last, count := time.Now(), 0; true; count++ {
-		timeTask()
+		// timeTask()
 		if matrixInitialized {
 			board.Task()
 			oldState = syncLEDs(oldState)

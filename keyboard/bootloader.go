@@ -21,15 +21,15 @@ func (err BootloaderError) Error() string {
 }
 
 func (kbd *Keyboard) EnterBootloader() error {
-	if kbd.jumpToBootloader == nil {
+	if kbd.enterBootloader == nil {
 		return ErrBootloaderNotSet
 	}
-	return kbd.jumpToBootloader()
+	return kbd.enterCpuReset()
 }
 
 func (kbd *Keyboard) CPUReset() error {
-	if kbd.cpuReset == nil {
+	if kbd.enterCpuReset == nil {
 		return ErrBootloaderNotSet
 	}
-	return kbd.cpuReset()
+	return kbd.enterCpuReset()
 }

@@ -33,6 +33,7 @@ type Keyboard struct {
 	activeLayer uint8
 
 	encoders *encoders
+	rtc      *rtc
 
 	mouseKeys *MouseKeys
 
@@ -44,8 +45,8 @@ type Keyboard struct {
 
 	keyActionFunc KeyAction
 
-	jumpToBootloader EnterBootloaderFunc
-	cpuReset         EnterBootloaderFunc
+	enterBootloader EnterBootloaderFunc
+	enterCpuReset   EnterBootloaderFunc
 }
 
 func New(serial Serialer, host Host, matrix *Matrix, keymap Keymap) *Keyboard {
@@ -73,11 +74,11 @@ func (kbd *Keyboard) SetDebug(dbg bool) {
 }
 
 func (kbd *Keyboard) SetEnterBootloaderFunc(fn EnterBootloaderFunc) {
-	kbd.jumpToBootloader = fn
+	kbd.enterBootloader = fn
 }
 
 func (kbd *Keyboard) SetCPUResetFunc(fn EnterBootloaderFunc) {
-	kbd.cpuReset = fn
+	kbd.enterCpuReset = fn
 }
 
 func (kbd *Keyboard) LEDs() LEDs {
@@ -104,6 +105,7 @@ func (kbd *Keyboard) SetEncoders(encs []Encoder, subscriber EncodersSubscriber) 
 }
 
 func (kbd *Keyboard) Task() {
+	kbd.rtc.task()
 	kbd.matrix.Scan()
 	for i, rows := uint8(0), kbd.matrix.Rows(); i < rows; i++ {
 		row := kbd.matrix.GetRow(i)

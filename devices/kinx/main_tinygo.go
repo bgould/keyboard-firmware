@@ -5,7 +5,6 @@ package main
 import (
 	"machine"
 	"machine/usb"
-	"runtime"
 	"time"
 
 	"github.com/bgould/keyboard-firmware/hosts/usbvial"
@@ -21,9 +20,9 @@ var (
 	// keymapfs tinyfs.Filesystem  = littlefs.New(blockdev)
 )
 
-func adjustTimeOffset(t time.Time) {
-	runtime.AdjustTimeOffset(-1 * int64(time.Since(t)))
-}
+// func adjustTimeOffset(t time.Time) {
+// 	runtime.AdjustTimeOffset(-1 * int64(time.Since(t)))
+// }
 
 func configureI2C() error {
 	return i2c.Configure(machine.I2CConfig{
@@ -63,7 +62,7 @@ func (d *VialDriver) Handle(rx []byte, tx []byte) (sendTx bool) {
 			unixTime |= uint64(rx[8]) << 8
 			unixTime |= uint64(rx[9]) << 0
 			println("\nsetting unix time", int64(unixTime))
-			setUnixTime(time.Unix(int64(unixTime), 0))
+			board.RTCSet(time.Unix(int64(unixTime), 0))
 			// cmd := console.CommandInfo{
 			// 	Cmd:    "time",
 			// 	Argv:   []string{"set", strconv.FormatInt(int64(unixTime), 10)},

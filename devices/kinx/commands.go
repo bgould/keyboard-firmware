@@ -44,7 +44,7 @@ func timeset(cmd console.CommandInfo) int {
 	cmd.Stdout.Write([]byte("\n"))
 	cmd.Stdout.Write([]byte(t.Format(time.RFC3339)))
 	cmd.Stdout.Write([]byte("\n"))
-	if err := setUnixTime(t); err != nil {
+	if err := board.RTCSet(t); err != nil {
 		cmd.Stdout.Write([]byte("error setting unix time: "))
 		cmd.Stdout.Write([]byte(err.Error()))
 		cmd.Stdout.Write([]byte("\n"))
@@ -55,7 +55,9 @@ func timeset(cmd console.CommandInfo) int {
 
 func timeget(cmd console.CommandInfo) int {
 	// fmt.Fprintf(cmd.Stdout, "timeset called: %v\n", cmd)
-	now, ok := readTime()
+	// var ok bool
+	now, err := board.RTCTime() //readTime()
+	ok := err == nil
 	cmd.Stdout.Write([]byte("RTC configured: "))
 	cmd.Stdout.Write([]byte(strconv.FormatBool(ok)))
 	cmd.Stdout.Write([]byte("\n"))
