@@ -1,4 +1,4 @@
-//go:build false && !rtc.pcf8523
+//go:build !rtc.pcf8523
 
 package main
 
