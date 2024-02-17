@@ -15,6 +15,3 @@ func DefaultEnterBootloader() error {
 	machine.EnterBootloader()
 	return nil
 }
-
-var _ EnterBootloaderFunc = DefaultEnterBootloader
-var _ EnterBootloaderFunc = DefaultCPUReset

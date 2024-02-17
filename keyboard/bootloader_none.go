@@ -9,6 +9,3 @@ func DefaultCPUReset() error {
 func DefaultEnterBootloader() error {
 	return ErrBootloaderNoDefault
 }
-
-var _ EnterBootloaderFunc = DefaultEnterBootloader
-var _ EnterBootloaderFunc = DefaultCPUReset

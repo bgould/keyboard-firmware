@@ -15,6 +15,3 @@ func DefaultEnterBootloader() error {
 	machine.EnterUF2Bootloader()
 	return nil
 }
-
-var _ EnterBootloaderFunc = DefaultEnterBootloader
-var _ EnterBootloaderFunc = DefaultCPUReset

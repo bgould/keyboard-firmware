@@ -7,6 +7,7 @@ package rotary_encoder
 
 import (
 	"machine"
+	"runtime/volatile"
 )
 
 var (
@@ -24,7 +25,8 @@ type Device struct {
 	precision int
 
 	oldAB int
-	value int
+	value volatile.Register32
+	// value int
 }
 
 type Config struct {
@@ -54,13 +56,13 @@ func (enc *Device) interrupt(pin machine.Pin) {
 	if bHigh {
 		enc.oldAB |= 1
 	}
-	enc.value += int(states[enc.oldAB&0x0f])
+	enc.value.Set(uint32(int(enc.value.Get()) + int(states[enc.oldAB&0x0f])))
 }
 
 func (enc *Device) Value() int {
-	return enc.value / enc.precision
+	return int(enc.value.Get()) / enc.precision
 }
 
 func (enc *Device) SetValue(v int) {
-	enc.value = v * enc.precision
+	enc.value.Set(uint32(v * enc.precision))
 }

@@ -24,7 +24,7 @@ func (kbd *Keyboard) EnterBootloader() error {
 	if kbd.enterBootloader == nil {
 		return ErrBootloaderNotSet
 	}
-	return kbd.enterCpuReset()
+	return kbd.enterBootloader()
 }
 
 func (kbd *Keyboard) CPUReset() error {
@@ -33,3 +33,6 @@ func (kbd *Keyboard) CPUReset() error {
 	}
 	return kbd.enterCpuReset()
 }
+
+var _ EnterBootloaderFunc = DefaultEnterBootloader
+var _ EnterBootloaderFunc = DefaultCPUReset

@@ -15,6 +15,10 @@ type EncodersSubscriber interface {
 
 type EncodersSubscriberFunc func(index int, clockwise bool)
 
+func (fn EncodersSubscriberFunc) EncoderChanged(index int, clockwise bool) {
+	fn(index, clockwise)
+}
+
 type encoders struct {
 	subcribers []EncodersSubscriber
 	encoders   []Encoder
@@ -40,8 +44,4 @@ func (encs *encoders) EncodersTask() {
 			}
 		}
 	}
-}
-
-func (fn EncodersSubscriberFunc) EncoderChanged(index int, clockwise bool) {
-	fn(index, clockwise)
 }
