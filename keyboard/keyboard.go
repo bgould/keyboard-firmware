@@ -9,18 +9,6 @@ type Host interface {
 	LEDs() uint8
 }
 
-type Event struct {
-	Pos  Pos
-	Made bool
-	Time uint32
-}
-
-type Pos struct {
-	// Layer uint8 // TBD
-	Row uint8
-	Col uint8
-}
-
 type Keyboard struct {
 	// console Console
 	matrix *Matrix
@@ -43,6 +31,7 @@ type Keyboard struct {
 
 	// debug bool
 
+	eventReceiver EventReceiver
 	keyActionFunc KeyAction
 
 	enterBootloader EnterBootloaderFunc
@@ -63,6 +52,10 @@ func New(serial Serialer, host Host, matrix *Matrix, keymap Keymap) *Keyboard {
 
 func (kbd *Keyboard) SetKeyAction(action KeyAction) {
 	kbd.keyActionFunc = action
+}
+
+func (kbd *Keyboard) SetEventReceiver(receiver EventReceiver) {
+	kbd.eventReceiver = receiver
 }
 
 // func (kbd *Keyboard) SetConsole(console Console) {
@@ -104,6 +97,31 @@ func (kbd *Keyboard) SetEncoders(encs []Encoder, subscriber EncodersSubscriber) 
 	}
 }
 
+func (kbd *Keyboard) GetLayerCount() uint8 {
+	return kbd.layers.GetLayerCount()
+}
+
+func (kbd *Keyboard) MatrixRows() uint8 {
+	return kbd.matrix.Rows()
+}
+
+func (kbd *Keyboard) MatrixCols() uint8 {
+	return kbd.matrix.Cols()
+}
+
+func (kbd *Keyboard) MapKey(layer, row, col int) keycodes.Keycode {
+	return kbd.layers.MapKey(layer, row, col)
+}
+
+// TODO: Keep track of "dirty" keys and implement keypress for saving
+func (kbd *Keyboard) SetKey(layer, row, col int, kc keycodes.Keycode) bool {
+	return kbd.layers.SetKey(layer, row, col, kc)
+}
+
+func (kbd *Keyboard) GetMatrixRowState(idx int) uint32 {
+	return uint32(kbd.matrix.GetRow(uint8(idx)))
+}
+
 func (kbd *Keyboard) Task() {
 	kbd.rtc.task()
 	kbd.matrix.Scan()
@@ -123,7 +141,11 @@ func (kbd *Keyboard) Task() {
 					Pos:  Pos{i, j},
 					Made: row&mask > 0,
 				}
-				kbd.processEvent(ev)
+				if kbd.eventReceiver != nil {
+					kbd.eventReceiver.ReceiveEvent(ev)
+				} else {
+					kbd.processEvent(ev)
+				}
 				kbd.prev[i] ^= mask
 			}
 		}
@@ -226,21 +248,4 @@ func (kbd *Keyboard) processKb(key keycodes.Keycode, made bool) {
 		// TODO: consider error reporting
 		fn.KeyAction(key, made)
 	}
-}
-
-func (kbd *Keyboard) GetLayerCount() uint8 {
-	return kbd.layers.GetLayerCount()
-}
-
-func (kbd *Keyboard) MapKey(layer, row, col int) keycodes.Keycode {
-	return kbd.layers.MapKey(layer, row, col)
-}
-
-// TODO: Keep track of "dirty" keys and implement keypress for saving
-func (kbd *Keyboard) SetKey(layer, row, col int, kc keycodes.Keycode) bool {
-	return kbd.layers.SetKey(layer, row, col, kc)
-}
-
-func (kbd *Keyboard) GetMatrixRowState(idx int) uint32 {
-	return uint32(kbd.matrix.GetRow(uint8(idx)))
 }
