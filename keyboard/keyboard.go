@@ -10,7 +10,6 @@ type Host interface {
 }
 
 type Keyboard struct {
-	// console Console
 	matrix *Matrix
 	layers Keymap
 	host   Host
@@ -29,13 +28,14 @@ type Keyboard struct {
 	mouseReport    Report
 	consumerReport Report
 
-	// debug bool
-
 	eventReceiver EventReceiver
 	keyActionFunc KeyAction
 
 	enterBootloader EnterBootloaderFunc
 	enterCpuReset   EnterBootloaderFunc
+
+	blConfig BacklightConfig
+	blState  backlightState
 }
 
 func New(serial Serialer, host Host, matrix *Matrix, keymap Keymap) *Keyboard {
@@ -56,22 +56,6 @@ func (kbd *Keyboard) SetKeyAction(action KeyAction) {
 
 func (kbd *Keyboard) SetEventReceiver(receiver EventReceiver) {
 	kbd.eventReceiver = receiver
-}
-
-// func (kbd *Keyboard) SetConsole(console Console) {
-// 	kbd.console = console
-// }
-
-func (kbd *Keyboard) SetDebug(dbg bool) {
-	// kbd.debug = dbg
-}
-
-func (kbd *Keyboard) SetEnterBootloaderFunc(fn EnterBootloaderFunc) {
-	kbd.enterBootloader = fn
-}
-
-func (kbd *Keyboard) SetCPUResetFunc(fn EnterBootloaderFunc) {
-	kbd.enterCpuReset = fn
 }
 
 func (kbd *Keyboard) LEDs() LEDs {
@@ -185,9 +169,12 @@ func (kbd *Keyboard) processEvent(ev Event) {
 		kbd.processSystemKey(key, ev.Made)
 	case key.IsKb():
 		kbd.processKb(key, ev.Made)
-		// case key.IsSpecial():
-		// 	kbd.processSpecialKey(key, ev.Made)
+	// case key.IsSpecial():
+	// 	kbd.processSpecialKey(key, ev.Made)
+	case key.IsBacklight():
+		kbd.processBacklight(key, ev.Made)
 	}
+
 }
 
 func (kbd *Keyboard) processKey(key keycodes.Keycode, made bool) {

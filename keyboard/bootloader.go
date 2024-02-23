@@ -36,3 +36,11 @@ func (kbd *Keyboard) CPUReset() error {
 
 var _ EnterBootloaderFunc = DefaultEnterBootloader
 var _ EnterBootloaderFunc = DefaultCPUReset
+
+func (kbd *Keyboard) SetEnterBootloaderFunc(fn EnterBootloaderFunc) {
+	kbd.enterBootloader = fn
+}
+
+func (kbd *Keyboard) SetCPUResetFunc(fn EnterBootloaderFunc) {
+	kbd.enterCpuReset = fn
+}

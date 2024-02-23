@@ -150,7 +150,7 @@ type Device struct {
 	unlockStatus  UnlockStatus
 	unlockCounter int
 	unlockStart   time.Time
-	unlockKeyPos  []Pos
+	// unlockKeyPos  []Pos
 }
 
 type Pos struct {
@@ -184,7 +184,11 @@ type DeviceMatrix struct {
 }
 
 func NewDevice(def DeviceDefinition, driver DeviceDriver) *Device {
-	return &Device{km: driver, def: def, unlockKeyPos: []Pos{{0, 0}}}
+	unlockKeys := def.UnlockKeys
+	if len(unlockKeys) == 0 {
+		unlockKeys = []Pos{{0, 0}}
+	}
+	return &Device{km: driver, def: def}
 }
 
 func (dev *Device) UnlockStatus() UnlockStatus {
@@ -478,8 +482,8 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 				tx[0] = byte(Locked) // locked
 				tx[1] = 1            // unlock in progress
 			}
-			if dev.unlockKeyPos != nil {
-				for i, pos := range dev.unlockKeyPos {
+			if dev.def.UnlockKeys != nil {
+				for i, pos := range dev.def.UnlockKeys {
 					tx[2+i*2] = pos.Row
 					tx[3+i*2] = pos.Col
 				}
@@ -507,9 +511,9 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 			}
 			var dur = time.Since(dev.unlockStart)
 			if dev.UnlockStatus() == UnlockInProgress {
-				if matrix := dev.km; len(dev.unlockKeyPos) > 0 {
+				if matrix := dev.km; len(dev.def.UnlockKeys) > 0 {
 					holding := true
-					for _, pos := range dev.unlockKeyPos {
+					for _, pos := range dev.def.UnlockKeys {
 						if holding {
 							rowState := matrix.GetMatrixRowState(int(pos.Row))
 							holding = (rowState & (1 << pos.Col)) > 0
