@@ -16,6 +16,7 @@ const (
 )
 
 var (
+	// FIXME: probably doesn't need to be global
 	host *Host
 )
 
@@ -30,9 +31,13 @@ func New(def vial.DeviceDefinition, driver vial.DeviceDriver) *Host {
 	return host
 }
 
-// TODO: consider moving out of init
 func init() {
 	configureVialEndpoints()
+}
+
+// TODO: consider moving out of init
+func (host *Host) Configure() {
+	host.Host.Configure()
 }
 
 func UnlockStatus() vial.UnlockStatus {
@@ -138,7 +143,7 @@ func configureVialEndpoints() {
 // 		ok = true
 // 	}
 // 	return ok
-// }
+// // }
 
 func rxHandler(b []byte) {
 	if host == nil {

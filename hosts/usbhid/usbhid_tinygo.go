@@ -9,7 +9,7 @@ import (
 var port = &kbport{}
 
 // TODO: consider moving out of init
-func init() {
+func (host *Host) Configure() {
 	hid.SetHandler(port)
 }
 
