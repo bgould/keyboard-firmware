@@ -5,8 +5,8 @@ type Encoders interface {
 }
 
 type Encoder interface {
-	Value() int
-	SetValue(int)
+	Position() int
+	SetPosition(int)
 }
 
 type EncodersSubscriber interface {
@@ -29,7 +29,7 @@ func (encs *encoders) EncodersTask() {
 	// println("encoder task")
 	for i, enc := range encs.encoders {
 		_, _ = i, enc
-		if newValue, oldValue := enc.Value(), encs.values[i]; newValue != oldValue {
+		if newValue, oldValue := enc.Position(), encs.values[i]; newValue != oldValue {
 			change := newValue - oldValue
 			clockwise := change > 0
 			if change < 0 {

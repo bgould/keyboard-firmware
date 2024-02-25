@@ -5,12 +5,12 @@ package main
 import (
 	"machine"
 
-	rotary_encoder "github.com/bgould/keyboard-firmware/drivers/rotary-encoder"
 	"github.com/bgould/keyboard-firmware/keyboard"
+	"tinygo.org/x/drivers/encoders"
 )
 
 var (
-	encoder = rotary_encoder.New(machine.ROT_A, machine.ROT_B)
+	encoder = encoders.NewQuadratureViaInterrupt(machine.ROT_A, machine.ROT_B)
 	encPos  = keyboard.EncoderPos{
 		Encoder: encoder,
 		PosCW:   keyboard.Pos{Row: 0, Col: encIndexCW},

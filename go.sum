@@ -32,8 +32,12 @@ tinygo.org/x/drivers v0.14.0/go.mod h1:uT2svMq3EpBZpKkGO+NQHjxjGf1f42ra4OnMMwQL2
 tinygo.org/x/drivers v0.15.1/go.mod h1:uT2svMq3EpBZpKkGO+NQHjxjGf1f42ra4OnMMwQL2aI=
 tinygo.org/x/drivers v0.16.0/go.mod h1:uT2svMq3EpBZpKkGO+NQHjxjGf1f42ra4OnMMwQL2aI=
 tinygo.org/x/drivers v0.19.0/go.mod h1:uJD/l1qWzxzLx+vcxaW0eY464N5RAgFi1zTVzASFdqI=
+tinygo.org/x/drivers v0.26.0 h1:7KSIYssX0ki0dd7yBYkVZWSG0kt8vrZNS0It73TymcA=
+tinygo.org/x/drivers v0.26.0/go.mod h1:X7utcg3yfFUFuKLOMTZD56eztXMjpkcf8OHldfTBsjw=
 tinygo.org/x/drivers v0.26.1-0.20231206190939-3fabdc5c9680 h1:S7FwtuTMSkyEjF1cgl3AFlnBR940GYgCMSADm0U8e7o=
 tinygo.org/x/drivers v0.26.1-0.20231206190939-3fabdc5c9680/go.mod h1:q/mU8G/wz821p8xXqbkBACOlmZFDHXd//DnYnCW+dDQ=
+tinygo.org/x/drivers v0.26.1-0.20240224181606-8665d44e0f63 h1:l16Xjr0NQTWQhlr1Dt89tLxULRUp7Ds0gAzoVDTAsoo=
+tinygo.org/x/drivers v0.26.1-0.20240224181606-8665d44e0f63/go.mod h1:q/mU8G/wz821p8xXqbkBACOlmZFDHXd//DnYnCW+dDQ=
 tinygo.org/x/tinydraw v0.3.0 h1:OjsdMcES5+7IIs/4diFpq/pWFsa0VKtbi1mURuj2q64=
 tinygo.org/x/tinydraw v0.3.0/go.mod h1:Yz0vLSP2rHsIKpLYkEmLnE+2zyhhITu2LxiVtLRiW6I=
 tinygo.org/x/tinyfont v0.2.1/go.mod h1:eLqnYSrFRjt5STxWaMeOWJTzrKhXqpWw7nU3bPfKOAM=

@@ -6,11 +6,11 @@ import (
 	"machine/usb"
 	"time"
 
-	rotary_encoder "github.com/bgould/keyboard-firmware/drivers/rotary-encoder"
 	"github.com/bgould/keyboard-firmware/hosts/usbvial"
 	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
 	"github.com/bgould/keyboard-firmware/keyboard"
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
+	"tinygo.org/x/drivers/encoders"
 )
 
 //go:generate go run github.com/bgould/keyboard-firmware/hosts/usbvial/gen-def vial.json
@@ -24,7 +24,7 @@ var (
 func init() {
 	configurePins()
 	usb.Serial = vial.MagicSerialNumber("")
-	encoder.Configure(rotary_encoder.Config{})
+	encoder.Configure(encoders.QuadratureConfig{})
 	host.Configure()
 }
 
