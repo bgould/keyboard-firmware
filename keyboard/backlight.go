@@ -15,10 +15,12 @@ const (
 )
 
 type BacklightDriver interface {
+	Configure()
 	SetBacklight(mode BacklightMode, level BacklightLevel)
+	Task()
 }
 
-type BacklightConfig struct {
+type Backlight struct {
 
 	// BacklightDriver implementation to use; if nil, backlight is disabled.
 	Driver BacklightDriver
@@ -36,14 +38,14 @@ type BacklightConfig struct {
 	SupportsBreathing bool
 }
 
-func (kbd *Keyboard) SetBacklightConfig(config BacklightConfig) {
-	kbd.blConfig = config
-	kbd.blState = backlightState{mode: config.DefaultMode, level: config.DefaultLevel}
-	kbd.blConfig.Driver.SetBacklight(kbd.blState.mode, kbd.blState.level)
+func (kbd *Keyboard) SetBacklight(bl Backlight) {
+	kbd.backlight = bl
+	kbd.blState = backlightState{mode: bl.DefaultMode, level: bl.DefaultLevel}
+	kbd.backlight.Driver.SetBacklight(kbd.blState.mode, kbd.blState.level)
 }
 
 func (kbd *Keyboard) BacklightEnabled() bool {
-	return kbd.blConfig.Driver != nil
+	return kbd.backlight.Driver != nil
 }
 
 func (kbd *Keyboard) processBacklight(key keycodes.Keycode, made bool) {
@@ -85,11 +87,11 @@ func (kbd *Keyboard) processBacklight(key keycodes.Keycode, made bool) {
 			kbd.blState.ToggleBreathing()
 		}
 	}
-	kbd.blConfig.Driver.SetBacklight(kbd.blState.mode, kbd.blState.level)
+	kbd.backlight.Driver.SetBacklight(kbd.blState.mode, kbd.blState.level)
 	changed := kbd.blState != prev
 	if changed {
 		// println("backlight changed", kbd.blState.mode, kbd.blState.level, kbd.blState.breathing)
-		kbd.blConfig.Driver.SetBacklight(kbd.blState.mode, kbd.blState.level)
+		kbd.backlight.Driver.SetBacklight(kbd.blState.mode, kbd.blState.level)
 	} else {
 		// println("backlight not changed")
 	}

@@ -15,7 +15,7 @@ var (
 	cli    = initConsole()
 	host   = initHost()
 	keymap = initKeymap()
-	board  = keyboard.New(serial, host, matrix, keymap)
+	board  = keyboard.New(host, matrix, keymap)
 
 	matrixInitialized = false
 	// keyAction = configureKeyAction()
@@ -34,7 +34,6 @@ func init() {
 	// TODO: make configurable
 	time.Local = time.FixedZone("EST", -5*3600)
 
-	board.SetDebug(_debug)
 	board.SetKeyAction(keyboard.KeyActionFunc(keyAction))
 	board.SetEnterBootloaderFunc(keyboard.DefaultEnterBootloader)
 	board.SetCPUResetFunc(keyboard.DefaultCPUReset)

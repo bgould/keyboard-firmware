@@ -1,4 +1,4 @@
-//go:build tinygo
+//go:build tinygo && nrf
 
 package keyboard
 
@@ -10,20 +10,32 @@ import (
 )
 
 type BacklightGPIO struct {
+
+	//
 	LED machine.Pin
 
+	//
 	PWM *machine.PWM
+
+	//
+	Interval time.Duration
 
 	mutex  sync.Mutex
 	cancel func()
 
 	state backlightState
 
+	brightening bool
+	step        uint8
+	last        time.Time
+
 	channelLED uint8
 }
 
 func (bl *BacklightGPIO) Configure() {
-	println("BacklightGPIO.Configure()")
+	if bl.Interval == 0 {
+		bl.Interval = 4 * time.Millisecond
+	}
 	err := bl.PWM.Configure(machine.PWMConfig{})
 	if err != nil {
 		println("failed to configure PWM")
@@ -36,10 +48,40 @@ func (bl *BacklightGPIO) Configure() {
 	}
 }
 
+func (bl *BacklightGPIO) Task() {
+
+	if time.Since(bl.last) < bl.Interval {
+		return
+	}
+
+	bl.mutex.Lock()
+	defer bl.mutex.Unlock()
+
+	if bl.state.mode != BacklightBreathing {
+		return
+	}
+
+	if bl.step == 0 {
+		bl.brightening = !bl.brightening
+	}
+
+	var brightness uint32 = uint32(bl.step)
+	if !bl.brightening {
+		brightness = 256 - brightness
+	}
+	bl.PWM.Set(bl.channelLED, bl.PWM.Top()*brightness/256)
+	bl.last = bl.last.Add(bl.Interval)
+	bl.step++
+}
+
 func (bl *BacklightGPIO) SetBacklight(mode BacklightMode, level BacklightLevel) {
 
 	bl.mutex.Lock()
 	defer bl.mutex.Unlock()
+
+	if mode == bl.state.mode && level == bl.state.level {
+		return
+	}
 
 	bl.state.mode, bl.state.level = mode, level
 	// println("SetBacklight(): ", bl.state.mode, bl.state.level)
@@ -47,30 +89,32 @@ func (bl *BacklightGPIO) SetBacklight(mode BacklightMode, level BacklightLevel) 
 	switch bl.state.mode {
 
 	case BacklightOff:
+		// println("BacklightOff")
 		bl.cancelIfRunning()
 		bl.PWM.Set(bl.channelLED, 0)
 
 	case BacklightOn:
+		// println("BacklightOn")
 		bl.cancelIfRunning()
 		bl.PWM.Set(bl.channelLED, bl.PWM.Top())
 
 	case BacklightBreathing:
+		// println("BacklightBreathing")
 		bl.cancelIfRunning()
-		ctx, cancel := context.WithCancel(context.Background())
-		bl.cancel = cancel
-		go bl.breathe(ctx, 4*time.Millisecond)
+		bl.brightening = false
+		bl.step = 0xF
+		bl.last = time.Now()
+		// if false {
+		// ctx, cancel := context.WithCancel(context.Background())
+		// bl.cancel = cancel
+		// go bl.breathe(ctx)
+		// } else {
 
+		// }
 	}
 }
 
-func (bl *BacklightGPIO) cancelIfRunning() {
-	if bl.cancel != nil {
-		bl.cancel()
-		bl.cancel = nil
-	}
-}
-
-func (bl *BacklightGPIO) breathe(ctx context.Context, interval time.Duration) {
+func (bl *BacklightGPIO) breathe(ctx context.Context) {
 	for i, brightening := uint8(0xF), false; ; i++ {
 		select {
 		case <-ctx.Done():
@@ -85,7 +129,14 @@ func (bl *BacklightGPIO) breathe(ctx context.Context, interval time.Duration) {
 				brightness = 256 - brightness
 			}
 			bl.PWM.Set(bl.channelLED, bl.PWM.Top()*brightness/256)
-			time.Sleep(interval)
+			time.Sleep(bl.Interval)
 		}
+	}
+}
+
+func (bl *BacklightGPIO) cancelIfRunning() {
+	if bl.cancel != nil {
+		bl.cancel()
+		bl.cancel = nil
 	}
 }

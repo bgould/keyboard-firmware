@@ -34,7 +34,9 @@ func initHost() keyboard.Host {
 	usb.Manufacturer = "Kinesis"
 	usb.Product = "Advantage2"
 	usb.Serial = vial.MagicSerialNumber("")
-	return usbvial.New(VialDeviceDefinition, driver)
+	host := usbvial.New(VialDeviceDefinition, driver)
+	host.Configure()
+	return host
 }
 
 type VialDriver struct {

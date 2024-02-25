@@ -29,6 +29,7 @@ type Host struct {
 func New(def vial.DeviceDefinition, driver vial.DeviceDriver) *Host {
 	host = &Host{Host: usbhid.New(), dev: vial.NewDevice(def, driver)}
 	return host
+	// return &Host{Host: usbhid.New(), dev: vial.NewDevice(def, driver)}
 }
 
 func init() {
@@ -40,7 +41,7 @@ func (host *Host) Configure() {
 	host.Host.Configure()
 }
 
-func UnlockStatus() vial.UnlockStatus {
+func (host *Host) UnlockStatus() vial.UnlockStatus {
 	return host.dev.UnlockStatus()
 }
 

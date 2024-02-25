@@ -34,11 +34,11 @@ type Keyboard struct {
 	enterBootloader EnterBootloaderFunc
 	enterCpuReset   EnterBootloaderFunc
 
-	blConfig BacklightConfig
-	blState  backlightState
+	backlight Backlight
+	blState   backlightState
 }
 
-func New(serial Serialer, host Host, matrix *Matrix, keymap Keymap) *Keyboard {
+func New(host Host, matrix *Matrix, keymap Keymap) *Keyboard {
 	return &Keyboard{
 		// console:   console,
 		matrix:    matrix,
@@ -144,6 +144,9 @@ func (kbd *Keyboard) Task() {
 	}
 	if kbd.encoders != nil {
 		kbd.encoders.EncodersTask()
+	}
+	if kbd.backlight.Driver != nil {
+		kbd.backlight.Driver.Task()
 	}
 }
 

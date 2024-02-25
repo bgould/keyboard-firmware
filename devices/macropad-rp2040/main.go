@@ -3,7 +3,6 @@
 package main
 
 import (
-	"machine"
 	"machine/usb"
 	"time"
 
@@ -16,29 +15,24 @@ import (
 
 //go:generate go run github.com/bgould/keyboard-firmware/hosts/usbvial/gen-def vial.json
 
-const (
-	_debug = false
-)
-
 var (
 	keymap = Keymap()
 	host   = usbvial.NewKeyboard(VialDeviceDefinition, keymap, matrix)
-	board  = keyboard.New(machine.Serial, host, matrix, keymap)
+	board  = keyboard.New(host, matrix, keymap)
 )
 
 func init() {
 	configurePins()
 	usb.Serial = vial.MagicSerialNumber("")
 	encoder.Configure(rotary_encoder.Config{})
+	host.Configure()
 }
 
 func main() {
 
-	board.SetDebug(_debug)
-
 	board.SetKeyAction(keyboard.KeyActionFunc(
 		func(key keycodes.Keycode, made bool) {
-			if usbvial.UnlockStatus() != vial.UnlockInProgress {
+			if host.UnlockStatus() != vial.UnlockInProgress {
 				switch key {
 				case keycodes.KC_FN12:
 					if made {
