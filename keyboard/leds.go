@@ -19,8 +19,8 @@ func (l *LEDs) Get(led LED) bool {
 
 func (l *LEDs) Set(led LED, on bool) {
 	if on {
-		*l |= (1 << led) // high
+		*l |= (1<<led - 1) // high
 	} else {
-		*l &^= (1 << led) // low
+		*l &^= (1<<led - 1) // low
 	}
 }
