@@ -1,10 +1,9 @@
 package console
 
 import (
+	"io"
 	"strconv"
 	"strings"
-
-	"github.com/bgould/keyboard-firmware/keyboard"
 )
 
 const consoleBufLen = 64
@@ -15,8 +14,12 @@ const (
 )
 
 // const storageBufLen = 512
-
-type Serialer keyboard.Serialer
+type Serialer interface {
+	io.Writer
+	io.ByteReader
+	io.ByteWriter
+	Buffered() int
+}
 
 func New(serial Serialer, handler CommandHandler) *Console {
 	return &Console{
