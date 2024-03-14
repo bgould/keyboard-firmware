@@ -31,3 +31,7 @@ func configureI2C() error {
 func initHost() keyboard.Host {
 	return serialhost.New(nil)
 }
+
+func initFilesystem() {
+
+}

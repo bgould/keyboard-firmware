@@ -1,6 +1,7 @@
 package main
 
 import (
+	"machine"
 	"runtime"
 	"strconv"
 	"time"
@@ -12,7 +13,7 @@ import (
 //go:generate go run github.com/bgould/keyboard-firmware/hosts/usbvial/gen-def vial.json
 
 var (
-	cli    = initConsole()
+	// cli    = initConsole()
 	host   = initHost()
 	keymap = initKeymap()
 	board  = keyboard.New(host, matrix, keymap)
@@ -38,6 +39,7 @@ func init() {
 	board.SetEnterBootloaderFunc(keyboard.DefaultEnterBootloader)
 	board.SetCPUResetFunc(keyboard.DefaultCPUReset)
 
+	initFilesystem()
 	// initRTC()
 }
 
@@ -46,8 +48,12 @@ func main() {
 	if _debug {
 		time.Sleep(3 * time.Second)
 	}
-
 	serial.Write([]byte("\r\n"))
+
+	board.ConfigureFilesystem()
+
+	board.EnableConsole(machine.Serial, initCommands())
+	cli := board.CLI()
 	cli.WriteString("---------------------")
 	cli.WriteString("initializing hardware")
 
@@ -94,7 +100,6 @@ func deviceLoop() {
 			ds.ts, ds.tsOk = last, true
 		}
 		totptask()
-		cli.Task()
 	}
 }
 
@@ -148,7 +153,7 @@ func keyAction(key keycodes.Keycode, made bool) {
 			fn3made = time.Now()
 		}
 		if err := showTime(ds, true); err != nil {
-			cli.WriteString("warning: error updating display: " + err.Error())
+			board.CLI().WriteString("warning: error updating display: " + err.Error())
 		}
 	}
 

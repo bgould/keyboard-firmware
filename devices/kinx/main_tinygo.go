@@ -10,6 +10,7 @@ import (
 	"github.com/bgould/keyboard-firmware/hosts/usbvial"
 	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
 	"github.com/bgould/keyboard-firmware/keyboard"
+	"tinygo.org/x/tinyfs/littlefs"
 )
 
 var (
@@ -37,6 +38,16 @@ func initHost() keyboard.Host {
 	host := usbvial.New(VialDeviceDefinition, driver)
 	host.Configure()
 	return host
+}
+
+func initFilesystem() {
+	lfs := littlefs.New(machine.Flash)
+	lfs.Configure(&littlefs.Config{
+		CacheSize:     512,
+		LookaheadSize: 512,
+		BlockCycles:   100,
+	})
+	board.SetFS(lfs)
 }
 
 type VialDriver struct {

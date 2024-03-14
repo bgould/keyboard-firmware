@@ -55,11 +55,20 @@ func New(host Host, matrix *Matrix, keymap Keymap) *Keyboard {
 	}
 }
 
-func (kbd *Keyboard) EnableConsole(serialer Serialer) {
+func (kbd *Keyboard) EnableConsole(serialer Serialer, cmds ...console.Commands) {
 	commands := console.Commands{}
 	kbd.addDefaultCommands(commands)
 	kbd.addFilesystemCommands(commands)
+	for _, set := range cmds {
+		for k, v := range set {
+			commands[k] = v
+		}
+	}
 	kbd.cli = console.New(serialer, commands)
+}
+
+func (kbd *Keyboard) CLI() *console.Console {
+	return kbd.cli
 }
 
 func (kbd *Keyboard) SetKeyAction(action KeyAction) {

@@ -7,7 +7,7 @@ var (
 )
 
 func initRTC() bool {
-	cli.WriteString("RTC not configured")
+	board.CLI().WriteString("RTC not configured")
 	return true
 }
 

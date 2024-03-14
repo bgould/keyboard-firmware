@@ -16,11 +16,11 @@ var (
 )
 
 func initRTC() bool {
-	cli.WriteString("initializing pcf8523")
+	board.CLI().WriteString("initializing pcf8523")
 	// make sure the battery takes over if power is lost
 	err := rtc.SetPowerManagement(pcf8523.PowerManagement_SwitchOver_ModeStandard)
 	if err != nil {
-		cli.WriteString("rtc error: " + err.Error())
+		board.CLI().WriteString("rtc error: " + err.Error())
 		return false
 	}
 	board.SetRTC(&rtc)

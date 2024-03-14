@@ -15,6 +15,7 @@ var (
 )
 
 func configureMatrix() {
+	cli := board.CLI()
 	if err := configureI2C(); err != nil {
 		errmsg(err)
 	}

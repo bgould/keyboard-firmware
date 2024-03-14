@@ -7,19 +7,19 @@ import (
 	"github.com/bgould/keyboard-firmware/keyboard/console"
 )
 
-func initConsole() *console.Console {
-	return console.New(serial, console.Commands{
-		"status": console.CommandHandlerFunc(status),
+func initCommands() console.Commands {
+	return console.Commands{
+		"rate": console.CommandHandlerFunc(rate),
 		"time": console.Commands{
 			"set": console.CommandHandlerFunc(timeset),
 			"get": console.CommandHandlerFunc(timeget),
 		},
 		"totp": totpCommands,
-	})
+	}
 }
 
-func status(cmd console.CommandInfo) int {
-	cmd.Stdout.Write([]byte("status: "))
+func rate(cmd console.CommandInfo) int {
+	cmd.Stdout.Write([]byte("scan rate: "))
 	cmd.Stdout.Write([]byte(strconv.Itoa(ds.scanRate)))
 	cmd.Stdout.Write([]byte("\n"))
 	return 0

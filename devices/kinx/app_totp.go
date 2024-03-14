@@ -56,7 +56,7 @@ func totptask() {
 			ds.totpAccount = totpKeys[0].Name
 			numbers, err := totp.GenerateCode(string(totpKeys[0].Key), time.Now())
 			if err != nil {
-				cli.WriteString("warning: error updating TOTP - " + err.Error())
+				board.CLI().WriteString("warning: error updating TOTP - " + err.Error())
 				numbers = "000000"
 			}
 			ds.totpNumbers = numbers
@@ -64,7 +64,7 @@ func totptask() {
 		}
 	}
 	if err := showTime(ds, false); err != nil {
-		cli.WriteString("warning: error updating display - " + err.Error())
+		board.CLI().WriteString("warning: error updating display - " + err.Error())
 	}
 	displayTask()
 }

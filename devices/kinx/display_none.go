@@ -36,7 +36,7 @@ func showTime(state DisplayState, force bool) error {
 	compare.scanRate = 0
 	if state != lastState { // TODO: normalize scan rate so conditional statement below isn't necessary?
 		if tstr != lastTime || dstr != lastDate {
-			cli.WriteString(
+			board.CLI().WriteString(
 				"Time: " + dstr + " @ " + tstr + "; " +
 					"TOTP Account: " + state.totpAccount + "; " +
 					"TOTP Numbers: " + state.totpNumbers,
