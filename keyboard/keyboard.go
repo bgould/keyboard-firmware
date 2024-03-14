@@ -1,7 +1,9 @@
 package keyboard
 
 import (
+	"github.com/bgould/keyboard-firmware/keyboard/console"
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
+	"tinygo.org/x/tinyfs"
 )
 
 type Host interface {
@@ -36,6 +38,9 @@ type Keyboard struct {
 
 	backlight Backlight
 	blState   backlightState
+
+	fs  tinyfs.Filesystem
+	cli *console.Console
 }
 
 func New(host Host, matrix *Matrix, keymap Keymap) *Keyboard {
@@ -48,6 +53,13 @@ func New(host Host, matrix *Matrix, keymap Keymap) *Keyboard {
 		mouseKeys: NewMouseKeys(DefaultMouseKeysConfig()),
 		encoders:  nil,
 	}
+}
+
+func (kbd *Keyboard) EnableConsole(serialer Serialer) {
+	commands := console.Commands{}
+	kbd.addDefaultCommands(commands)
+	kbd.addFilesystemCommands(commands)
+	kbd.cli = console.New(serialer, commands)
 }
 
 func (kbd *Keyboard) SetKeyAction(action KeyAction) {
@@ -147,6 +159,9 @@ func (kbd *Keyboard) Task() {
 	}
 	if kbd.backlight.Driver != nil {
 		kbd.backlight.Driver.Task()
+	}
+	if kbd.cli != nil {
+		kbd.cli.Task()
 	}
 }
 

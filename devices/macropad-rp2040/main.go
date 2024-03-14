@@ -3,6 +3,7 @@
 package main
 
 import (
+	"machine"
 	"machine/usb"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/bgould/keyboard-firmware/keyboard"
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 	"tinygo.org/x/drivers/encoders"
+	"tinygo.org/x/tinyfs/littlefs"
 )
 
 //go:generate go run github.com/bgould/keyboard-firmware/hosts/usbvial/gen-def vial.json
@@ -22,13 +24,27 @@ var (
 )
 
 func init() {
+	initFilesystem()
 	configurePins()
 	usb.Serial = vial.MagicSerialNumber("")
 	encoder.Configure(encoders.QuadratureConfig{})
 	host.Configure()
 }
 
+func initFilesystem() {
+	lfs := littlefs.New(machine.Flash)
+	lfs.Configure(&littlefs.Config{
+		CacheSize:     512,
+		LookaheadSize: 512,
+		BlockCycles:   100,
+	})
+	board.SetFS(lfs)
+}
+
 func main() {
+
+	board.ConfigureFilesystem()
+	board.EnableConsole(machine.Serial)
 
 	board.SetKeyAction(keyboard.KeyActionFunc(
 		func(key keycodes.Keycode, made bool) {

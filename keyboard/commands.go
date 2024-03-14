@@ -1,0 +1,111 @@
+package keyboard
+
+import (
+	"machine/usb"
+	"strconv"
+
+	"github.com/bgould/keyboard-firmware/keyboard/console"
+)
+
+// var (
+// 	commands = console.Commands{}
+// )
+
+const (
+	savedKeymapFilename = "saved.keymap"
+)
+
+func (kbd *Keyboard) addDefaultCommands(commands console.Commands) {
+	commands["status"] = console.CommandHandlerFunc(kbd.status)
+	commands["save"] = console.CommandHandlerFunc(kbd.save)
+	commands["load"] = console.CommandHandlerFunc(kbd.load)
+}
+
+// func initConsole() *console.Console {
+// 	return console.New(machine.Serial, commands)
+// }
+
+func (kbd *Keyboard) status(cmd console.CommandInfo) int {
+
+	cmd.Stdout.Write([]byte("\n[USB]\n-----\n"))
+	cmd.Stdout.Write([]byte("Manufacturer: "))
+	cmd.Stdout.Write([]byte(usb.Manufacturer))
+	cmd.Stdout.Write([]byte("\n"))
+	cmd.Stdout.Write([]byte("Product:      "))
+	cmd.Stdout.Write([]byte(usb.Product))
+	cmd.Stdout.Write([]byte("\n"))
+	cmd.Stdout.Write([]byte("Serial:       "))
+	cmd.Stdout.Write([]byte(usb.Serial))
+	cmd.Stdout.Write([]byte("\n"))
+
+	/*
+		var dataStart, dataEnd [8]byte
+		st, en := machine.FlashDataStart(), machine.FlashDataEnd()
+		bin2hex([]byte{byte(st >> 24), byte(st >> 16), byte(st >> 8), byte(st)}, dataStart[:])
+		bin2hex([]byte{byte(en >> 24), byte(en >> 16), byte(en >> 8), byte(en)}, dataEnd[:])
+
+		cmd.Stdout.Write([]byte("\n[Device]\n--------\n"))
+		cmd.Stdout.Write([]byte("Serial Number: "))
+		cmd.Stdout.Write([]byte(serialNumber[:]))
+		cmd.Stdout.Write([]byte("\n"))
+		cmd.Stdout.Write([]byte("Scan Rate:     "))
+		cmd.Stdout.Write([]byte(strconv.Itoa(scanRate)))
+		cmd.Stdout.Write([]byte("\n"))
+		cmd.Stdout.Write([]byte("Flash Start:   "))
+		cmd.Stdout.Write(dataStart[:])
+		cmd.Stdout.Write([]byte("\n"))
+		cmd.Stdout.Write([]byte("Flash End:     "))
+		cmd.Stdout.Write(dataEnd[:])
+		cmd.Stdout.Write([]byte("\n"))
+	*/
+
+	cmd.Stdout.Write([]byte("\n"))
+
+	return 0
+}
+
+func (kbd *Keyboard) save(cmd console.CommandInfo) int {
+	cmd.Stdout.Write([]byte("Saving keymap ...\n"))
+	if n, err := kbd.SaveKeymapToFile(savedKeymapFilename); err != nil {
+		cmd.Stdout.Write([]byte("Error saving keymap: "))
+		cmd.Stdout.Write([]byte(err.Error()))
+		cmd.Stdout.Write([]byte("\n"))
+		return 1
+	} else {
+		cmd.Stdout.Write([]byte("Wrote "))
+		cmd.Stdout.Write([]byte(strconv.Itoa(int(n))))
+		cmd.Stdout.Write([]byte(" bytes. Keymap saved successfully.\n"))
+		return 0
+	}
+}
+
+func (kbd *Keyboard) load(cmd console.CommandInfo) int {
+	cmd.Stdout.Write([]byte("Loading keymap ...\n"))
+	if n, err := kbd.LoadKeymapFromFile(savedKeymapFilename); err != nil {
+		cmd.Stdout.Write([]byte("Error loading keymap: "))
+		cmd.Stdout.Write([]byte(err.Error()))
+		cmd.Stdout.Write([]byte("\n"))
+		return 1
+	} else {
+		cmd.Stdout.Write([]byte("Read "))
+		cmd.Stdout.Write([]byte(strconv.Itoa(int(n))))
+		cmd.Stdout.Write([]byte(" bytes. Keymap loaded successfully.\n"))
+		return 0
+	}
+}
+
+// func configureFilesystem() {
+// 	if err := board.FS().Mount(); err != nil {
+// 		println("Could not mount LittleFS filesystem: ", err.Error(), "\r\n")
+// 	} else {
+// 		println("Successfully mounted LittleFS filesystem.\r\n")
+// 		// fs_mounted = true
+
+// 		if info, err := board.FS().Stat(savedKeymapFilename); err != nil {
+// 			println("unable to load ", savedKeymapFilename, ": ", err)
+// 		} else {
+// 			println("Attempting to load keymap file: ", info.Name())
+// 			board.LoadKeymapFromFile(info.Name())
+// 		}
+// 	}
+// }
