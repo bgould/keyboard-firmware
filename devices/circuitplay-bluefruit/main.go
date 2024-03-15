@@ -10,7 +10,7 @@ import (
 	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
 	"github.com/bgould/keyboard-firmware/keyboard"
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
-	"tinygo.org/x/tinyfs/littlefs"
+	"tinygo.org/x/tinyfs"
 )
 
 //go:generate go run github.com/bgould/keyboard-firmware/hosts/usbvial/gen-def vial.json
@@ -28,22 +28,21 @@ var (
 		DefaultMode:  keyboard.BacklightBreathing,
 		DefaultLevel: 0xFF,
 	}
+
+	blockdev   tinyfs.BlockDevice
+	filesystem tinyfs.Filesystem
 )
 
 func init() {
 	board.SetBacklight(backlight)
 	board.SetKeyAction(keyboard.KeyActionFunc(keyAction))
+
+	initFilesystem()
+	board.SetFS(filesystem)
 }
 
 func main() {
 
-	lfs := littlefs.New(machine.Flash)
-	lfs.Configure(&littlefs.Config{
-		CacheSize:     512,
-		LookaheadSize: 512,
-		BlockCycles:   100,
-	})
-	board.SetFS(lfs)
 	board.ConfigureFilesystem()
 	board.EnableConsole(machine.Serial)
 
