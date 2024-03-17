@@ -32,6 +32,7 @@ var (
 	// 	DefaultLevel: 0xFF,
 	// }
 	backlight = keyboard.Backlight{
+		IncludeBreathingInSteps: true,
 		Driver: &keyboard.BacklightColorStrip{
 			ColorStrip: keyboard.ColorStrip{
 				Writer: ws2812.NewWS2812(machine.WS2812),
@@ -39,6 +40,7 @@ var (
 			},
 			Interval: 6 * time.Millisecond,
 		},
+		Steps: 4,
 	}
 	blockdev   tinyfs.BlockDevice
 	filesystem tinyfs.Filesystem
