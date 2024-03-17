@@ -3,6 +3,7 @@
 package main
 
 import (
+	"image/color"
 	"machine"
 	"machine/usb"
 	"time"
@@ -12,12 +13,24 @@ import (
 	"github.com/bgould/keyboard-firmware/keyboard"
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 	"tinygo.org/x/drivers/encoders"
+	"tinygo.org/x/drivers/ws2812"
 	"tinygo.org/x/tinyfs/littlefs"
 )
 
 //go:generate go run github.com/bgould/keyboard-firmware/hosts/usbvial/gen-def vial.json
 
 var (
+	backlight = keyboard.Backlight{
+		IncludeBreathingInSteps: true,
+		Driver: &keyboard.BacklightColorStrip{
+			ColorStrip: keyboard.ColorStrip{
+				Writer: ws2812.NewWS2812(machine.NEOPIXEL),
+				Pixels: make([]color.RGBA, 12),
+			},
+			Interval: 6 * time.Millisecond,
+		},
+		Steps: 4,
+	}
 	keymap = Keymap()
 	host   = usbvial.NewKeyboard(VialDeviceDefinition, keymap, matrix)
 	board  = keyboard.New(host, matrix, keymap)
@@ -29,6 +42,8 @@ func init() {
 	usb.Serial = vial.MagicSerialNumber("")
 	encoder.Configure(encoders.QuadratureConfig{})
 	host.Configure()
+
+	board.SetBacklight(backlight)
 }
 
 func initFilesystem() {
@@ -42,6 +57,8 @@ func initFilesystem() {
 }
 
 func main() {
+
+	backlight.Driver.SetBacklight(keyboard.BacklightOff, 0xFF)
 
 	board.ConfigureFilesystem()
 	board.EnableConsole(machine.Serial)
@@ -58,7 +75,7 @@ func main() {
 						case 1:
 							board.SetActiveLayer(0)
 						}
-						println("layer:", board.ActiveLayer())
+						// println("layer:", board.ActiveLayer())
 						// fmt.Fprintf(serialer, "layer: %d\n", board.ActiveLayer())
 					}
 				default:

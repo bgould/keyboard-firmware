@@ -45,6 +45,7 @@ func configurePins() {
 	for _, pin := range keys {
 		pin.Configure(machine.PinConfig{Mode: machine.PinInputPullup})
 	}
+	machine.NEOPIXEL.Configure(machine.PinConfig{Mode: machine.PinOutput})
 }
 
 func ReadRow(rowIndex uint8) keyboard.Row {

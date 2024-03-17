@@ -25,8 +25,12 @@ type Backlight struct {
 	// BacklightDriver implementation to use; if nil, backlight is disabled.
 	Driver BacklightDriver
 
-	//
-	NumLevels uint8
+	// Steps is the number of "on" states in between the off and on states.
+	// The default zero value is treated the same as a value of 1.
+	// A value 1 means that only on/off are supported; any value higher than that
+	// will be used to automatically calculate equal "steps" in between the off
+	// and fully on state.
+	Steps uint8
 
 	// Default backlight mode to use when not explicitly set
 	DefaultMode BacklightMode
@@ -36,6 +40,16 @@ type Backlight struct {
 
 	// Whether or not backlight "breathing" is enabled
 	SupportsBreathing bool
+
+	// Whether or not to include "breathing" mode when iterating backlight steps
+	IncludeBreathingInSteps bool
+}
+
+func (bl *Backlight) steps() uint8 {
+	if bl.Steps == 0 {
+		return 1
+	}
+	return bl.Steps
 }
 
 func (kbd *Keyboard) SetBacklight(bl Backlight) {
@@ -56,6 +70,8 @@ func (kbd *Keyboard) processBacklight(key keycodes.Keycode, made bool) {
 		return
 	}
 	prev := kbd.blState
+	kbd.blState.steps = kbd.backlight.steps()
+	kbd.blState.breathStep = kbd.backlight.IncludeBreathingInSteps
 	switch key {
 	case keycodes.QK_BACKLIGHT_ON:
 		// println("backlight on", made)
@@ -73,14 +89,21 @@ func (kbd *Keyboard) processBacklight(key keycodes.Keycode, made bool) {
 			kbd.blState.Toggle()
 		}
 	case keycodes.QK_BACKLIGHT_DOWN:
-		println("backlight down", made)
-		// TODO: add support
+		step := kbd.blState.Step()
+		// println("backlight down", made, step)
+		if made && step != 0 {
+			kbd.blState.Down()
+		}
 	case keycodes.QK_BACKLIGHT_UP:
-		println("backlight up", made)
-		// TODO: add support
+		// println("backlight up", made, kbd.blState.Step())
+		if made {
+			kbd.blState.Up()
+		}
 	case keycodes.QK_BACKLIGHT_STEP:
-		println("backlight step", made)
-		// TODO: add support
+		// println("backlight step", made, kbd.blState.Step())
+		if made {
+			kbd.blState.Next()
+		}
 	case keycodes.QK_BACKLIGHT_TOGGLE_BREATHING:
 		// println("backlight toggle breathing", made)
 		if made {
@@ -98,9 +121,11 @@ func (kbd *Keyboard) processBacklight(key keycodes.Keycode, made bool) {
 }
 
 type backlightState struct {
-	mode      BacklightMode
-	level     BacklightLevel
-	breathing bool
+	mode       BacklightMode
+	level      BacklightLevel
+	steps      uint8
+	breathing  bool
+	breathStep bool
 }
 
 func (st *backlightState) Toggle() {
@@ -109,7 +134,7 @@ func (st *backlightState) Toggle() {
 		if st.breathing {
 			st.mode = BacklightBreathing
 		} else {
-			st.mode = BacklightOn
+			st.On()
 		}
 	case BacklightOn:
 		st.mode = BacklightOff
@@ -125,17 +150,86 @@ func (st *backlightState) Off() {
 }
 
 func (st *backlightState) On() {
+	step := st.Step()
+	println("turning on with step at", step)
+	if step == 0 {
+		st.SetStep(1)
+	}
 	st.mode = BacklightOn
+}
+
+func (st *backlightState) Up() {
+	st.SetStep(st.Step() + 1)
+}
+
+func (st *backlightState) Down() {
+	st.SetStep(st.Step() - 1)
+}
+
+func (st *backlightState) Next() {
+	curr := st.Step()
+	mode := st.mode
+	if st.mode == BacklightBreathing {
+		st.mode = BacklightOn
+		st.breathing = false
+	}
+	if curr >= (st.steps) {
+		if st.breathStep && mode != BacklightBreathing {
+			st.mode = BacklightBreathing
+			st.breathing = true
+		} else {
+			st.SetStep(0)
+		}
+	} else {
+		st.SetStep(curr + 1)
+	}
 }
 
 func (st *backlightState) ToggleBreathing() {
 	st.breathing = !st.breathing
 	if st.mode == BacklightOff {
-		return
+		st.breathing = true
+		// return
 	}
 	if st.breathing {
 		st.mode = BacklightBreathing
 	} else {
 		st.mode = BacklightOn
+	}
+}
+
+// SetRawLevel sets the level to an unscaled by number of steps
+func (st *backlightState) SetLevel(val uint8) {
+	st.level = BacklightLevel(val)
+}
+
+// SetRawLevel sets the level to an scaled by number of steps; returns the
+// raw level value between 0x00-0xFF
+func (st *backlightState) SetStep(step uint8) uint8 {
+	if step == 0 {
+		st.level = 0
+		st.mode = BacklightOff
+	} else if step < (st.steps) {
+		// println(st.steps)
+		var intvl uint8 = 0xFF / st.steps
+		st.level = BacklightLevel(step * intvl)
+		st.breathing = false
+		st.mode = BacklightOn
+	} else {
+		st.level = 0xFF
+		st.breathing = false
+		st.mode = BacklightOn
+	}
+	return uint8(st.level)
+}
+
+// Step returns the current
+func (st *backlightState) Step() uint8 {
+	if st.level == 0 {
+		return 0
+	} else if st.level == 0xFF {
+		return st.steps
+	} else {
+		return uint8(st.level) / (0xFF / st.steps)
 	}
 }
