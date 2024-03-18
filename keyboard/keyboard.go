@@ -37,7 +37,7 @@ type Keyboard struct {
 	enterCpuReset   EnterBootloaderFunc
 
 	backlight Backlight
-	blState   backlightState
+	// blState   backlightState
 
 	fs  tinyfs.Filesystem
 	cli *console.Console
