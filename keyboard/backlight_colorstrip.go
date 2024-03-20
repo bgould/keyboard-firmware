@@ -113,13 +113,16 @@ func (bl *BacklightColorStrip) cancelIfRunning() {
 }
 
 func (bl *BacklightColorStrip) set(val uint8, debug bool) {
-	// val /= 2 // remove
-	color := color.RGBA{R: val, G: val, B: val, A: 0x00}
 	for i, c := 0, bl.ColorStrip.NumPixels(); i < c; i++ {
-		bl.ColorStrip.SetPixel(i, color)
+		col := color.RGBA{R: val, G: val, B: val, A: 0x00}
+		// if i < 3 || i > 8{
+		// 	col = color.RGBA{}
+		// }
+		bl.ColorStrip.SetPixel(i, col)
 		if debug {
-			println("set pixel", i, "to", color.R, color.G, color.B, color.A)
+			println("set pixel", i, "to", col.R, col.G, col.B, col.A, "for val", val)
 		}
+
 	}
 	bl.ColorStrip.SyncPixels()
 }

@@ -57,7 +57,9 @@ func initFilesystem() {
 
 func main() {
 
-	backlight.Driver.SetBacklight(keyboard.BacklightOff, 0xFF)
+	if backlight.Driver != nil {
+		backlight.Driver.SetBacklight(keyboard.BacklightOff, 0xFF)
+	}
 
 	board.ConfigureFilesystem()
 	board.EnableConsole(machine.Serial)
