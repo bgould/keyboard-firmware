@@ -200,6 +200,8 @@ func (kbd *Keyboard) processEvent(ev Event) {
 	// 	kbd.processSpecialKey(key, ev.Made)
 	case key.IsBacklight():
 		kbd.processBacklight(key, ev.Made)
+	case key.IsLayer():
+		kbd.processLayer(key, ev.Made)
 	}
 
 }

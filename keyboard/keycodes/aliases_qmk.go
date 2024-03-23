@@ -362,3 +362,8 @@ EXECUTE                                      Keycode = 0x0074
 
 
 */
+
+// #define IS_LAYER_KEYCODE(code) ((code) >= QK_TO && (code) <= QK_LAYER_TAP_TOGGLE_MAX)
+func (code Keycode) IsLayer() bool {
+	return ((code) >= QK_TO && (code) <= QK_LAYER_TAP_TOGGLE_MAX)
+}
