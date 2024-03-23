@@ -15,7 +15,7 @@ const (
 type BacklightColorStrip struct {
 
 	//
-	ColorStrip ColorStrip
+	ColorStrip ColorPixeler
 
 	//
 	Interval time.Duration
@@ -30,6 +30,13 @@ type BacklightColorStrip struct {
 	last        time.Time
 
 	channelLED uint8
+}
+
+type ColorPixeler interface {
+	NumPixels() int
+	GetPixel(pos int) (c color.RGBA)
+	SetPixel(pos int, c color.RGBA)
+	SyncPixels()
 }
 
 var _ BacklightDriver = (*BacklightColorStrip)(nil)

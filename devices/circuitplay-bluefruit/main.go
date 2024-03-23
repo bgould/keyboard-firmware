@@ -34,7 +34,7 @@ var (
 	backlight = keyboard.Backlight{
 		IncludeBreathingInSteps: true,
 		Driver: &keyboard.BacklightColorStrip{
-			ColorStrip: keyboard.ColorStrip{
+			ColorStrip: &keyboard.ColorStrip{
 				Writer: ws2812.NewWS2812(machine.WS2812),
 				Pixels: make([]color.RGBA, 10),
 			},
