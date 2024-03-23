@@ -22,7 +22,7 @@ import (
 var (
 	backlight = keyboard.Backlight{
 		Driver: &keyboard.BacklightColorStrip{
-			ColorStrip: keyboard.ColorStrip{
+			ColorStrip: &keyboard.ColorStrip{
 				Writer: ws2812.NewWS2812(machine.NEOPIXEL),
 				Pixels: make([]color.RGBA, 12),
 			},
