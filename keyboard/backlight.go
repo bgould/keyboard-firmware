@@ -67,6 +67,10 @@ func (kbd *Keyboard) SetBacklight(bl Backlight) {
 	kbd.backlight.Driver.SetBacklight(bl.DefaultMode, bl.DefaultLevel)
 }
 
+func (kbd *Keyboard) BacklightDriver() BacklightDriver {
+	return kbd.backlight.Driver
+}
+
 func (kbd *Keyboard) BacklightEnabled() bool {
 	return kbd.backlight.Driver != nil
 }
