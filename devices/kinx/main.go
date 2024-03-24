@@ -1,7 +1,6 @@
 package main
 
 import (
-	"machine"
 	"runtime"
 	"strconv"
 	"time"
@@ -48,7 +47,7 @@ func main() {
 
 	board.ConfigureFilesystem()
 
-	board.EnableConsole(machine.Serial, initCommands())
+	board.EnableConsole(serial, initCommands())
 	cli := board.CLI()
 	cli.WriteString("---------------------")
 	cli.WriteString("initializing hardware")

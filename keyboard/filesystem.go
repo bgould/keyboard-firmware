@@ -35,6 +35,10 @@ func (kbd *Keyboard) FS() tinyfs.Filesystem {
 	return kbd.fs
 }
 
+const (
+	savedKeymapFilename = "saved.keymap"
+)
+
 func (kbd *Keyboard) ConfigureFilesystem() (err error) {
 	fs := kbd.FS()
 	if err := fs.Mount(); err != nil {
@@ -93,6 +97,10 @@ func (kbd *Keyboard) addFilesystemCommands(commands console.Commands) {
 }
 
 func (kbd *Keyboard) mount(cmd console.CommandInfo) int {
+	if kbd.FS() == nil {
+		println("No filesystem available")
+		return 1
+	}
 	if err := kbd.FS().Mount(); err != nil {
 		println("Could not mount LittleFS filesystem: ", err.Error(), "\r\n")
 		return 1
@@ -103,6 +111,10 @@ func (kbd *Keyboard) mount(cmd console.CommandInfo) int {
 }
 
 func (kbd *Keyboard) format(cmd console.CommandInfo) int {
+	if kbd.FS() == nil {
+		println("No filesystem available")
+		return 1
+	}
 	if err := kbd.FS().Format(); err != nil {
 		println("Could not format LittleFS filesystem: ", err.Error(), "\r\n")
 		return 1
@@ -113,6 +125,10 @@ func (kbd *Keyboard) format(cmd console.CommandInfo) int {
 }
 
 func (kbd *Keyboard) umount(cmd console.CommandInfo) int {
+	if kbd.FS() == nil {
+		println("No filesystem available")
+		return 1
+	}
 	if err := kbd.FS().Unmount(); err != nil {
 		println("Could not unmount LittleFS filesystem: ", err.Error(), "\r\n")
 		return 1
@@ -123,6 +139,10 @@ func (kbd *Keyboard) umount(cmd console.CommandInfo) int {
 }
 
 func (kbd *Keyboard) ls(cmd console.CommandInfo) int {
+	if kbd.FS() == nil {
+		println("No filesystem available")
+		return 1
+	}
 	path := "/"
 	argv := cmd.Argv
 	if len(argv) > 0 {
@@ -152,6 +172,10 @@ func (kbd *Keyboard) ls(cmd console.CommandInfo) int {
 }
 
 func (kbd *Keyboard) mkdir(cmd console.CommandInfo) int {
+	if kbd.FS() == nil {
+		println("No filesystem available")
+		return 1
+	}
 	tgt := ""
 	argv := cmd.Argv
 	if len(argv) == 1 {
@@ -169,6 +193,10 @@ func (kbd *Keyboard) mkdir(cmd console.CommandInfo) int {
 }
 
 func (kbd *Keyboard) rm(cmd console.CommandInfo) int {
+	if kbd.FS() == nil {
+		println("No filesystem available")
+		return 1
+	}
 	tgt := ""
 	argv := cmd.Argv
 	if len(argv) == 1 {
@@ -187,6 +215,10 @@ func (kbd *Keyboard) rm(cmd console.CommandInfo) int {
 }
 
 func (kbd *Keyboard) mv(cmd console.CommandInfo) int {
+	if kbd.FS() == nil {
+		println("No filesystem available")
+		return 1
+	}
 	src, dst := "", ""
 	argv := cmd.Argv
 	if len(argv) == 2 {
@@ -206,6 +238,10 @@ func (kbd *Keyboard) mv(cmd console.CommandInfo) int {
 }
 
 func (kbd *Keyboard) cat(cmd console.CommandInfo) int {
+	if kbd.FS() == nil {
+		println("No filesystem available")
+		return 1
+	}
 	tgt := ""
 	argv := cmd.Argv
 	if len(argv) == 1 {

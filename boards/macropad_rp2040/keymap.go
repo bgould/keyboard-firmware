@@ -1,4 +1,4 @@
-package main
+package macropad_rp2040
 
 import (
 	"github.com/bgould/keyboard-firmware/keyboard"
@@ -6,13 +6,22 @@ import (
 	. "github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 
+//go:generate go run github.com/bgould/keyboard-firmware/hosts/usbvial/gen-def -package macropad_rp2040 vial.json
+
 const (
 	_______ = KC_TRANSPARENT
 )
 
-func Keymap() keyboard.Keymap {
+func Keymap(layers ...keyboard.Layer) keyboard.Keymap {
+	if len(layers) == 0 {
+		return DefaultKeymap()
+	}
+	return layers
+}
+
+func DefaultKeymap() keyboard.Keymap {
 	return keyboard.Keymap([]keyboard.Layer{
-		MacroPadRP2040Layer(
+		Layer(
 			/****************************************/
 			/*   *\  ________                  /*   */
 			/*   *\ |        | */ KC_VOLD, KC_VOLU, //
@@ -28,7 +37,7 @@ func Keymap() keyboard.Keymap {
 			/*   *\                            /*   */
 			/****************************************/
 		),
-		MacroPadRP2040Layer(
+		Layer(
 			/****************************************/
 			/*   *\  ________                  /*   */
 			/*   *\ |        | */ KC_BRID, KC_BRIU, //
@@ -44,21 +53,5 @@ func Keymap() keyboard.Keymap {
 			/*   *\                            /*   */
 			/****************************************/
 		),
-	})
-}
-
-func MacroPadRP2040Layer(
-	/**/ k13, k14,
-	/*     */ k00,
-	k01, k02, k03,
-	k04, k05, k06,
-	k07, k08, k09,
-	k10, k11, k12 Keycode,
-) keyboard.Layer {
-	return keyboard.Layer([][]Keycode{
-		{
-			k00, k01, k02, k03, k04, k05, k06, k07,
-			k08, k09, k10, k11, k12, k13, k14, 0x0,
-		},
 	})
 }

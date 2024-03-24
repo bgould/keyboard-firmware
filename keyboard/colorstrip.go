@@ -1,7 +1,7 @@
 package keyboard
 
 import (
-	"device/arm"
+	// "device/arm"
 	"image/color"
 )
 
@@ -37,11 +37,11 @@ func (ind *ColorStrip) GetPixel(pos int) (c color.RGBA) {
 func (ind *ColorStrip) SyncPixels() {
 	var mask uintptr
 	if colorstrip_no_int {
-		mask = arm.DisableInterrupts()
+		mask = disableInterrupts()
 	}
 	ind.Writer.WriteColors(ind.Pixels[:])
 	if colorstrip_no_int {
-		arm.EnableInterrupts(mask)
+		restoreInterrupts(mask)
 	}
 }
 
