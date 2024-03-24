@@ -8,8 +8,8 @@ import (
 
 func CircuitPlaygroundDefaultKeymap() keyboard.Keymap {
 	return keyboard.Keymap([]keyboard.Layer{
-		CircuitPlaygroundLayer(KC_BSPC, KC_A___, KC_FN1_),
-		CircuitPlaygroundLayer(BL_TOGG, BL_BRTG, KC_FN1_),
+		CircuitPlaygroundLayer(KC_BSPC, KC_A___, MO_(01)),
+		CircuitPlaygroundLayer(BL_TOGG, BL_STEP, MO_(01)),
 	})
 }
 

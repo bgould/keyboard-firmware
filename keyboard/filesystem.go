@@ -60,7 +60,7 @@ func (kbd *Keyboard) SaveKeymapToFile(filename string) (n int64, err error) {
 		return 0, err
 	}
 	defer f.Close()
-	n, err = kbd.layers.WriteTo(f)
+	n, err = kbd.keymap.WriteTo(f)
 	return n, err
 }
 
@@ -74,7 +74,7 @@ func (kbd *Keyboard) LoadKeymapFromFile(filename string) (n int64, err error) {
 	if f.IsDir() {
 		return 0, ErrNotAFile
 	}
-	n, err = kbd.layers.ReadFrom(f)
+	n, err = kbd.keymap.ReadFrom(f)
 	return
 }
 

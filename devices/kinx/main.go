@@ -13,16 +13,12 @@ import (
 //go:generate go run github.com/bgould/keyboard-firmware/hosts/usbvial/gen-def vial.json
 
 var (
-	// cli    = initConsole()
 	host   = initHost()
 	keymap = initKeymap()
 	board  = keyboard.New(host, matrix, keymap)
 
 	matrixInitialized = false
-	// keyAction = configureKeyAction()
 
-	fn0made bool
-	fn1prev uint8
 	fn2made time.Time
 	fn3made time.Time
 
@@ -107,30 +103,6 @@ func deviceLoop() {
 // return func(key keycodes.Keycode, made bool) {
 func keyAction(key keycodes.Keycode, made bool) {
 	switch key {
-
-	// Toggle keypad layer on keypress
-	case keycodes.KC_FN0:
-		if fn0made && !made {
-			if board.ActiveLayer() == 1 {
-				board.SetActiveLayer(0)
-			} else {
-				board.SetActiveLayer(1)
-			}
-		}
-		fn0made = made
-
-	// Toggle programming layer on key down/up
-	case keycodes.KC_FN1:
-		if made {
-			fn1prev = board.ActiveLayer()
-			board.SetActiveLayer(2)
-		} else {
-			board.SetActiveLayer(fn1prev)
-			fn1prev = 0
-		}
-		if fn1prev == 2 {
-			fn1prev = 0
-		}
 
 	// Handle "reset" press
 	case keycodes.KC_FN2:

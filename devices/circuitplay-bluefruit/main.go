@@ -11,7 +11,6 @@ import (
 	"github.com/bgould/keyboard-firmware/hosts/usbvial"
 	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
 	"github.com/bgould/keyboard-firmware/keyboard"
-	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 	"tinygo.org/x/drivers/ws2812"
 	"tinygo.org/x/tinyfs"
 )
@@ -47,8 +46,12 @@ var (
 )
 
 func init() {
+
+	usb.Manufacturer = "Adafruit"
+	usb.Product = "Circuit Playground Bluefruit"
+	usb.Serial = vial.MagicSerialNumber("")
+
 	board.SetBacklight(backlight)
-	board.SetKeyAction(keyboard.KeyActionFunc(keyAction))
 
 	initFilesystem()
 	board.SetFS(filesystem)
@@ -63,7 +66,6 @@ func main() {
 
 	configurePins()
 
-	usb.Serial = vial.MagicSerialNumber("")
 	host.Configure()
 
 	for {
@@ -98,19 +100,4 @@ func ReadRow(rowIndex uint8) keyboard.Row {
 		return 0
 	}
 
-}
-
-// TODO: natively support momentary layer switching keycodes
-func keyAction(key keycodes.Keycode, made bool) {
-	switch key {
-	// Toggle function layer on key down/up
-	case keycodes.KC_FN1:
-		if made {
-			board.SetActiveLayer(1)
-			println("layer 1 on")
-		} else {
-			board.SetActiveLayer(0)
-			println("layer 1 off")
-		}
-	}
 }

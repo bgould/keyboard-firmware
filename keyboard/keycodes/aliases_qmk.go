@@ -367,3 +367,11 @@ EXECUTE                                      Keycode = 0x0074
 func (code Keycode) IsLayer() bool {
 	return ((code) >= QK_TO && (code) <= QK_LAYER_TAP_TOGGLE_MAX)
 }
+
+func MO_(layer uint8) Keycode {
+	return QK_MOMENTARY + Keycode(layer&0x1F)
+}
+
+func TG_(layer uint8) Keycode {
+	return QK_TOGGLE_LAYER + Keycode(layer&0x1F)
+}

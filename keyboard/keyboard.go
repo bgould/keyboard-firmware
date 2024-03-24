@@ -13,13 +13,15 @@ type Host interface {
 
 type Keyboard struct {
 	matrix *Matrix
-	layers Keymap
+	keymap Keymap
 	host   Host
 
 	prev []Row
 	leds uint8
 
-	activeLayer uint8
+	activeLayer  uint8
+	defaultLayer uint8
+	layerToggles uint32
 
 	encoders *encoders
 	rtc      *rtc
@@ -47,7 +49,7 @@ func New(host Host, matrix *Matrix, keymap Keymap) *Keyboard {
 	return &Keyboard{
 		// console:   console,
 		matrix:    matrix,
-		layers:    keymap,
+		keymap:    keymap,
 		host:      host,
 		prev:      make([]Row, matrix.Rows()),
 		mouseKeys: NewMouseKeys(DefaultMouseKeysConfig()),
@@ -85,6 +87,7 @@ func (kbd *Keyboard) LEDs() LEDs {
 }
 
 func (kbd *Keyboard) SetActiveLayer(index uint8) {
+	println("setting active layer", index)
 	kbd.activeLayer = index
 }
 
@@ -103,7 +106,7 @@ func (kbd *Keyboard) SetEncoders(encs []Encoder, subscriber EncodersSubscriber) 
 }
 
 func (kbd *Keyboard) GetLayerCount() uint8 {
-	return kbd.layers.GetLayerCount()
+	return kbd.keymap.GetLayerCount()
 }
 
 func (kbd *Keyboard) MatrixRows() uint8 {
@@ -115,12 +118,12 @@ func (kbd *Keyboard) MatrixCols() uint8 {
 }
 
 func (kbd *Keyboard) MapKey(layer, row, col int) keycodes.Keycode {
-	return kbd.layers.MapKey(layer, row, col)
+	return kbd.keymap.MapKey(layer, row, col)
 }
 
 // TODO: Keep track of "dirty" keys and implement keypress for saving
 func (kbd *Keyboard) SetKey(layer, row, col int, kc keycodes.Keycode) bool {
-	return kbd.layers.SetKey(layer, row, col, kc)
+	return kbd.keymap.SetKey(layer, row, col, kc)
 }
 
 func (kbd *Keyboard) GetMatrixRowState(idx int) uint32 {
@@ -176,14 +179,14 @@ func (kbd *Keyboard) Task() {
 
 func (kbd *Keyboard) processEvent(ev Event) {
 	l := kbd.activeLayer
-	if int(l) > len(kbd.layers) {
+	if int(l) > len(kbd.keymap) {
 		l = 0
 	}
-	key := kbd.layers.MapKey(int(l), int(ev.Pos.Row), int(ev.Pos.Col))
+	key := kbd.keymap.MapKey(int(l), int(ev.Pos.Row), int(ev.Pos.Col))
 	// key := kbd.layers[l].KeyAt(ev.Pos)
 	for key == keycodes.KC_TRANSPARENT && l > 0 {
 		l--
-		key = kbd.layers.MapKey(int(l), int(ev.Pos.Row), int(ev.Pos.Col))
+		key = kbd.keymap.MapKey(int(l), int(ev.Pos.Row), int(ev.Pos.Col))
 	}
 	switch {
 	case key.IsBasic() || key.IsModifier():

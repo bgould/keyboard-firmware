@@ -17,6 +17,7 @@ const (
 
 func (kbd *Keyboard) addDefaultCommands(commands console.Commands) {
 	commands["status"] = console.CommandHandlerFunc(kbd.status)
+	commands["layer"] = console.CommandHandlerFunc(kbd.layer)
 	commands["save"] = console.CommandHandlerFunc(kbd.save)
 	commands["load"] = console.CommandHandlerFunc(kbd.load)
 }
@@ -92,6 +93,16 @@ func (kbd *Keyboard) load(cmd console.CommandInfo) int {
 		cmd.Stdout.Write([]byte(" bytes. Keymap loaded successfully.\n"))
 		return 0
 	}
+}
+
+func (kbd *Keyboard) layer(cmd console.CommandInfo) int {
+	cmd.Stdout.Write([]byte("Active Layer: "))
+	cmd.Stdout.Write([]byte(strconv.Itoa(int(kbd.ActiveLayer()))))
+	cmd.Stdout.Write([]byte("\n"))
+	cmd.Stdout.Write([]byte("Default Layer: "))
+	cmd.Stdout.Write([]byte(strconv.Itoa(int(kbd.defaultLayer))))
+	cmd.Stdout.Write([]byte("\n"))
+	return 0
 }
 
 // func configureFilesystem() {
