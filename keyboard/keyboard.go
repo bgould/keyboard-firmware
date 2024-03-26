@@ -58,6 +58,9 @@ func New(host Host, matrix *Matrix, keymap Keymap) *Keyboard {
 }
 
 func (kbd *Keyboard) EnableConsole(serialer Serialer, cmds ...console.Commands) {
+	if serialer == nil {
+		return
+	}
 	commands := console.Commands{}
 	kbd.addDefaultCommands(commands)
 	kbd.addFilesystemCommands(commands)

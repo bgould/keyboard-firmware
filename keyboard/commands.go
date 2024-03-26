@@ -1,7 +1,6 @@
 package keyboard
 
 import (
-	"machine/usb"
 	"strconv"
 
 	"github.com/bgould/keyboard-firmware/keyboard/console"
@@ -10,10 +9,6 @@ import (
 // var (
 // 	commands = console.Commands{}
 // )
-
-const (
-	savedKeymapFilename = "saved.keymap"
-)
 
 func (kbd *Keyboard) addDefaultCommands(commands console.Commands) {
 	commands["status"] = console.CommandHandlerFunc(kbd.status)
@@ -30,13 +25,13 @@ func (kbd *Keyboard) status(cmd console.CommandInfo) int {
 
 	cmd.Stdout.Write([]byte("\n[USB]\n-----\n"))
 	cmd.Stdout.Write([]byte("Manufacturer: "))
-	cmd.Stdout.Write([]byte(usb.Manufacturer))
+	cmd.Stdout.Write([]byte(usbManufacturer()))
 	cmd.Stdout.Write([]byte("\n"))
 	cmd.Stdout.Write([]byte("Product:      "))
-	cmd.Stdout.Write([]byte(usb.Product))
+	cmd.Stdout.Write([]byte(usbProduct()))
 	cmd.Stdout.Write([]byte("\n"))
 	cmd.Stdout.Write([]byte("Serial:       "))
-	cmd.Stdout.Write([]byte(usb.Serial))
+	cmd.Stdout.Write([]byte(usbSerial()))
 	cmd.Stdout.Write([]byte("\n"))
 
 	/*

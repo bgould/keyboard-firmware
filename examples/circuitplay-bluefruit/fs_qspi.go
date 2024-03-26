@@ -1,4 +1,4 @@
-//go:build tinygo && fs.qspi
+//go:build circuitplay_bluefruit && fs.qspi
 
 package main
 
