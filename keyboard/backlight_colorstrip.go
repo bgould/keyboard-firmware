@@ -1,11 +1,11 @@
-//go:build tinygo
-
 package keyboard
 
 import (
 	"image/color"
 	"sync"
 	"time"
+
+	"github.com/bgould/keyboard-firmware/keyboard/hsv"
 )
 
 const (
@@ -29,7 +29,7 @@ type BacklightColorStrip struct {
 	step        uint8
 	last        time.Time
 
-	channelLED uint8
+	// channelLED uint8
 }
 
 type ColorPixeler interface {
@@ -78,16 +78,16 @@ func (bl *BacklightColorStrip) Task() {
 	bl.step++
 }
 
-func (bl *BacklightColorStrip) SetBacklight(mode BacklightMode, level BacklightLevel) {
+func (bl *BacklightColorStrip) SetBacklight(mode BacklightMode, color hsv.Color) {
 
 	bl.mutex.Lock()
 	defer bl.mutex.Unlock()
 
-	if mode == bl.state.mode && level == bl.state.level {
+	if mode == bl.state.mode && color == bl.state.color {
 		return
 	}
 
-	bl.state.mode, bl.state.level = mode, level
+	bl.state.mode, bl.state.color = mode, color
 	// println("SetBacklight(): ", bl.state.mode, bl.state.level)
 
 	switch bl.state.mode {
@@ -100,7 +100,7 @@ func (bl *BacklightColorStrip) SetBacklight(mode BacklightMode, level BacklightL
 	case BacklightOn:
 		// println("BacklightOn")
 		bl.cancelIfRunning()
-		bl.set(uint8(bl.state.level), backlight_debug)
+		bl.set(uint8(bl.state.color.V), backlight_debug)
 
 	case BacklightBreathing:
 		// println("BacklightBreathing")
@@ -120,11 +120,13 @@ func (bl *BacklightColorStrip) cancelIfRunning() {
 }
 
 func (bl *BacklightColorStrip) set(val uint8, debug bool) {
+	hsvColor := bl.state.color
+	hsvColor.V = val
+	r, g, b := hsvColor.ConvertToRGB()
+	// r, g, b := bl.state.color.H, bl.state.color.S, bl.state.color.V
+	// println("backlight RGB", r, g, b)
+	col := color.RGBA{R: r, G: g, B: b, A: 0xFF}
 	for i, c := 0, bl.ColorStrip.NumPixels(); i < c; i++ {
-		col := color.RGBA{R: val, G: val, B: val, A: 0x00}
-		// if i < 3 || i > 8{
-		// 	col = color.RGBA{}
-		// }
 		bl.ColorStrip.SetPixel(i, col)
 		if debug {
 			println("set pixel", i, "to", col.R, col.G, col.B, col.A, "for val", val)

@@ -205,9 +205,10 @@ func (m *Matrix) Scan() (changed bool) {
 			return
 		}
 		// if debouncing is complete, update the matrix and mark as changed
-		for i, row := range m.debouncing {
-			m.rows[i] = row
-		}
+		copy(m.rows, m.debouncing)
+		// for i, row := range m.debouncing {
+		// 	m.rows[i] = row
+		// }
 		changed = true
 	}
 	return

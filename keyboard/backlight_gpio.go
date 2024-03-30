@@ -7,6 +7,8 @@ import (
 	"machine"
 	"sync"
 	"time"
+
+	"github.com/bgould/keyboard-firmware/keyboard/hsv"
 )
 
 type BacklightGPIO struct {
@@ -74,16 +76,16 @@ func (bl *BacklightGPIO) Task() {
 	bl.step++
 }
 
-func (bl *BacklightGPIO) SetBacklight(mode BacklightMode, level BacklightLevel) {
+func (bl *BacklightGPIO) SetBacklight(mode BacklightMode, color hsv.Color) {
 
 	bl.mutex.Lock()
 	defer bl.mutex.Unlock()
 
-	if mode == bl.state.mode && level == bl.state.level {
+	if mode == bl.state.mode && color == bl.state.color {
 		return
 	}
 
-	bl.state.mode, bl.state.level = mode, level
+	bl.state.mode, bl.state.color = mode, color
 	// println("SetBacklight(): ", bl.state.mode, bl.state.level)
 
 	switch bl.state.mode {

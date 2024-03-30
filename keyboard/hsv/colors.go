@@ -1,0 +1,6 @@
+package hsv
+
+var (
+	White = Color{H: 0x00, S: 0x00, V: 0xFF}
+	Black = Color{H: 0x00, S: 0x00, V: 0x00}
+)
