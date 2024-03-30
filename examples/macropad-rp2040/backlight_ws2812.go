@@ -20,7 +20,7 @@ func init() {
 			},
 			Interval: 6 * time.Millisecond,
 		},
-		Steps: 8,
+		Steps: 16,
 	}
 	kbd.SetBacklight(backlight)
 	kbd.BacklightDriver().Configure()

@@ -1,6 +1,7 @@
 package keyboard
 
 import (
+	"github.com/bgould/keyboard-firmware/keyboard/hsv"
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 
@@ -16,7 +17,7 @@ const (
 
 type BacklightDriver interface {
 	Configure()
-	SetBacklight(mode BacklightMode, level BacklightLevel)
+	SetBacklight(mode BacklightMode, color hsv.Color)
 	Task()
 }
 
@@ -47,9 +48,16 @@ type Backlight struct {
 	state backlightState
 }
 
+func (bl *Backlight) Configure() {
+	if bl.Driver != nil {
+		bl.Driver.Configure()
+	}
+	bl.state.color = hsv.Color{H: 128, S: 128, V: 255}
+}
+
 type backlightState struct {
 	mode       BacklightMode
-	level      BacklightLevel
+	color      hsv.Color
 	steps      uint8
 	breathing  bool
 	breathStep bool
@@ -64,7 +72,7 @@ func (bl *Backlight) steps() uint8 {
 
 func (kbd *Keyboard) SetBacklight(bl Backlight) {
 	kbd.backlight = bl
-	kbd.backlight.Driver.SetBacklight(bl.DefaultMode, bl.DefaultLevel)
+	kbd.backlight.Driver.SetBacklight(bl.DefaultMode, hsv.White)
 }
 
 func (kbd *Keyboard) BacklightDriver() BacklightDriver {
@@ -129,9 +137,16 @@ func (bl *Backlight) ProcessKey(key keycodes.Keycode, made bool) {
 		}
 	}
 	// kbd.backlight.Driver.SetBacklight(state.mode, state.level)
-	changed := bl.state != prev
-	if bl.Driver != nil && changed {
-		bl.Driver.SetBacklight(state.mode, state.level)
+	changed := (bl.state != prev)
+	if changed {
+		bl.Sync()
+	}
+}
+
+func (bl *Backlight) Sync() {
+	if bl.Driver != nil {
+		// println("backlight HSV", bl.state.color.H, bl.state.color.S, bl.state.color.V)
+		bl.Driver.SetBacklight(bl.state.mode, bl.state.color)
 	}
 }
 
@@ -206,37 +221,40 @@ func (st *backlightState) ToggleBreathing() {
 }
 
 // SetRawLevel sets the level to an unscaled by number of steps
-func (st *backlightState) setLevel(val uint8) {
-	st.level = BacklightLevel(val)
-}
+// func (st *backlightState) setLevel(val uint8) {
+// 	st.level = BacklightLevel(val)
+// }
 
 // SetRawLevel sets the level to an scaled by number of steps; returns the
 // raw level value between 0x00-0xFF
 func (st *backlightState) setStep(step uint8) uint8 {
 	if step == 0 {
-		st.level = 0
+		// st.level = 0
+		st.color.V = 0
 		st.mode = BacklightOff
 	} else if step < (st.steps) {
 		// println(st.steps)
 		var intvl uint8 = 0xFF / st.steps
-		st.level = BacklightLevel(step * intvl)
+		// st.level = BacklightLevel(step * intvl)
+		st.color.V = step * intvl
 		st.breathing = false
 		st.mode = BacklightOn
 	} else {
-		st.level = 0xFF
+		// st.level = 0xFF
+		st.color.V = 0xFF
 		st.breathing = false
 		st.mode = BacklightOn
 	}
-	return uint8(st.level)
+	return st.color.V // uint8(st.level)
 }
 
 // step returns the current
 func (st *backlightState) step() uint8 {
-	if st.level == 0 {
+	if st.color.V == 0 {
 		return 0
-	} else if st.level == 0xFF {
+	} else if st.color.V == 0xFF {
 		return st.steps
 	} else {
-		return uint8(st.level) / (0xFF / st.steps)
+		return uint8(st.color.V) / (0xFF / st.steps)
 	}
 }
