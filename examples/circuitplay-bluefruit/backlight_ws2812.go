@@ -1,4 +1,4 @@
-//go:build circuitplay_bluefruit && !backlight.none
+//go:build circuitplay_bluefruit && !backlight.gpio && !backlight.none
 
 package main
 
