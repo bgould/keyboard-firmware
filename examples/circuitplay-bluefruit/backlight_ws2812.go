@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 //go:build circuitplay_bluefruit && !backlight.gpio && !backlight.none
+=======
+//go:build circuitplay_bluefruit && !backlight.none
+>>>>>>> main
 
 package main
 

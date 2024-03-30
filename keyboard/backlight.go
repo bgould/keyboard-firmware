@@ -79,6 +79,10 @@ func (kbd *Keyboard) BacklightDriver() BacklightDriver {
 	return kbd.backlight.Driver
 }
 
+func (kbd *Keyboard) BacklightDriver() BacklightDriver {
+	return kbd.backlight.Driver
+}
+
 func (kbd *Keyboard) BacklightEnabled() bool {
 	return kbd.backlight.Driver != nil
 }
