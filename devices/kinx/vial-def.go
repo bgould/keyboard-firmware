@@ -2,7 +2,7 @@
 
 package main
 
-import "github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
+import "github.com/bgould/keyboard-firmware/keyboard/hosts/usbvial/vial"
 
 var VialDeviceDefinition = vial.DeviceDefinition{
 	Name:      "kinesis-advantage-2",

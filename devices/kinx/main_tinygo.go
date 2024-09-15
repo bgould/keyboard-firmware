@@ -7,9 +7,9 @@ import (
 	"machine/usb"
 	"time"
 
-	"github.com/bgould/keyboard-firmware/hosts/usbvial"
-	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
 	"github.com/bgould/keyboard-firmware/keyboard"
+	"github.com/bgould/keyboard-firmware/keyboard/hosts/usbvial"
+	"github.com/bgould/keyboard-firmware/keyboard/hosts/usbvial/vial"
 	"tinygo.org/x/tinyfs/littlefs"
 )
 

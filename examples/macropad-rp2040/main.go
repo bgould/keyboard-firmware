@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/bgould/keyboard-firmware/boards/macropad_rp2040"
-	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
+	"github.com/bgould/keyboard-firmware/keyboard/hosts/usbvial/vial"
 )
 
 var (

@@ -1,10 +1,12 @@
+//go:build tinygo
+
 package main
 
 import (
 	"machine"
 
-	"github.com/bgould/keyboard-firmware/hosts/usbhid"
 	"github.com/bgould/keyboard-firmware/keyboard"
+	"github.com/bgould/keyboard-firmware/keyboard/hosts/usbhid"
 	. "github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 

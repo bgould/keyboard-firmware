@@ -7,8 +7,8 @@ package main
 import (
 	"time"
 
-	serialhost "github.com/bgould/keyboard-firmware/hosts/serial"
 	"github.com/bgould/keyboard-firmware/keyboard"
+	serialhost "github.com/bgould/keyboard-firmware/keyboard/hosts/serial"
 	"tinygo.org/x/drivers"
 	"tinygo.org/x/tinyfs"
 )

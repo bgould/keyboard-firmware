@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
+	"github.com/bgould/keyboard-firmware/keyboard/hosts/usbvial/vial"
 	"github.com/itchio/lzma"
 )
 
@@ -62,7 +62,7 @@ func main() {
 	oBuf.WriteString("\n")
 	oBuf.WriteString("package " + pkgname + "\n")
 	oBuf.WriteString("\n")
-	oBuf.WriteString("import \"github.com/bgould/keyboard-firmware/hosts/usbvial/vial\"\n")
+	oBuf.WriteString("import \"github.com/bgould/keyboard-firmware/keyboard/hosts/usbvial/vial\"\n")
 	oBuf.WriteString("\n")
 	oBuf.WriteString("var VialDeviceDefinition = vial.DeviceDefinition{\n")
 	oBuf.WriteString("	Name: \"" + template.JSEscapeString(def.Name) + "\",\n")

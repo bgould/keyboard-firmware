@@ -5,8 +5,8 @@ package main
 import (
 	"machine"
 
-	"github.com/bgould/keyboard-firmware/hosts/serial"
 	"github.com/bgould/keyboard-firmware/keyboard"
+	"github.com/bgould/keyboard-firmware/keyboard/hosts/serial"
 )
 
 const _debug = true

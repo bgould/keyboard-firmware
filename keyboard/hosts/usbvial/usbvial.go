@@ -7,8 +7,8 @@ import (
 	"machine/usb"
 	"machine/usb/descriptor"
 
-	"github.com/bgould/keyboard-firmware/hosts/usbhid"
-	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
+	"github.com/bgould/keyboard-firmware/keyboard/hosts/usbhid"
+	"github.com/bgould/keyboard-firmware/keyboard/hosts/usbvial/vial"
 )
 
 const (

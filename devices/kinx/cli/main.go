@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
+	"github.com/bgould/keyboard-firmware/keyboard/hosts/usbvial/vial"
 	hid "github.com/sstallion/go-hid"
 )
 

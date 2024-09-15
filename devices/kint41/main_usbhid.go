@@ -6,8 +6,8 @@ import (
 	"machine"
 	"machine/usb"
 
-	"github.com/bgould/keyboard-firmware/hosts/usbhid"
 	"github.com/bgould/keyboard-firmware/keyboard"
+	"github.com/bgould/keyboard-firmware/keyboard/hosts/usbhid"
 )
 
 const _debug = false
