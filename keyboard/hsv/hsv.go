@@ -6,6 +6,10 @@ type Color struct {
 	H, S, V uint8
 }
 
+func (c *Color) IsZero() bool {
+	return c.H == 0 && c.S == 0 && c.V == 0
+}
+
 func (c *Color) RGBA() (r, g, b, a uint32) {
 	r_, g_, b_ := c.ConvertToRGB()
 	return color.RGBA{R: r_, G: g_, B: b_, A: 0x0}.RGBA()

@@ -9,6 +9,7 @@ import (
 
 	"github.com/bgould/keyboard-firmware/boards/macropad_rp2040"
 	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
+	"github.com/bgould/keyboard-firmware/keyboard/console"
 )
 
 var (
@@ -30,7 +31,12 @@ func main() {
 	if kbd.FS() != nil {
 		kbd.ConfigureFilesystem()
 	}
-	kbd.EnableConsole(machine.Serial)
+
+	cmds := console.Commands{}
+	addBacklightCommands(cmds)
+	kbd.EnableConsole(machine.Serial, cmds)
+
+	loadBacklight(console.CommandInfo{})
 
 	// task loop
 	for {
