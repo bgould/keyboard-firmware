@@ -17,6 +17,7 @@ import (
 func init() {
 	backlight := keyboard.Backlight{
 		Driver: &keyboard.BacklightColorStrip{
+			DoubleSyncHack: true,
 			ColorStrip: &keyboard.ColorStrip{
 				Writer: ws2812.NewWS2812(machine.NEOPIXEL),
 				Pixels: make([]color.RGBA, 12),
