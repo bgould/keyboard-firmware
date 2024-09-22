@@ -55,13 +55,17 @@ func loadBacklight(cmd console.CommandInfo) int {
 		println("No filesystem available")
 		return 1
 	}
-	if col, err := loadBacklightColorFromFile(savedColorFilename); err != nil {
+	filename := savedColorFilename
+	if len(cmd.Argv) > 0 {
+		filename = cmd.Argv[0]
+	}
+	if col, err := loadBacklightColorFromFile(filename); err != nil {
 		println("Could not load backlight color: ", err.Error(), "\r\n")
 		return 1
 	} else {
 		// drv := backlightColorStrip()
 		// kbd.BacklightDriver().SetBacklight(drv.GetMode(), col)
-		kbd.BacklightUpdate(kbd.BacklightMode(), col)
+		kbd.BacklightUpdate(kbd.BacklightMode(), col, false)
 		println("Successfully loaded backlight color.\r\n")
 		return 0
 	}

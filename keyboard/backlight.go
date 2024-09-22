@@ -91,13 +91,13 @@ func (kbd *Keyboard) BacklightColor() hsv.Color {
 	return kbd.backlight.state.color
 }
 
-func (kbd *Keyboard) BacklightUpdate(mode BacklightMode, color hsv.Color) {
+func (kbd *Keyboard) BacklightUpdate(mode BacklightMode, color hsv.Color, force bool) {
 	prev := kbd.backlight.state
 	state := &kbd.backlight.state
 	state.mode = mode
 	state.color = color
 	changed := (kbd.backlight.state != prev)
-	if changed {
+	if changed || force {
 		kbd.backlight.Sync()
 	}
 }
