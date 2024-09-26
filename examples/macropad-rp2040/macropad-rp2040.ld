@@ -3,7 +3,8 @@ MEMORY
     /* Reserve exactly 256 bytes at start of flash for second stage bootloader */
     BOOT2_TEXT (rx) : ORIGIN = 0x10000000, LENGTH = 256
     FLASH_TEXT (rx) : ORIGIN = 0x10000000 + 256, LENGTH = __flash_size - 256
-    FLASH_APP  (rw) : ORIGIN = ORIGIN(FLASH_TEXT) + 0x200000, LENGTH = 0x200000 /* Application data */
+    /* Application data */
+    FLASH_APP  (rw) : ORIGIN = ORIGIN(FLASH_TEXT) + 0x200000, LENGTH = __flash_size - 256 - 0x200000
     RAM (rwx)       : ORIGIN = 0x20000000, LENGTH = 256k
 }
 
@@ -39,3 +40,16 @@ INCLUDE "targets/arm.ld"
 /* For the flash API */
 __flash_data_start = ORIGIN(FLASH_APP);
 __flash_data_end = ORIGIN(FLASH_APP) + LENGTH(FLASH_APP);
+
+/*
+
+$ tinygo flash -target tinygo.target.json -tags keymap.custom -size=short -monitor examples/flash
+
+Connected to COM9. Press Ctrl-C to exit.
+Flash data start:       0x10201000
+Flash data end:         0x10800000
+Flash data size, bytes: 6287360
+Flash write block size: 256
+Flash erase block size: 4096
+
+*/
