@@ -90,7 +90,6 @@ func (kbd *Keyboard) LEDs() LEDs {
 }
 
 func (kbd *Keyboard) SetActiveLayer(index uint8) {
-	println("setting active layer", index)
 	kbd.activeLayer = index
 }
 
