@@ -9,6 +9,7 @@ import (
 
 	"github.com/bgould/keyboard-firmware/hosts/usbhid"
 	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
+	"github.com/bgould/keyboard-firmware/keyboard"
 )
 
 const (
@@ -41,8 +42,12 @@ func (host *Host) Configure() {
 	host.Host.Configure()
 }
 
-func (host *Host) UnlockStatus() vial.UnlockStatus {
-	return host.dev.UnlockStatus()
+func (host *Host) ReceiveEvent(ev keyboard.Event) (bool, error) {
+	// if keyboard is unlocked/unlocking, intercept matrix events
+	if host.dev.UnlockStatus() != vial.Locked {
+		return true, nil
+	}
+	return false, nil
 }
 
 func configureVialEndpoints() {

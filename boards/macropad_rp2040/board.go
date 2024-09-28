@@ -65,6 +65,7 @@ func (dev *Board) NewVialKeyboard(layers ...keyboard.Layer) (*keyboard.Keyboard,
 	matrix := dev.NewMatrix()
 	host := NewVialHost(keymap, matrix)
 	kbd := keyboard.New(host, matrix, keymap)
+	kbd.SetEventReceiver(host)
 	return kbd, host
 }
 
