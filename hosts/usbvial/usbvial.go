@@ -37,6 +37,10 @@ func init() {
 	configureVialEndpoints()
 }
 
+func (host *Host) SetMacros(m *keyboard.Macros) {
+
+}
+
 // TODO: consider moving out of init
 func (host *Host) Configure() {
 	host.Host.Configure()

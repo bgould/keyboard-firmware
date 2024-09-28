@@ -7,6 +7,6 @@ import (
 	"github.com/bgould/keyboard-firmware/keyboard"
 )
 
-func NewVialHost(keymap keyboard.Keymap, matrix *keyboard.Matrix) *usbvial.Host {
-	return usbvial.NewKeyboard(VialDeviceDefinition, keymap, matrix)
+func NewVialHost(keymap keyboard.Keymap, matrix *keyboard.Matrix, macros *keyboard.Macros) *usbvial.Host {
+	return usbvial.NewKeyboard(VialDeviceDefinition, keymap, matrix, macros)
 }

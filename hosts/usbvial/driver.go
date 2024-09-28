@@ -9,12 +9,13 @@ import (
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 
-func NewKeyboard(def vial.DeviceDefinition, keymap keyboard.Keymap, matrix *keyboard.Matrix) *Host {
+func NewKeyboard(def vial.DeviceDefinition, keymap keyboard.Keymap, matrix *keyboard.Matrix, macros *keyboard.Macros) *Host {
 	host = &Host{
 		Host: usbhid.New(),
 		dev: vial.NewDevice(def, &KeyboardDeviceDriver{
 			keymap: keymap,
 			matrix: matrix,
+			macros: macros,
 		}),
 	}
 	return host
@@ -23,6 +24,7 @@ func NewKeyboard(def vial.DeviceDefinition, keymap keyboard.Keymap, matrix *keyb
 type KeyboardDeviceDriver struct {
 	keymap keyboard.Keymap
 	matrix *keyboard.Matrix
+	macros *keyboard.Macros
 }
 
 func NewKeyboardDriver(keymap keyboard.Keymap, matrix *keyboard.Matrix) *KeyboardDeviceDriver {
@@ -35,6 +37,7 @@ func NewKeyboardDriver(keymap keyboard.Keymap, matrix *keyboard.Matrix) *Keyboar
 var (
 	_ vial.DeviceDriver  = (*KeyboardDeviceDriver)(nil)
 	_ vial.EncoderMapper = (*KeyboardDeviceDriver)(nil)
+	_ vial.MacroDriver   = (*KeyboardDeviceDriver)(nil)
 )
 
 func (kbd *KeyboardDeviceDriver) GetLayerCount() uint8 {
@@ -59,4 +62,12 @@ func (kbd *KeyboardDeviceDriver) MapEncoder(idx int) (ccwRow, ccwCol, cwRow, cwC
 		return int(ccw.Row), int(ccw.Col), int(cw.Row), int(cw.Col), true
 	}
 	return
+}
+
+func (kbd *KeyboardDeviceDriver) GetMacroCount() uint8 {
+	return kbd.macros.Count
+}
+
+func (kbd *KeyboardDeviceDriver) GetMacroBuffer() []byte {
+	return kbd.macros.Buffer
 }
