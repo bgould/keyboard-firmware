@@ -34,6 +34,11 @@ func init() {
 	board.SetEnterBootloaderFunc(keyboard.DefaultEnterBootloader)
 	board.SetCPUResetFunc(keyboard.DefaultCPUReset)
 
+	// TODO: move into core
+	if rcv, ok := host.(keyboard.EventReceiver); ok {
+		board.SetEventReceiver(rcv)
+	}
+
 	initFilesystem()
 	// initRTC()
 }

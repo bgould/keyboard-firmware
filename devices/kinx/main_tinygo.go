@@ -16,14 +16,7 @@ import (
 var (
 	serial = machine.Serial
 	driver = &VialDriver{usbvial.NewKeyboardDriver(keymap, matrix)}
-
-	// blockdev tinyfs.BlockDevice = machine.Flash
-	// keymapfs tinyfs.Filesystem  = littlefs.New(blockdev)
 )
-
-// func adjustTimeOffset(t time.Time) {
-// 	runtime.AdjustTimeOffset(-1 * int64(time.Since(t)))
-// }
 
 func configureI2C() error {
 	return i2c.Configure(machine.I2CConfig{
@@ -59,6 +52,7 @@ var (
 	_ vial.DeviceDriver = (*VialDriver)(nil)
 )
 
+// FIXME: appears to not be used
 func (d *VialDriver) Handle(rx []byte, tx []byte) (sendTx bool) {
 	// println("called Handle()", rx[0], rx[1])
 	switch rx[0] {
