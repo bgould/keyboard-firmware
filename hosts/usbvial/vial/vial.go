@@ -135,9 +135,6 @@ type DeviceDriver interface {
 	GetMatrixRowState(rowIndex int) uint32
 	MapKey(layer, row, col int) keycodes.Keycode
 	SetKey(layer, row, col int, kc keycodes.Keycode) bool
-	// GetMaxKeyCount() int
-	// NumRows() int
-	// NumCols() int
 }
 
 type Device struct {
@@ -145,12 +142,9 @@ type Device struct {
 	txb [32]byte
 	def DeviceDefinition
 
-	// unlocker Unlocker
-
 	unlockStatus  UnlockStatus
 	unlockCounter int
 	unlockStart   time.Time
-	// unlockKeyPos  []Pos
 }
 
 type Pos struct {
@@ -186,16 +180,12 @@ type DeviceMatrix struct {
 func NewDevice(def DeviceDefinition, driver DeviceDriver) *Device {
 	unlockKeys := def.UnlockKeys
 	if len(unlockKeys) == 0 {
-		unlockKeys = []Pos{{0, 0}}
+		def.UnlockKeys = []Pos{{0, 0}}
 	}
 	return &Device{km: driver, def: def}
 }
 
 func (dev *Device) UnlockStatus() UnlockStatus {
-	// if dev.unlocker == nil {
-	// 	return Locked
-	// }
-	// return dev.unlocker.UnlockStatus()
 	return dev.unlockStatus
 }
 
@@ -482,11 +472,10 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 				tx[0] = byte(Locked) // locked
 				tx[1] = 1            // unlock in progress
 			}
-			if dev.def.UnlockKeys != nil {
-				for i, pos := range dev.def.UnlockKeys {
-					tx[2+i*2] = pos.Row
-					tx[3+i*2] = pos.Col
-				}
+			unlockKeys := dev.def.UnlockKeys
+			for i, pos := range unlockKeys {
+				tx[2+i*2] = pos.Row
+				tx[3+i*2] = pos.Col
 			}
 			// println("get unlock status:", tx[0])
 
@@ -511,26 +500,26 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 			}
 			var dur = time.Since(dev.unlockStart)
 			if dev.UnlockStatus() == UnlockInProgress {
-				if matrix := dev.km; len(dev.def.UnlockKeys) > 0 {
-					holding := true
-					for _, pos := range dev.def.UnlockKeys {
-						if holding {
-							rowState := matrix.GetMatrixRowState(int(pos.Row))
-							holding = (rowState & (1 << pos.Col)) > 0
-							// println("rowState: ", holding)
+				holding := true
+				for _, pos := range dev.def.UnlockKeys {
+					if holding {
+						rowState := dev.km.GetMatrixRowState(int(pos.Row))
+						holding = (rowState & (1 << pos.Col)) > 0
+						if debug {
+							println("rowState: ", holding)
 						}
 					}
-					if !holding {
-						dev.unlockStart = time.Now()
-						dur = 0
-					}
-					// println("unlock in progress: ", time.Since(dev.unlockStart)/time.Millisecond, holding)
-					if holding && dur > VialUnlockHoldDuration {
-						// println("unlocked!")
-						dev.unlockStatus = Unlocked
-						dev.unlockStart = time.Time{}
-						dur = 0
-					}
+				}
+				if !holding {
+					dev.unlockStart = time.Now()
+					dur = 0
+				}
+				// println("unlock in progress: ", time.Since(dev.unlockStart)/time.Millisecond, holding)
+				if holding && dur > VialUnlockHoldDuration {
+					// println("unlocked!")
+					dev.unlockStatus = Unlocked
+					dev.unlockStart = time.Time{}
+					dur = 0
 				}
 			}
 			switch dev.UnlockStatus() {

@@ -152,10 +152,13 @@ func (kbd *Keyboard) Task() {
 					Made: row&mask > 0,
 				}
 				if kbd.eventReceiver != nil {
-					kbd.eventReceiver.ReceiveEvent(ev)
-				} else {
-					kbd.processEvent(ev)
+					// TODO: handle errors?
+					if handled, err := kbd.eventReceiver.ReceiveEvent(ev); handled {
+						_ = err
+						continue
+					}
 				}
+				kbd.processEvent(ev)
 				kbd.prev[i] ^= mask
 			}
 		}

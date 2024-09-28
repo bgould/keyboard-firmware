@@ -13,6 +13,10 @@ type Pos struct {
 }
 
 type EventReceiver interface {
+	// ReceiveEvent is called by the keyboard task loop for matrix state change
+	// events. Return value of true indicates that the event is considered to be
+	// handled and should not be propagated for handling by the keyboard, and a
+	// return value of false indicates the event should be processed normally.
 	ReceiveEvent(ev Event) (bool, error)
 }
 
