@@ -83,6 +83,25 @@ func (kbd *Keyboard) BacklightEnabled() bool {
 	return kbd.backlight.Driver != nil
 }
 
+func (kbd *Keyboard) BacklightMode() BacklightMode {
+	return kbd.backlight.state.mode
+}
+
+func (kbd *Keyboard) BacklightColor() hsv.Color {
+	return kbd.backlight.state.color
+}
+
+func (kbd *Keyboard) BacklightUpdate(mode BacklightMode, color hsv.Color, force bool) {
+	prev := kbd.backlight.state
+	state := &kbd.backlight.state
+	state.mode = mode
+	state.color = color
+	changed := (kbd.backlight.state != prev)
+	if changed || force {
+		kbd.backlight.Sync()
+	}
+}
+
 func (kbd *Keyboard) processBacklight(key keycodes.Keycode, made bool) {
 	if !kbd.BacklightEnabled() {
 		return

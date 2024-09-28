@@ -20,6 +20,9 @@ type BacklightColorStrip struct {
 	//
 	Interval time.Duration
 
+	// DoubleSyncHack is a temporary workaround for Macropad RP2040
+	DoubleSyncHack bool
+
 	mutex  sync.Mutex
 	cancel func()
 
@@ -88,22 +91,38 @@ func (bl *BacklightColorStrip) SetBacklight(mode BacklightMode, color hsv.Color)
 	}
 
 	bl.state.mode, bl.state.color = mode, color
-	// println("SetBacklight(): ", bl.state.mode, bl.state.level)
+	if backlight_debug {
+		println("SetBacklight(): ", bl.state.mode, bl.state.color.String())
+	}
 
 	switch bl.state.mode {
 
 	case BacklightOff:
-		// println("BacklightOff")
+		if backlight_debug {
+			println("BacklightOff")
+		}
 		bl.cancelIfRunning()
 		bl.set(0, backlight_debug)
+		if bl.DoubleSyncHack {
+			time.Sleep(500 * time.Microsecond)
+			bl.set(0, backlight_debug)
+		}
 
 	case BacklightOn:
-		// println("BacklightOn")
+		if backlight_debug {
+			println("BacklightOn")
+		}
 		bl.cancelIfRunning()
 		bl.set(uint8(bl.state.color.V), backlight_debug)
+		if bl.DoubleSyncHack {
+			time.Sleep(500 * time.Microsecond)
+			bl.set(uint8(bl.state.color.V), backlight_debug)
+		}
 
 	case BacklightBreathing:
-		// println("BacklightBreathing")
+		if backlight_debug {
+			println("BacklightBreathing")
+		}
 		bl.cancelIfRunning()
 		bl.brightening = false
 		bl.step = 0xF
@@ -131,7 +150,6 @@ func (bl *BacklightColorStrip) set(val uint8, debug bool) {
 		if debug {
 			println("set pixel", i, "to", col.R, col.G, col.B, col.A, "for val", val)
 		}
-
 	}
 	bl.ColorStrip.SyncPixels()
 }

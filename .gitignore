@@ -2,4 +2,5 @@
 /tmp/
 *.uf2
 *.hex
+*.elf
 /vendor/

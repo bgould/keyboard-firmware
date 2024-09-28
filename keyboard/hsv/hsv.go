@@ -1,9 +1,16 @@
 package hsv
 
-import "image/color"
+import (
+	"image/color"
+	"strconv"
+)
 
 type Color struct {
 	H, S, V uint8
+}
+
+func (c *Color) IsZero() bool {
+	return c.H == 0 && c.S == 0 && c.V == 0
 }
 
 func (c *Color) RGBA() (r, g, b, a uint32) {
@@ -61,6 +68,13 @@ func (hsv *Color) ConvertToRGB() (r, g, b uint8) {
 		b = q
 	}
 	return
+}
+
+func (h *Color) String() string {
+	return "[" +
+		strconv.FormatUint(uint64(h.H), 16) + " " +
+		strconv.FormatUint(uint64(h.S), 16) + " " +
+		strconv.FormatUint(uint64(h.V), 16) + "]"
 }
 
 var _ color.Color = (*Color)(nil)

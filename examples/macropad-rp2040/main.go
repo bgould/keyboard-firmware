@@ -9,6 +9,9 @@ import (
 
 	"github.com/bgould/keyboard-firmware/boards/macropad_rp2040"
 	"github.com/bgould/keyboard-firmware/hosts/usbvial/vial"
+	"github.com/bgould/keyboard-firmware/keyboard"
+	"github.com/bgould/keyboard-firmware/keyboard/console"
+	"github.com/bgould/keyboard-firmware/keyboard/hsv"
 )
 
 var (
@@ -30,7 +33,14 @@ func main() {
 	if kbd.FS() != nil {
 		kbd.ConfigureFilesystem()
 	}
-	kbd.EnableConsole(machine.Serial)
+
+	cmds := console.Commands{}
+	addBacklightCommands(cmds)
+	kbd.EnableConsole(machine.Serial, cmds)
+
+	if ret := loadBacklight(console.CommandInfo{}); ret != 0 {
+		kbd.BacklightUpdate(keyboard.BacklightOff, hsv.Black, true)
+	}
 
 	// task loop
 	for {
