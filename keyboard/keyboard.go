@@ -41,6 +41,8 @@ type Keyboard struct {
 	backlight Backlight
 	// blState   backlightState
 
+	macros Macros
+
 	fs  tinyfs.Filesystem
 	cli *console.Console
 }
@@ -204,6 +206,8 @@ func (kbd *Keyboard) processEvent(ev Event) {
 		kbd.processSystemKey(key, ev.Made)
 	case key.IsKb():
 		kbd.processKb(key, ev.Made)
+	case key.IsMacro():
+		kbd.processMacro(key, ev.Made)
 	// case key.IsSpecial():
 	// 	kbd.processSpecialKey(key, ev.Made)
 	case key.IsBacklight():

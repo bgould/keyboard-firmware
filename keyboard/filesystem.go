@@ -41,20 +41,24 @@ const (
 
 func (kbd *Keyboard) ConfigureFilesystem() (err error) {
 	fs := kbd.FS()
-	if err := fs.Mount(); err != nil {
-		return err
-		// println("Could not mount LittleFS filesystem: ", err.Error(), "\r\n")
-	} else {
-		// println("Successfully mounted LittleFS filesystem.\r\n")
-		if info, err := fs.Stat(savedKeymapFilename); err != nil {
-			return err
-			// println("unable to load ", savedKeymapFilename, ": ", err)
-		} else {
-			// println("Attempting to load keymap file: ", info.Name())
-			_, err := kbd.LoadKeymapFromFile(info.Name())
-			return err
-		}
+	if fs == nil {
+		return
 	}
+	_ = fs.Mount()
+	// if err := fs.Mount(); err != nil {
+	// 	println("Could not mount LittleFS filesystem: ", err.Error(), "\r\n")
+	// 	return err
+	// } else {
+	println("Successfully mounted LittleFS filesystem.\r\n")
+	if info, err := fs.Stat(savedKeymapFilename); err != nil {
+		println("unable to load ", savedKeymapFilename, ": ", err)
+		return err
+	} else {
+		println("Attempting to load keymap file: ", info.Name())
+		_, err := kbd.LoadKeymapFromFile(info.Name())
+		return err
+	}
+	// }
 }
 
 // SaveKeymapToFile write the current in-memory keymap to the filesystem

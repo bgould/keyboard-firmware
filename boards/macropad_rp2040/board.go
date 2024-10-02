@@ -17,13 +17,11 @@ const (
 
 type Board struct {
 	encoder *encoders.QuadratureDevice
-	macros  *keyboard.Macros
 }
 
 func New() *Board {
 	return &Board{
 		encoder: encoders.NewQuadratureViaInterrupt(machine.ROT_A, machine.ROT_B),
-		macros:  &keyboard.Macros{Count: 16, Buffer: make([]byte, 4096)},
 	}
 }
 
@@ -65,9 +63,14 @@ func (dev *Board) NewMatrix() *keyboard.Matrix {
 func (dev *Board) NewVialKeyboard(layers ...keyboard.Layer) (*keyboard.Keyboard, *usbvial.Host) {
 	keymap := Keymap(layers...)
 	matrix := dev.NewMatrix()
-	host := NewVialHost(keymap, matrix, dev.macros)
+	macros, ok := keyboard.NewDefaultMacroDriver(32, 4096).(usbvial.VialMacroDriver)
+	if !ok {
+		macros = nil
+	}
+	host := NewVialHost(keymap, matrix, macros)
 	kbd := keyboard.New(host, matrix, keymap)
 	kbd.SetEventReceiver(host)
+	kbd.SetMacroDriver(macros)
 	return kbd, host
 }
 

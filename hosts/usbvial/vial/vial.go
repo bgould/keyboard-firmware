@@ -383,7 +383,7 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 			offset := (uint16(rx[1]) << 8) + uint16(rx[2])
 			size := rx[3]
 			buf := drv.GetMacroBuffer()
-			copy(buf[offset:], tx[4:4+size])
+			copy(buf[offset:], rx[4:4+size])
 		}
 
 	case ViaCmdKeymapMacroReset: // 0x10

@@ -15,6 +15,7 @@ func (kbd *Keyboard) addDefaultCommands(commands console.Commands) {
 	commands["layer"] = console.CommandHandlerFunc(kbd.layer)
 	commands["save"] = console.CommandHandlerFunc(kbd.save)
 	commands["load"] = console.CommandHandlerFunc(kbd.load)
+	// commands["macros"] = console.CommandHandlerFunc(kbd.xxdmacros)
 }
 
 // func initConsole() *console.Console {
@@ -99,6 +100,18 @@ func (kbd *Keyboard) layer(cmd console.CommandInfo) int {
 	cmd.Stdout.Write([]byte("\n"))
 	return 0
 }
+
+// func (kbd *Keyboard) xxdmacros(cmd console.CommandInfo) int {
+// 	cmd.Stdout.Write([]byte("Macro count: "))
+// 	cmd.Stdout.Write([]byte(strconv.Itoa(int(kbd.macros.count))))
+// 	cmd.Stdout.Write([]byte("\n"))
+// 	cmd.Stdout.Write([]byte("Macro buffer length: "))
+// 	cmd.Stdout.Write([]byte(strconv.Itoa(len(kbd.macros.buffer))))
+// 	cmd.Stdout.Write([]byte("\n"))
+// 	xxdfprint(cmd.Stdout, 0x0, kbd.macros.buffer[:128])
+// 	cmd.Stdout.Write([]byte("\n"))
+// 	return 0
+// }
 
 // func configureFilesystem() {
 // 	if err := board.FS().Mount(); err != nil {

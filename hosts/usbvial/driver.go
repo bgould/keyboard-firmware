@@ -9,7 +9,12 @@ import (
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 
-func NewKeyboard(def vial.DeviceDefinition, keymap keyboard.Keymap, matrix *keyboard.Matrix, macros *keyboard.Macros) *Host {
+type VialMacroDriver interface {
+	keyboard.MacrosDriver
+	VialMacroBuffer() []byte
+}
+
+func NewKeyboard(def vial.DeviceDefinition, keymap keyboard.Keymap, matrix *keyboard.Matrix, macros VialMacroDriver) *Host {
 	host = &Host{
 		Host: usbhid.New(),
 		dev: vial.NewDevice(def, &KeyboardDeviceDriver{
@@ -24,7 +29,7 @@ func NewKeyboard(def vial.DeviceDefinition, keymap keyboard.Keymap, matrix *keyb
 type KeyboardDeviceDriver struct {
 	keymap keyboard.Keymap
 	matrix *keyboard.Matrix
-	macros *keyboard.Macros
+	macros VialMacroDriver
 }
 
 func NewKeyboardDriver(keymap keyboard.Keymap, matrix *keyboard.Matrix) *KeyboardDeviceDriver {
@@ -65,9 +70,15 @@ func (kbd *KeyboardDeviceDriver) MapEncoder(idx int) (ccwRow, ccwCol, cwRow, cwC
 }
 
 func (kbd *KeyboardDeviceDriver) GetMacroCount() uint8 {
-	return kbd.macros.Count
+	if kbd.macros == nil {
+		return 0
+	}
+	return kbd.macros.Count()
 }
 
 func (kbd *KeyboardDeviceDriver) GetMacroBuffer() []byte {
-	return kbd.macros.Buffer
+	if kbd.macros == nil {
+		return []byte{}
+	}
+	return kbd.macros.VialMacroBuffer()
 }
