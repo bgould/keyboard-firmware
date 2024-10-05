@@ -37,6 +37,7 @@ func (kbd *Keyboard) FS() tinyfs.Filesystem {
 
 const (
 	savedKeymapFilename = "saved.keymap"
+	savedMacrosFilename = "saved.macros"
 )
 
 func (kbd *Keyboard) ConfigureFilesystem() (err error) {
@@ -44,36 +45,55 @@ func (kbd *Keyboard) ConfigureFilesystem() (err error) {
 	if fs == nil {
 		return
 	}
+	// FIXME: swallowing error here because tinyfs keeps returning "invalid parameter"
 	_ = fs.Mount()
 	// if err := fs.Mount(); err != nil {
 	// 	println("Could not mount LittleFS filesystem: ", err.Error(), "\r\n")
 	// 	return err
 	// } else {
 	println("Successfully mounted LittleFS filesystem.\r\n")
+
+	// FIXME: consolidate/standardize with block below
+	// attempt to load saved keymap
 	if info, err := fs.Stat(savedKeymapFilename); err != nil {
 		println("unable to load ", savedKeymapFilename, ": ", err)
-		return err
+		// return err
 	} else {
 		println("Attempting to load keymap file: ", info.Name())
 		_, err := kbd.LoadKeymapFromFile(info.Name())
-		return err
+		if err != nil {
+			println("error loading keymap file: ", err) //return err
+		}
 	}
-	// }
+
+	// FIXME: consolidate/standardize with block above
+	// attempt to load saved macros
+	if info, err := fs.Stat(savedMacrosFilename); err != nil {
+		println("unable to load ", savedMacrosFilename, ": ", err)
+		// return err
+	} else {
+		println("Attempting to load macros file: ", info.Name())
+		_, err := kbd.LoadMacrosFromFile(info.Name())
+		if err != nil {
+			println("error loading macros file: ", err) //return err
+		}
+	}
+
+	return nil
 }
 
-// SaveKeymapToFile write the current in-memory keymap to the filesystem
-func (kbd *Keyboard) SaveKeymapToFile(filename string) (n int64, err error) {
+func (kbd *Keyboard) saveToFile(filename string, obj io.WriterTo) (n int64, err error) {
 	f, err := kbd.fs.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC)
 	if err != nil {
 		return 0, err
 	}
 	defer f.Close()
-	n, err = kbd.keymap.WriteTo(f)
+	n, err = obj.WriteTo(f)
 	return n, err
 }
 
 // LoadKeymapFromFile updates the current in-memory keymap from the filesystem
-func (kbd *Keyboard) LoadKeymapFromFile(filename string) (n int64, err error) {
+func (kbd *Keyboard) loadFromFile(filename string, obj io.ReaderFrom) (n int64, err error) {
 	f, err := kbd.fs.Open(filename)
 	if err != nil {
 		return 0, err
@@ -82,8 +102,34 @@ func (kbd *Keyboard) LoadKeymapFromFile(filename string) (n int64, err error) {
 	if f.IsDir() {
 		return 0, ErrNotAFile
 	}
-	n, err = kbd.keymap.ReadFrom(f)
+	n, err = obj.ReadFrom(f)
 	return
+}
+
+// SaveKeymapToFile write the current in-memory keymap to the filesystem
+func (kbd *Keyboard) SaveKeymapToFile(filename string) (n int64, err error) {
+	return kbd.saveToFile(filename, kbd.keymap)
+}
+
+// LoadKeymapFromFile updates the current in-memory keymap from the filesystem
+func (kbd *Keyboard) LoadKeymapFromFile(filename string) (n int64, err error) {
+	return kbd.loadFromFile(filename, kbd.keymap)
+}
+
+// SaveMacrosToFile write the current in-memory macros to the filesystem
+func (kbd *Keyboard) SaveMacrosToFile(filename string) (n int64, err error) {
+	if !kbd.macros.Enabled() {
+		return 0, nil
+	}
+	return kbd.saveToFile(filename, kbd.macros.Driver)
+}
+
+// LoadMacrosFromFile updates the current in-memory macros from the filesystem
+func (kbd *Keyboard) LoadMacrosFromFile(filename string) (n int64, err error) {
+	if !kbd.macros.Enabled() {
+		return 0, nil
+	}
+	return kbd.loadFromFile(filename, kbd.macros.Driver)
 }
 
 // ########################### Filesystem Commands ###########################/

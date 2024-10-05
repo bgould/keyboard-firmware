@@ -15,6 +15,8 @@ func (kbd *Keyboard) addDefaultCommands(commands console.Commands) {
 	commands["layer"] = console.CommandHandlerFunc(kbd.layer)
 	commands["save"] = console.CommandHandlerFunc(kbd.save)
 	commands["load"] = console.CommandHandlerFunc(kbd.load)
+	commands["save-macros"] = console.CommandHandlerFunc(kbd.saveMacros)
+	commands["load-macros"] = console.CommandHandlerFunc(kbd.loadMacros)
 	// commands["macros"] = console.CommandHandlerFunc(kbd.xxdmacros)
 }
 
@@ -87,6 +89,36 @@ func (kbd *Keyboard) load(cmd console.CommandInfo) int {
 		cmd.Stdout.Write([]byte("Read "))
 		cmd.Stdout.Write([]byte(strconv.Itoa(int(n))))
 		cmd.Stdout.Write([]byte(" bytes. Keymap loaded successfully.\n"))
+		return 0
+	}
+}
+
+func (kbd *Keyboard) saveMacros(cmd console.CommandInfo) int {
+	cmd.Stdout.Write([]byte("Saving macros...\n"))
+	if n, err := kbd.SaveMacrosToFile(savedMacrosFilename); err != nil {
+		cmd.Stdout.Write([]byte("Error saving macros: "))
+		cmd.Stdout.Write([]byte(err.Error()))
+		cmd.Stdout.Write([]byte("\n"))
+		return 1
+	} else {
+		cmd.Stdout.Write([]byte("Wrote "))
+		cmd.Stdout.Write([]byte(strconv.Itoa(int(n))))
+		cmd.Stdout.Write([]byte(" bytes. Macros saved successfully.\n"))
+		return 0
+	}
+}
+
+func (kbd *Keyboard) loadMacros(cmd console.CommandInfo) int {
+	cmd.Stdout.Write([]byte("Loading macros...\n"))
+	if n, err := kbd.LoadMacrosFromFile(savedMacrosFilename); err != nil {
+		cmd.Stdout.Write([]byte("Error loading macros: "))
+		cmd.Stdout.Write([]byte(err.Error()))
+		cmd.Stdout.Write([]byte("\n"))
+		return 1
+	} else {
+		cmd.Stdout.Write([]byte("Read "))
+		cmd.Stdout.Write([]byte(strconv.Itoa(int(n))))
+		cmd.Stdout.Write([]byte(" bytes. Macros loaded successfully.\n"))
 		return 0
 	}
 }

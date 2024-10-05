@@ -1,7 +1,7 @@
 package keyboard
 
 import (
-	"os"
+	"io"
 
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
@@ -40,7 +40,7 @@ func (m *Macros) ProcessKey(key keycodes.Keycode, made bool) {
 		return
 	}
 	num := uint8(key - keycodes.QK_MACRO_0)
-	println("running macro: ", num, key)
+	// println("running macro: ", num, key)
 	m.Driver.RunMacro(num)
 	// start, end, ok := m.macroNumBounds(num)
 	// if ok {
@@ -53,78 +53,9 @@ type MacrosDriver interface {
 	Count() uint8
 	RunMacro(macroNum uint8) (err error)
 	Task()
-}
-
-func NewDefaultMacroDriver(count uint8, bufferSize uint16) MacrosDriver {
-	return &defaultMacroDriver{count: count, buffer: make([]byte, bufferSize)}
-}
-
-type defaultMacroDriver struct {
-	count  uint8
-	buffer []byte
-}
-
-func (m *defaultMacroDriver) Configure() {
-
-}
-
-func (m *defaultMacroDriver) RunMacro(macroNum uint8) (err error) {
-	buf := m.macroBytes(macroNum)
-	xxdfprint(os.Stdout, 0x0, buf)
-	for _, b := range buf {
-		switch b {
-		case MacroMagicPrefix:
-
-		default:
-
-		}
-	}
-	return nil
-}
-
-var macroEmptyBuf [0]byte
-
-func (m *defaultMacroDriver) macroBytes(macroNum uint8) []byte {
-	start, end, ok := m.macroNumBounds(macroNum)
-	if !ok {
-		return macroEmptyBuf[:]
-	}
-	return m.buffer[start:end]
-}
-
-// determine bounds of specified macro in buffer
-func (m *defaultMacroDriver) macroNumBounds(macroNum uint8) (start, end int, ok bool) {
-	if len(m.buffer) == 0 {
-		return 0, 0, false
-	}
-	if macroNum >= m.count {
-		return 0, 0, false
-	}
-	for i, c, n := 0, len(m.buffer), uint8(0); i < c; i++ {
-		if b := m.buffer[i]; b == 0x0 {
-			if n == macroNum {
-				end = i
-				return start, end, true
-			} else {
-				n++
-				start = i + 1
-			}
-		}
-	}
-	return start, end, false
-}
-
-// Task
-func (m *defaultMacroDriver) Task() {
-
-}
-
-func (m *defaultMacroDriver) Count() uint8 {
-	return m.count
-}
-
-func (m *defaultMacroDriver) VialMacroBuffer() []byte {
-	return m.buffer
+	io.ReaderFrom
+	io.WriterTo
+	ZeroFill()
 }
 
 // func (m *Macros) Buffer() []byte {
@@ -134,13 +65,30 @@ func (m *defaultMacroDriver) VialMacroBuffer() []byte {
 type MacroCode uint8
 
 const (
-	MacroCodeTap = iota + 1
+	MacroCodeNone MacroCode = iota
+	MacroCodeTap
 	MacroCodeDown
 	MacroCodeUp
 	MacroCodeDelay
 	MacroCodeVialExtTap
 	MacroCodeVialExtDown
 	MacroCodeVialExtUp
+	MacroCodeSend
 )
 
 const MacroMagicPrefix uint8 = 1
+
+type MacroError uint8
+
+const (
+	MacroErrInvalidNum MacroError = iota + 1
+)
+
+func (err MacroError) Error() string {
+	switch err {
+	case MacroErrInvalidNum:
+		return "invalid macro index"
+	default:
+		return "unknown macro error"
+	}
+}
