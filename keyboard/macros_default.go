@@ -4,7 +4,11 @@ import (
 	"io"
 	"os"
 	"time"
+
+	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
+
+const debug_macro = false
 
 func NewDefaultMacroDriver(count uint8, bufferSize uint16) MacrosDriver {
 	return &defaultMacroDriver{count: count, buffer: make([]byte, bufferSize)}
@@ -17,20 +21,37 @@ type defaultMacroDriver struct {
 	tail   int
 	curr   int
 	op     MacroCode
-	at     time.Time
+	arg    uint16
+	end    time.Time
 }
+
+var _ EventReceiver = (*defaultMacroDriver)(nil)
 
 func (m *defaultMacroDriver) Configure() {
 
 }
 
+func (m *defaultMacroDriver) Count() uint8 {
+	return m.count
+}
+
+func (m *defaultMacroDriver) VialMacroBuffer() []byte {
+	return m.buffer
+}
+
+func (m *defaultMacroDriver) ReceiveEvent(ev Event) (bool, error) {
+	return m.running(), nil
+	// return false, nil
+}
+
 func (m *defaultMacroDriver) RunMacro(num uint8) (err error) {
 	if head, tail, ok := m.macroNumBounds(num); ok {
 		m.head, m.tail, m.curr = head, tail, 0
-		xxdfprint(os.Stdout, 0x0, m.running())
-		for op, arg := m.next(); op != MacroCodeNone; op, arg = m.next() {
-			// println("curr: ", m.curr)
-			println("next: ", op, arg)
+		m.op, m.arg, m.end = 0, 0, time.Now()
+		if debug_macro {
+			if buf, running := m.current(); running {
+				xxdfprint(os.Stdout, 0x0, buf)
+			}
 		}
 		return nil
 	} else {
@@ -39,11 +60,15 @@ func (m *defaultMacroDriver) RunMacro(num uint8) (err error) {
 	}
 }
 
-func (m *defaultMacroDriver) running() []byte {
-	if m.tail > m.head && m.tail < len(m.buffer) {
-		return m.buffer[m.head:m.tail]
+func (m *defaultMacroDriver) running() bool {
+	return m.tail > m.head && m.tail < len(m.buffer)
+}
+
+func (m *defaultMacroDriver) current() (buf []byte, running bool) {
+	if running = m.running(); running {
+		buf = m.buffer[m.head:m.tail]
 	}
-	return macroEmptyBuf[0:0]
+	return
 }
 
 func (m *defaultMacroDriver) reset() (code MacroCode, arg uint16) {
@@ -53,18 +78,23 @@ func (m *defaultMacroDriver) reset() (code MacroCode, arg uint16) {
 	return 0, 0
 }
 
-func (m *defaultMacroDriver) next() (code MacroCode, arg uint16) {
-	running := m.running()
-	if m.curr >= len(running) {
+func (m *defaultMacroDriver) nextOp() (code MacroCode, arg uint16) {
+	buf, running := m.current()
+	if !running {
 		return m.reset()
 	}
-	switch b := running[m.curr]; b {
+	if m.curr >= len(buf) {
+		// println("end:", m.curr, len(running))
+		return m.reset()
+	}
+	switch b := buf[m.curr]; b {
 	case 0:
-		m.reset()
-		return MacroCodeNone, 0
+		// println("case 0")
+		return m.reset()
 	case MacroMagicPrefix:
+		// println("magic:", m.curr)
 		m.curr++
-		switch op := MacroCode(running[m.curr]); op {
+		switch op := MacroCode(buf[m.curr]); op {
 
 		// "regular" QMK keycode actions; 1 byte arg following opcode
 		case MacroCodeTap:
@@ -73,20 +103,26 @@ func (m *defaultMacroDriver) next() (code MacroCode, arg uint16) {
 			fallthrough
 		case MacroCodeUp:
 			m.curr++
-			if m.curr+1 >= len(running) {
+			if m.curr >= len(buf) {
+				println("unexpected reset 1")
 				return m.reset()
 			}
-			m.curr++
-			return op, uint16(running[m.curr])
+			arg := uint16(buf[m.curr])
+			return op, arg
 
 		// delay opcode in milliseconds; 2 byte arg following opcode
 		case MacroCodeDelay:
+			// println("delay:", m.curr)
 			m.curr++
-			if m.curr+2 >= len(running) {
+			if m.curr+1 >= len(buf) {
+				println("unexpected reset 2")
 				return m.reset()
 			}
 			m.curr += 2
-			return op, (uint16(running[m.curr-1])) + (uint16(running[m.curr]))
+			low, high := buf[m.curr-2], buf[m.curr-1]
+			// println("delay:", x, y)
+			arg := (uint16(low - 1)) + (uint16(high-1) << 8)
+			return op, arg
 
 		// vial extended opcodes; 2 byte arg following opcode
 		case MacroCodeVialExtTap:
@@ -94,24 +130,39 @@ func (m *defaultMacroDriver) next() (code MacroCode, arg uint16) {
 		case MacroCodeVialExtDown:
 			fallthrough
 		case MacroCodeVialExtUp:
+			// println("vial ext: ", m.curr)
 			m.curr++
-			if m.curr+2 >= len(running) {
+			if m.curr+1 >= len(buf) {
+				println("unexpected reset 3")
 				return m.reset()
 			}
 			m.curr += 2
-			return op, (uint16(running[m.curr]) >> 8) | (uint16(running[m.curr-1]))
+			low, high := buf[m.curr-2], buf[m.curr-1]
+			// println("vial ext: ", high, low)
+			arg := m.decodeKeycode((uint16(high) << 8) | (uint16(low) & 0xFF))
+			return op, arg
 
 		// invalid byte sequence in macro
 		default:
+			// println("default: ", b)
 			return m.reset()
 		}
 
 	default:
+		// println("send:", m.curr)
 		// If the char wasn't magic, just send it
 		// send_string_with_delay(data, DYNAMIC_KEYMAP_MACRO_DELAY);
 		m.curr++
 		return MacroCodeSend, uint16(b)
 	}
+}
+
+func (m *defaultMacroDriver) decodeKeycode(kc uint16) uint16 {
+	// map 0xFF01 => 0x0100; 0xFF02 => 0x0200, etc
+	if kc > 0xFF00 {
+		return (kc & 0x00FF) << 8
+	}
+	return kc
 }
 
 var macroEmptyBuf [0]byte
@@ -146,17 +197,71 @@ func (m *defaultMacroDriver) macroNumBounds(macroNum uint8) (start, end int, ok 
 	return start, end, false
 }
 
+type KeycodeProcessor interface {
+	ProcessKeycode(kc keycodes.Keycode, made bool)
+}
+
 // Task
-func (m *defaultMacroDriver) Task() {
-
+func (m *defaultMacroDriver) Task(proc KeycodeProcessor) {
+	if !m.running() {
+		return
+	}
+	if time.Now().After(m.end) {
+		kc := keycodes.Keycode(m.arg)
+		// finish off previous operation before iterating to the next
+		switch m.op {
+		case MacroCodeTap, MacroCodeVialExtTap:
+			proc.ProcessKeycode(kc, false)
+			// println("end tap")
+		case MacroCodeDelay:
+			// println("end delay")
+		case MacroCodeSend:
+			// println("end send")
+		}
+		// get and execute next operation
+		m.op, m.arg = m.nextOp()
+		if debug_macro {
+			println("next:", m.op.String(), m.arg)
+		}
+		m.end = time.Now()
+		kc = keycodes.Keycode(m.arg)
+		switch m.op {
+		case MacroCodeTap:
+			// println("tapping", kc)
+			proc.ProcessKeycode(kc, true)
+			m.tapDelay()
+		case MacroCodeDown:
+			// println("down", kc)
+			proc.ProcessKeycode(kc, true)
+		case MacroCodeUp:
+			// println("up", kc)
+			proc.ProcessKeycode(kc, false)
+		case MacroCodeDelay:
+			// println("delay", arg)
+			if m.arg > 0 {
+				m.end = m.end.Add(time.Duration(m.arg) * time.Millisecond)
+			}
+		case MacroCodeVialExtTap:
+			// println("tapping", kc)
+			proc.ProcessKeycode(kc, true)
+			m.tapDelay()
+		case MacroCodeVialExtDown:
+			// println("down", kc)
+			proc.ProcessKeycode(kc, true)
+		case MacroCodeVialExtUp:
+			// println("up", kc)
+			proc.ProcessKeycode(kc, false)
+		case MacroCodeSend:
+			if debug_macro {
+				println("send", kc)
+			}
+			m.tapDelay()
+		}
+	}
 }
 
-func (m *defaultMacroDriver) Count() uint8 {
-	return m.count
-}
-
-func (m *defaultMacroDriver) VialMacroBuffer() []byte {
-	return m.buffer
+func (m *defaultMacroDriver) tapDelay() {
+	m.end = m.end.Add(5 * time.Millisecond)
 }
 
 func (m *defaultMacroDriver) StoredSize() int {

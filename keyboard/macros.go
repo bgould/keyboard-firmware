@@ -7,6 +7,9 @@ import (
 )
 
 func (kbd *Keyboard) SetMacroDriver(m MacrosDriver) {
+	if rcv, ok := m.(EventReceiver); ok {
+		kbd.AddEventReceiver(rcv)
+	}
 	kbd.macros.Driver = m
 }
 
@@ -52,7 +55,7 @@ type MacrosDriver interface {
 	Configure()
 	Count() uint8
 	RunMacro(macroNum uint8) (err error)
-	Task()
+	Task(proc KeycodeProcessor)
 	io.ReaderFrom
 	io.WriterTo
 	ZeroFill()
@@ -61,6 +64,8 @@ type MacrosDriver interface {
 // func (m *Macros) Buffer() []byte {
 // 	return m.buffer
 // }
+
+//go:generate go run golang.org/x/tools/cmd/stringer -type=MacroCode
 
 type MacroCode uint8
 
