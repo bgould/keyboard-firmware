@@ -43,12 +43,7 @@ func (m *Macros) ProcessKey(key keycodes.Keycode, made bool) {
 		return
 	}
 	num := uint8(key - keycodes.QK_MACRO_0)
-	// println("running macro: ", num, key)
 	m.Driver.RunMacro(num)
-	// start, end, ok := m.macroNumBounds(num)
-	// if ok {
-	// 	xxdfprint(os.Stdout, 0x0, m.GetBytes(num))
-	// }
 }
 
 type MacrosDriver interface {
@@ -61,9 +56,9 @@ type MacrosDriver interface {
 	ZeroFill()
 }
 
-// func (m *Macros) Buffer() []byte {
-// 	return m.buffer
-// }
+type KeycodeProcessor interface {
+	ProcessKeycode(kc keycodes.Keycode, made bool)
+}
 
 //go:generate go run golang.org/x/tools/cmd/stringer -type=MacroCode
 

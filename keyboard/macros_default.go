@@ -60,6 +60,28 @@ func (m *defaultMacroDriver) RunMacro(num uint8) (err error) {
 	}
 }
 
+// determine bounds of specified macro in buffer
+func (m *defaultMacroDriver) macroNumBounds(macroNum uint8) (start, end int, ok bool) {
+	if len(m.buffer) == 0 {
+		return 0, 0, false
+	}
+	if macroNum >= m.count {
+		return 0, 0, false
+	}
+	for i, c, n := 0, len(m.buffer), uint8(0); i < c; i++ {
+		if b := m.buffer[i]; b == 0x0 {
+			if n == macroNum {
+				end = i
+				return start, end, true
+			} else {
+				n++
+				start = i + 1
+			}
+		}
+	}
+	return start, end, false
+}
+
 func (m *defaultMacroDriver) running() bool {
 	return m.tail > m.head && m.tail < len(m.buffer)
 }
@@ -71,11 +93,67 @@ func (m *defaultMacroDriver) current() (buf []byte, running bool) {
 	return
 }
 
-func (m *defaultMacroDriver) reset() (code MacroCode, arg uint16) {
-	m.head = 0
-	m.tail = 0
-	m.curr = 0
-	return 0, 0
+// Task
+func (m *defaultMacroDriver) Task(proc KeycodeProcessor) {
+	if !m.running() {
+		return
+	}
+	if time.Now().After(m.end) {
+		kc := keycodes.Keycode(m.arg)
+		// finish off previous operation before iterating to the next
+		switch m.op {
+		case MacroCodeTap, MacroCodeVialExtTap:
+			proc.ProcessKeycode(kc, false)
+			// println("end tap")
+		case MacroCodeDelay:
+			// println("end delay")
+		case MacroCodeSend:
+			// println("end send")
+		}
+		// get and execute next operation
+		m.op, m.arg = m.nextOp()
+		if debug_macro {
+			println("next:", m.op.String(), m.arg)
+		}
+		m.end = time.Now()
+		kc = keycodes.Keycode(m.arg)
+		switch m.op {
+		case MacroCodeTap:
+			// println("tapping", kc)
+			proc.ProcessKeycode(kc, true)
+			m.tapDelay()
+		case MacroCodeDown:
+			// println("down", kc)
+			proc.ProcessKeycode(kc, true)
+		case MacroCodeUp:
+			// println("up", kc)
+			proc.ProcessKeycode(kc, false)
+		case MacroCodeDelay:
+			// println("delay", arg)
+			if m.arg > 0 {
+				m.end = m.end.Add(time.Duration(m.arg) * time.Millisecond)
+			}
+		case MacroCodeVialExtTap:
+			// println("tapping", kc)
+			proc.ProcessKeycode(kc, true)
+			m.tapDelay()
+		case MacroCodeVialExtDown:
+			// println("down", kc)
+			proc.ProcessKeycode(kc, true)
+		case MacroCodeVialExtUp:
+			// println("up", kc)
+			proc.ProcessKeycode(kc, false)
+		case MacroCodeSend:
+			if debug_macro {
+				println("send", kc)
+			}
+			m.tapDelay()
+		}
+	}
+}
+
+func (m *defaultMacroDriver) tapDelay() {
+	m.end = m.end.Add(5 * time.Millisecond)
 }
 
 func (m *defaultMacroDriver) nextOp() (code MacroCode, arg uint16) {
@@ -157,111 +235,19 @@ func (m *defaultMacroDriver) nextOp() (code MacroCode, arg uint16) {
 	}
 }
 
+func (m *defaultMacroDriver) reset() (code MacroCode, arg uint16) {
+	m.head = 0
+	m.tail = 0
+	m.curr = 0
+	return 0, 0
+}
+
 func (m *defaultMacroDriver) decodeKeycode(kc uint16) uint16 {
 	// map 0xFF01 => 0x0100; 0xFF02 => 0x0200, etc
 	if kc > 0xFF00 {
 		return (kc & 0x00FF) << 8
 	}
 	return kc
-}
-
-var macroEmptyBuf [0]byte
-
-// func (m *defaultMacroDriver) macroBytes(macroNum uint8) []byte {
-// 	start, end, ok := m.macroNumBounds(macroNum)
-// 	if !ok {
-// 		return macroEmptyBuf[:]
-// 	}
-// 	return m.buffer[start:end]
-// }
-
-// determine bounds of specified macro in buffer
-func (m *defaultMacroDriver) macroNumBounds(macroNum uint8) (start, end int, ok bool) {
-	if len(m.buffer) == 0 {
-		return 0, 0, false
-	}
-	if macroNum >= m.count {
-		return 0, 0, false
-	}
-	for i, c, n := 0, len(m.buffer), uint8(0); i < c; i++ {
-		if b := m.buffer[i]; b == 0x0 {
-			if n == macroNum {
-				end = i
-				return start, end, true
-			} else {
-				n++
-				start = i + 1
-			}
-		}
-	}
-	return start, end, false
-}
-
-type KeycodeProcessor interface {
-	ProcessKeycode(kc keycodes.Keycode, made bool)
-}
-
-// Task
-func (m *defaultMacroDriver) Task(proc KeycodeProcessor) {
-	if !m.running() {
-		return
-	}
-	if time.Now().After(m.end) {
-		kc := keycodes.Keycode(m.arg)
-		// finish off previous operation before iterating to the next
-		switch m.op {
-		case MacroCodeTap, MacroCodeVialExtTap:
-			proc.ProcessKeycode(kc, false)
-			// println("end tap")
-		case MacroCodeDelay:
-			// println("end delay")
-		case MacroCodeSend:
-			// println("end send")
-		}
-		// get and execute next operation
-		m.op, m.arg = m.nextOp()
-		if debug_macro {
-			println("next:", m.op.String(), m.arg)
-		}
-		m.end = time.Now()
-		kc = keycodes.Keycode(m.arg)
-		switch m.op {
-		case MacroCodeTap:
-			// println("tapping", kc)
-			proc.ProcessKeycode(kc, true)
-			m.tapDelay()
-		case MacroCodeDown:
-			// println("down", kc)
-			proc.ProcessKeycode(kc, true)
-		case MacroCodeUp:
-			// println("up", kc)
-			proc.ProcessKeycode(kc, false)
-		case MacroCodeDelay:
-			// println("delay", arg)
-			if m.arg > 0 {
-				m.end = m.end.Add(time.Duration(m.arg) * time.Millisecond)
-			}
-		case MacroCodeVialExtTap:
-			// println("tapping", kc)
-			proc.ProcessKeycode(kc, true)
-			m.tapDelay()
-		case MacroCodeVialExtDown:
-			// println("down", kc)
-			proc.ProcessKeycode(kc, true)
-		case MacroCodeVialExtUp:
-			// println("up", kc)
-			proc.ProcessKeycode(kc, false)
-		case MacroCodeSend:
-			if debug_macro {
-				println("send", kc)
-			}
-			m.tapDelay()
-		}
-	}
-}
-
-func (m *defaultMacroDriver) tapDelay() {
-	m.end = m.end.Add(5 * time.Millisecond)
 }
 
 func (m *defaultMacroDriver) StoredSize() int {
@@ -325,3 +311,13 @@ func (m *defaultMacroDriver) ReadFrom(r io.Reader) (n int64, err error) {
 	}
 	return
 }
+
+// var macroEmptyBuf [0]byte
+
+// func (m *defaultMacroDriver) macroBytes(macroNum uint8) []byte {
+// 	start, end, ok := m.macroNumBounds(macroNum)
+// 	if !ok {
+// 		return macroEmptyBuf[:]
+// 	}
+// 	return m.buffer[start:end]
+// }
