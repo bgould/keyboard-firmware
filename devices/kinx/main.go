@@ -35,9 +35,9 @@ func init() {
 	board.SetCPUResetFunc(keyboard.DefaultCPUReset)
 
 	// TODO: move into core
-	if rcv, ok := host.(keyboard.EventReceiver); ok {
-		board.SetEventReceiver(rcv)
-	}
+	// if rcv, ok := host.(keyboard.EventReceiver); ok {
+	// 	board.AddEventReceiver(rcv)
+	// }
 
 	initFilesystem()
 	// initRTC()

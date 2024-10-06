@@ -63,9 +63,13 @@ func (dev *Board) NewMatrix() *keyboard.Matrix {
 func (dev *Board) NewVialKeyboard(layers ...keyboard.Layer) (*keyboard.Keyboard, *usbvial.Host) {
 	keymap := Keymap(layers...)
 	matrix := dev.NewMatrix()
-	host := NewVialHost(keymap, matrix)
+	macros, ok := keyboard.NewDefaultMacroDriver(32, 4096).(usbvial.VialMacroDriver)
+	if !ok {
+		macros = nil
+	}
+	host := NewVialHost(keymap, matrix, macros)
 	kbd := keyboard.New(host, matrix, keymap)
-	kbd.SetEventReceiver(host)
+	kbd.SetMacroDriver(macros)
 	return kbd, host
 }
 
