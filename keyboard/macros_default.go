@@ -10,6 +10,8 @@ import (
 
 const debug_macro = false
 
+const macroDefaultTapDelayMS = 1
+
 func NewDefaultMacroDriver(count uint8, bufferSize uint16) MacrosDriver {
 	return &defaultMacroDriver{count: count, buffer: make([]byte, bufferSize)}
 }
@@ -153,7 +155,7 @@ func (m *defaultMacroDriver) Task(proc KeycodeProcessor) {
 }
 
 func (m *defaultMacroDriver) tapDelay() {
-	m.end = m.end.Add(5 * time.Millisecond)
+	m.end = m.end.Add(macroDefaultTapDelayMS * time.Millisecond)
 }
 
 func (m *defaultMacroDriver) nextOp() (code MacroCode, arg uint16) {
