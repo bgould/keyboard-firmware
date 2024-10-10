@@ -25,12 +25,12 @@ type defaultMacroDriver struct {
 	op     MacroCode
 	arg    uint16
 	end    time.Time
-	// send   struct {
-	// 	keycode keycodes.Keycode
-	// 	shifted int8
-	// 	altgred int8
-	// 	dead    bool
-	// }
+	send   struct {
+		keycode keycodes.Keycode
+		shifted bool
+		altgred bool
+		dead    bool
+	}
 }
 
 var _ EventReceiver = (*defaultMacroDriver)(nil)
@@ -116,19 +116,21 @@ func (m *defaultMacroDriver) Task(proc KeycodeProcessor) {
 		case MacroCodeDelay:
 			// println("end delay")
 		case MacroCodeSend:
-			// println("end send")
-			// proc.ProcessKeycode(m.send.keycode, false)
-			// if m.send.shifted {
-			// 	proc.ProcessKeycode(keycodes.KC_LEFT_SHIFT, false)
-			// }
-			// if m.send.altgred {
-			// 	proc.ProcessKeycode(keycodes.KC_RIGHT_ALT, false)
-			// }
+			if debug_macro {
+				println("end send")
+			}
+			proc.ProcessKeycode(m.send.keycode, false)
+			if m.send.shifted {
+				proc.ProcessKeycode(keycodes.KC_LEFT_SHIFT, false)
+			}
+			if m.send.altgred {
+				proc.ProcessKeycode(keycodes.KC_RIGHT_ALT, false)
+			}
 		}
 		// get and execute next operation
 		m.op, m.arg = m.nextOp()
 		if debug_macro {
-			println("next:", m.op.String(), m.arg)
+			println("next:", m.op.String(), m.arg, m.curr)
 		}
 		m.end = time.Now()
 		kc = keycodes.Keycode(m.arg)
@@ -162,17 +164,19 @@ func (m *defaultMacroDriver) Task(proc KeycodeProcessor) {
 			if debug_macro {
 				println("send", kc)
 			}
-			// a := uint8(m.arg)
-			// m.send.keycode, m.send.shifted, m.send.altgred, m.send.dead = keycodes.AsciiToKeycode(a)
-			// println("a2kc:", m.send.keycode, m.send.shifted, m.send.altgred, m.send.dead)
-			// if m.send.shifted {
-			// 	proc.ProcessKeycode(keycodes.KC_LEFT_SHIFT, true)
-			// }
-			// if m.send.altgred {
-			// 	proc.ProcessKeycode(keycodes.KC_RIGHT_ALT, true)
-			// }
-			// proc.ProcessKeycode(m.send.keycode, true)
-			// m.tapDelay()
+			a := uint8(m.arg)
+			m.send.keycode, m.send.shifted, m.send.altgred, m.send.dead = keycodes.AsciiToKeycode(a)
+			if debug_macro {
+				println("a2kc:", m.send.keycode, m.send.shifted, m.send.altgred, m.send.dead)
+			}
+			if m.send.shifted {
+				proc.ProcessKeycode(keycodes.KC_LEFT_SHIFT, true)
+			}
+			if m.send.altgred {
+				proc.ProcessKeycode(keycodes.KC_RIGHT_ALT, true)
+			}
+			proc.ProcessKeycode(m.send.keycode, true)
+			m.tapDelay()
 		}
 	}
 }
@@ -211,6 +215,7 @@ func (m *defaultMacroDriver) nextOp() (code MacroCode, arg uint16) {
 				return m.reset()
 			}
 			arg := uint16(buf[m.curr])
+			m.curr++
 			return op, arg
 
 		// delay opcode in milliseconds; 2 byte arg following opcode
