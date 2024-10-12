@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	colorstrip_no_int = false
+	colorstrip_no_int = true
 )
 
 type ColorStrip struct {

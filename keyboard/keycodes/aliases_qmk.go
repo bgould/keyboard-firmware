@@ -2,6 +2,37 @@
 
 package keycodes
 
+// Keycode modifiers & aliases
+const (
+	QK_LCTL Keycode = 0x0100
+	QK_LSFT Keycode = 0x0200
+	QK_LALT Keycode = 0x0400
+	QK_LGUI Keycode = 0x0800
+	QK_RCTL Keycode = 0x1100
+	QK_RSFT Keycode = 0x1200
+	QK_RALT Keycode = 0x1400
+	QK_RGUI Keycode = 0x1800
+
+	QK_RMODS_MIN Keycode = 0x1000
+)
+
+func LCTL(kc Keycode) Keycode { return (QK_LCTL | (kc)) }
+func LSFT(kc Keycode) Keycode { return (QK_LSFT | (kc)) }
+func LALT(kc Keycode) Keycode { return (QK_LALT | (kc)) }
+func LGUI(kc Keycode) Keycode { return (QK_LGUI | (kc)) }
+func LOPT(kc Keycode) Keycode { return LALT(kc) }
+func LCMD(kc Keycode) Keycode { return LGUI(kc) }
+func LWIN(kc Keycode) Keycode { return LGUI(kc) }
+func RCTL(kc Keycode) Keycode { return (QK_RCTL | (kc)) }
+func RSFT(kc Keycode) Keycode { return (QK_RSFT | (kc)) }
+func RALT(kc Keycode) Keycode { return (QK_RALT | (kc)) }
+func RGUI(kc Keycode) Keycode { return (QK_RGUI | (kc)) }
+func ALGR(kc Keycode) Keycode { return RALT(kc) }
+func ROPT(kc Keycode) Keycode { return RALT(kc) }
+func RCMD(kc Keycode) Keycode { return RGUI(kc) }
+func RWIN(kc Keycode) Keycode { return RGUI(kc) }
+
+// Keycode Aliases
 const (
 	// FN0  = QK_KB_0
 	// FN1  = QK_KB_1

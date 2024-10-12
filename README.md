@@ -1,9 +1,7 @@
 Go Keyboard Firmware framework
 ==============================
 
-This is an experimental project that I am using to test out and iterate on the USB HID implementation being developed
-for [TinyGo][tinygo]. Once things become more stable I will add features and clean up the codebase to be more
-general-purpose and maintain it as a library.
+This is a framework for building USB HID type devices such as keyboards with [TinyGo][tinygo].
 
 Architecture
 ------------
@@ -27,8 +25,6 @@ The high-level abstractions in the codebase are the same as [defined by TMK][tmk
    to define a mapping for every matrix location; some locations can be "transparent" to delegate to a lower-level
    layer as defined by the keymap.
 
-*Please note that not all protocols and features described above, such as multiple layers, are implemented yet*
-
 Design Considerations
 ---------------------
 
@@ -40,7 +36,7 @@ Design Considerations
 Building Firmware
 -----------------
 
-In order to build firmware in this repository, please install [Go][golang] 1.20+ and [TinyGo][tinygo] 0.30+.
+In order to build firmware in this repository, please install [Go][golang] 1.22+ and [TinyGo][tinygo] 0.33+.
 
 *Note: for Teensy 4.1 targets, please see README.md in the `devices/kint41` folder.*
 

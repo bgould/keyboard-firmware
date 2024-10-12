@@ -32,8 +32,8 @@ type Keyboard struct {
 	mouseReport    Report
 	consumerReport Report
 
-	eventReceiver EventReceiver
-	keyActionFunc KeyAction
+	eventReceivers []EventReceiver
+	keyActionFunc  KeyAction
 
 	enterBootloader EnterBootloaderFunc
 	enterCpuReset   EnterBootloaderFunc
@@ -41,20 +41,27 @@ type Keyboard struct {
 	backlight Backlight
 	// blState   backlightState
 
+	macros Macros
+
 	fs  tinyfs.Filesystem
 	cli *console.Console
 }
 
 func New(host Host, matrix *Matrix, keymap Keymap) *Keyboard {
-	return &Keyboard{
+	kbd := &Keyboard{
 		// console:   console,
-		matrix:    matrix,
-		keymap:    keymap,
-		host:      host,
-		prev:      make([]Row, matrix.Rows()),
-		mouseKeys: NewMouseKeys(DefaultMouseKeysConfig()),
-		encoders:  nil,
+		matrix:         matrix,
+		keymap:         keymap,
+		host:           host,
+		prev:           make([]Row, matrix.Rows()),
+		mouseKeys:      NewMouseKeys(DefaultMouseKeysConfig()),
+		encoders:       nil,
+		eventReceivers: make([]EventReceiver, 0),
 	}
+	if rcv, ok := host.(EventReceiver); ok {
+		kbd.AddEventReceiver(rcv)
+	}
+	return kbd
 }
 
 func (kbd *Keyboard) EnableConsole(serialer Serialer, cmds ...console.Commands) {
@@ -80,8 +87,8 @@ func (kbd *Keyboard) SetKeyAction(action KeyAction) {
 	kbd.keyActionFunc = action
 }
 
-func (kbd *Keyboard) SetEventReceiver(receiver EventReceiver) {
-	kbd.eventReceiver = receiver
+func (kbd *Keyboard) AddEventReceiver(receiver EventReceiver) {
+	kbd.eventReceivers = append(kbd.eventReceivers, receiver)
 }
 
 func (kbd *Keyboard) LEDs() LEDs {
@@ -151,15 +158,24 @@ func (kbd *Keyboard) Task() {
 					Pos:  Pos{i, j},
 					Made: row&mask > 0,
 				}
-				if kbd.eventReceiver != nil {
-					// TODO: handle errors?
-					if handled, err := kbd.eventReceiver.ReceiveEvent(ev); handled {
-						_ = err
-						continue
+				var handled bool
+				var err error
+				if len(kbd.eventReceivers) > 0 {
+					for _, rcv := range kbd.eventReceivers {
+						if rcv == nil {
+							continue
+						}
+						if handled, err = rcv.ReceiveEvent(ev); handled {
+							// TODO: handle errors?
+							_ = err
+							break
+						}
 					}
 				}
-				kbd.processEvent(ev)
-				kbd.prev[i] ^= mask
+				if !handled {
+					kbd.processEvent(ev)
+					kbd.prev[i] ^= mask
+				}
 			}
 		}
 	}
@@ -177,6 +193,9 @@ func (kbd *Keyboard) Task() {
 	if kbd.backlight.Driver != nil {
 		kbd.backlight.Driver.Task()
 	}
+	if kbd.macros.Driver != nil {
+		kbd.macros.Driver.Task(kbd)
+	}
 	if kbd.cli != nil {
 		kbd.cli.Task()
 	}
@@ -193,25 +212,40 @@ func (kbd *Keyboard) processEvent(ev Event) {
 		l--
 		key = kbd.keymap.MapKey(int(l), int(ev.Pos.Row), int(ev.Pos.Col))
 	}
+	kbd.ProcessKeycode(key, ev.Made)
+}
+
+func (kbd *Keyboard) Modifiers() KeyboardModifier {
+	return KeyboardModifier(kbd.keyReport[2])
+}
+
+func (kbd *Keyboard) ClearKeycodes() {
+	kbd.keyReport.Keyboard(KbdModNone)
+	kbd.host.Send(kbd.keyReport)
+}
+
+func (kbd *Keyboard) ProcessKeycode(key keycodes.Keycode, made bool) {
 	switch {
 	case key.IsBasic() || key.IsModifier():
-		kbd.processKey(key, ev.Made)
+		kbd.processKey(key, made)
 	case key.IsMouse():
-		kbd.processMouseKey(key, ev.Made)
+		kbd.processMouseKey(key, made)
 	case key.IsConsumer():
-		kbd.processConsumerKey(key, ev.Made)
+		kbd.processConsumerKey(key, made)
 	case key.IsSystem():
-		kbd.processSystemKey(key, ev.Made)
+		kbd.processSystemKey(key, made)
 	case key.IsKb():
-		kbd.processKb(key, ev.Made)
+		kbd.processKb(key, made)
+	case key.IsMacro():
+		kbd.processMacro(key, made)
 	// case key.IsSpecial():
-	// 	kbd.processSpecialKey(key, ev.Made)
+	// 	kbd.processSpecialKey(key, made)
 	case key.IsBacklight():
-		kbd.processBacklight(key, ev.Made)
+		kbd.processBacklight(key, made)
 	case key.IsRgb():
-		kbd.processRgb(key, ev.Made)
+		kbd.processRgb(key, made)
 	case key.IsLayer():
-		kbd.processLayer(key, ev.Made)
+		kbd.processLayer(key, made)
 	}
 }
 

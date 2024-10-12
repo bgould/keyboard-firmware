@@ -302,18 +302,18 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 	case ViaCmdDynamicKeymapGetKeycode: // 0x04
 
 	case ViaCmdDynamicKeymapSetKeycode: // 0x05
-		// if debug {
-		println("ViaCmdDynamicKeymapSetKeycode: ", rx[1], rx[2], rx[3], rx[4], rx[5])
-		// }
+		if debug {
+			println("ViaCmdDynamicKeymapSetKeycode: ", rx[1], rx[2], rx[3], rx[4], rx[5])
+		}
 		// if setter, ok := mapper.(KeySetter); ok {
 		layer := int(rx[1])
 		row := int(rx[2])
 		col := int(rx[3])
 		kc := keycodes.Keycode(uint16(rx[4])<<8 | uint16(rx[5]))
 		result := dev.km.SetKey(layer, row, col, kc)
-		// if debug {
-		println("-- set keycode result: ", kc, result)
-		// }
+		if debug {
+			println("-- set keycode result: ", kc, result)
+		}
 		// }
 
 	case ViaCmdDynamicKeymapReset: // 0x06
@@ -332,19 +332,64 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 	case ViaCmdBootloaderJump: // 0x0B
 
 	case ViaCmdKeymapMacroGetCount: // 0x0C
+		if debug {
+			println("ViaCmdKeymapMacroGetCount")
+		}
 		tx[0] = rx[0]
-		tx[1] = 0x10
+		if drv, ok := dev.km.(MacroDriver); ok {
+			tx[1] = drv.GetMacroCount()
+		} else {
+			tx[1] = 0x0
+		}
 
 	case ViaCmdKeymapMacroGetBufferSize: // 0x0D
+		if debug {
+			println("ViaCmdKeymapMacroGetBufferSize")
+		}
 		tx[0] = rx[0]
-		tx[1] = 0x07
-		tx[2] = 0x9B
+		if drv, ok := dev.km.(MacroDriver); ok {
+			bufsize := uint16(len(drv.GetMacroBuffer()))
+			tx[1] = byte(bufsize >> 8)
+			tx[2] = byte(bufsize)
+		} else {
+			tx[1] = 0x00
+			tx[2] = 0x00
+		}
 
 	case ViaCmdKeymapMacroGetBuffer: // 0x0E
+		if debug {
+			println("ViaCmdKeymapMacroGetBuffer:", rx[1], rx[2], rx[3])
+		}
+		tx[0] = rx[0]
+		tx[1] = rx[1]
+		tx[2] = rx[2]
+		tx[3] = rx[3]
+		if drv, ok := dev.km.(MacroDriver); ok {
+			offset := (uint16(rx[1]) << 8) + uint16(rx[2])
+			size := rx[3]
+			buf := drv.GetMacroBuffer()
+			copy(tx[4:4+size], buf[offset:])
+		}
 
 	case ViaCmdKeymapMacroSetBuffer: // 0x0F
+		if debug {
+			println("ViaCmdKeymapMacroSetBuffer", rx[1], rx[2], rx[3])
+		}
+		tx[0] = rx[0]
+		tx[1] = rx[1]
+		tx[2] = rx[2]
+		tx[3] = rx[3]
+		if drv, ok := dev.km.(MacroDriver); ok {
+			offset := (uint16(rx[1]) << 8) + uint16(rx[2])
+			size := rx[3]
+			buf := drv.GetMacroBuffer()
+			copy(buf[offset:], rx[4:4+size])
+		}
 
 	case ViaCmdKeymapMacroReset: // 0x10
+		if debug {
+			println("ViaCmdKeymapMacroReset")
+		}
 
 	case ViaCmdKeymapGetLayerCount: // 0x11
 		tx[1] = mapper.GetLayerCount()
