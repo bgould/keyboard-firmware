@@ -215,6 +215,15 @@ func (kbd *Keyboard) processEvent(ev Event) {
 	kbd.ProcessKeycode(key, ev.Made)
 }
 
+func (kbd *Keyboard) Modifiers() KeyboardModifier {
+	return KeyboardModifier(kbd.keyReport[2])
+}
+
+func (kbd *Keyboard) ClearKeycodes() {
+	kbd.keyReport.Keyboard(KbdModNone)
+	kbd.host.Send(kbd.keyReport)
+}
+
 func (kbd *Keyboard) ProcessKeycode(key keycodes.Keycode, made bool) {
 	switch {
 	case key.IsBasic() || key.IsModifier():

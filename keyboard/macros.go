@@ -58,6 +58,8 @@ type MacrosDriver interface {
 
 type KeycodeProcessor interface {
 	ProcessKeycode(kc keycodes.Keycode, made bool)
+	ClearKeycodes()
+	Modifiers() KeyboardModifier
 }
 
 //go:generate go run golang.org/x/tools/cmd/stringer -type=MacroCode
