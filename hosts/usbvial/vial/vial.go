@@ -141,6 +141,7 @@ type Device struct {
 	km  DeviceDriver
 	txb [32]byte
 	def DeviceDefinition
+	rgb rgbImpl
 
 	unlockStatus  UnlockStatus
 	unlockCounter int
@@ -157,9 +158,11 @@ type DeviceDefinition struct {
 	VendorID      string       `json:"vendorId"`
 	ProductID     string       `json:"productId"`
 	Matrix        DeviceMatrix `json:"matrix"`
+	Lighting      string       `json:"lighting"`
 	UnlockKeys    []Pos        `json:"-"`
 	LzmaDefLength uint16       `json:"-"`
 	LzmaDefWriter LzmaDefPageWriter
+	rgb           rgbImpl
 }
 
 type LzmaDefPageWriter interface {
@@ -319,13 +322,28 @@ func (dev *Device) Handle(rx []byte, tx []byte) bool {
 	case ViaCmdDynamicKeymapReset: // 0x06
 
 	case ViaCmdLightingSetValue: // 0x07
+		if debug {
+			println("ViaCmdLightingSetValue:", rx[1], rx[2], rx[3])
+		}
+		if dev.def.rgb != nil {
+			dev.def.rgb.handleSetValue(rx, tx)
+		}
 
 	case ViaCmdLightingGetValue: // 0x08
-		tx[0] = rx[0]
-		tx[1] = 0x00
-		tx[2] = 0x00
+		if debug {
+			println("ViaCmdLightingGetValue:", VialRGBGetCommand(rx[1]), rx[2], rx[3], rx[4], rx[5])
+		}
+		if dev.def.rgb != nil {
+			dev.def.rgb.handleGetValue(rx, tx)
+		}
 
 	case ViaCmdLightingSave: // 0x09
+		if debug {
+			println("ViaCmdLightingSave:", rx[1], rx[2], rx[3], rx[4], rx[5])
+		}
+		if dev.def.rgb != nil {
+			dev.def.rgb.handleSave(rx, tx)
+		}
 
 	case ViaCmdEepromReset: // 0x0A
 

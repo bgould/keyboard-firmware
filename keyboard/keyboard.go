@@ -190,9 +190,10 @@ func (kbd *Keyboard) Task() {
 	if kbd.encoders != nil {
 		kbd.encoders.EncodersTask()
 	}
-	if kbd.backlight.Driver != nil {
-		kbd.backlight.Driver.Task()
-	}
+	kbd.backlight.Task()
+	// if kbd.backlight.Driver != nil {
+	// 	kbd.backlight.Driver.Task()
+	// }
 	if kbd.macros.Driver != nil {
 		kbd.macros.Driver.Task(kbd)
 	}

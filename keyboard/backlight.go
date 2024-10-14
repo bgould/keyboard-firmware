@@ -46,6 +46,8 @@ type Backlight struct {
 	IncludeBreathingInSteps bool
 
 	state backlightState
+
+	sync bool
 }
 
 func (bl *Backlight) Configure() {
@@ -92,14 +94,20 @@ func (kbd *Keyboard) BacklightColor() hsv.Color {
 }
 
 func (kbd *Keyboard) BacklightUpdate(mode BacklightMode, color hsv.Color, force bool) {
+	// println("entering BacklightUpdate", mode, color.H, color.S, color.V, force)
 	prev := kbd.backlight.state
 	state := &kbd.backlight.state
 	state.mode = mode
 	state.color = color
 	changed := (kbd.backlight.state != prev)
 	if changed || force {
-		kbd.backlight.Sync()
+		kbd.backlight.sync = true
+		// kbd.backlight.Sync()
 	}
+}
+
+func (kbd *Keyboard) BacklightSave() {
+	kbd.CLI().WriteString("BacklightSave: not implemented")
 }
 
 func (kbd *Keyboard) processBacklight(key keycodes.Keycode, made bool) {
@@ -159,6 +167,16 @@ func (bl *Backlight) ProcessKey(key keycodes.Keycode, made bool) {
 	changed := (bl.state != prev)
 	if changed {
 		bl.Sync()
+	}
+}
+
+func (bl *Backlight) Task() {
+	if bl.sync {
+		bl.Sync()
+		bl.sync = false
+	}
+	if bl.Driver != nil {
+		bl.Driver.Task()
 	}
 }
 

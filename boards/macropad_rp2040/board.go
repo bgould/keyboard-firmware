@@ -70,6 +70,8 @@ func (dev *Board) NewVialKeyboard(layers ...keyboard.Layer) (*keyboard.Keyboard,
 	host := NewVialHost(keymap, matrix, macros)
 	kbd := keyboard.New(host, matrix, keymap)
 	kbd.SetMacroDriver(macros)
+	rgb := usbvial.NewKeyboardVialRGBer(kbd)
+	host.UseVialRGB(rgb)
 	return kbd, host
 }
 

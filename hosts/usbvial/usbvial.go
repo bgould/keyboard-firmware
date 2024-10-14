@@ -37,6 +37,10 @@ func init() {
 	configureVialEndpoints()
 }
 
+func (host *Host) UseVialRGB(rgb vial.VialRGBer) {
+	host.dev.UseVialRGB(rgb)
+}
+
 func (host *Host) SetMacros(m *keyboard.Macros) {
 
 }
