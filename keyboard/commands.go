@@ -17,6 +17,8 @@ func (kbd *Keyboard) addDefaultCommands(commands console.Commands) {
 	commands["load"] = console.CommandHandlerFunc(kbd.load)
 	commands["save-macros"] = console.CommandHandlerFunc(kbd.saveMacros)
 	commands["load-macros"] = console.CommandHandlerFunc(kbd.loadMacros)
+	commands["save-backlight"] = console.CommandHandlerFunc(kbd.saveBacklight)
+	commands["load-backlight"] = console.CommandHandlerFunc(kbd.loadBacklight)
 	// commands["macros"] = console.CommandHandlerFunc(kbd.xxdmacros)
 }
 
@@ -131,6 +133,37 @@ func (kbd *Keyboard) layer(cmd console.CommandInfo) int {
 	cmd.Stdout.Write([]byte(strconv.Itoa(int(kbd.defaultLayer))))
 	cmd.Stdout.Write([]byte("\n"))
 	return 0
+}
+
+func (kbd *Keyboard) saveBacklight(cmd console.CommandInfo) int {
+	cmd.Stdout.Write([]byte("Saving backlight...\n"))
+	if n, err := kbd.SaveBacklightToFile(savedBacklightFilename); err != nil {
+		cmd.Stdout.Write([]byte("Error saving backlight: "))
+		cmd.Stdout.Write([]byte(err.Error()))
+		cmd.Stdout.Write([]byte("\n"))
+		return 1
+	} else {
+		cmd.Stdout.Write([]byte("Wrote "))
+		cmd.Stdout.Write([]byte(strconv.Itoa(int(n))))
+		cmd.Stdout.Write([]byte(" bytes. Backlight saved successfully.\n"))
+		return 0
+	}
+}
+
+func (kbd *Keyboard) loadBacklight(cmd console.CommandInfo) int {
+	cmd.Stdout.Write([]byte("Loading backlight...\n"))
+	if n, err := kbd.LoadBacklightFromFile(savedBacklightFilename); err != nil {
+		cmd.Stdout.Write([]byte("Error loading backlight: "))
+		cmd.Stdout.Write([]byte(err.Error()))
+		cmd.Stdout.Write([]byte("\n"))
+		return 1
+	} else {
+		cmd.Stdout.Write([]byte("Read "))
+		cmd.Stdout.Write([]byte(strconv.Itoa(int(n))))
+		cmd.Stdout.Write([]byte(" bytes. Backlight loaded successfully.\n"))
+		kbd.backlight.sync = true
+		return 0
+	}
 }
 
 // func (kbd *Keyboard) xxdmacros(cmd console.CommandInfo) int {

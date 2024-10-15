@@ -1,6 +1,8 @@
 package keyboard
 
 import (
+	"io"
+
 	"github.com/bgould/keyboard-firmware/keyboard/hsv"
 	"github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
@@ -107,7 +109,11 @@ func (kbd *Keyboard) BacklightUpdate(mode BacklightMode, color hsv.Color, force 
 }
 
 func (kbd *Keyboard) BacklightSave() {
-	kbd.CLI().WriteString("BacklightSave: not implemented")
+	println("Backlight save")
+	kbd.backlightSave = true
+	// cmdinfo := console.CommandInfo{Stdout: kbd.CLI(), Cmd: "save-backlight"}
+	// kbd.saveBacklight(cmdinfo)
+	// kbd.CLI().WriteString("BacklightSave: not implemented")
 }
 
 func (kbd *Keyboard) processBacklight(key keycodes.Keycode, made bool) {
@@ -294,4 +300,74 @@ func (st *backlightState) step() uint8 {
 	} else {
 		return uint8(st.color.V) / (0xFF / st.steps)
 	}
+}
+
+func (m *backlightState) StoredSize() int {
+	bufSize := 4
+	hdrSize := 4
+	ftrSize := 4
+	return hdrSize + bufSize + ftrSize
+}
+
+// func (m *backlightState) ZeroFill() {
+// 	for iCol := range m.buffer {
+// 		m.buffer[iCol] = 0x0
+// 	}
+// }
+
+var _ io.WriterTo = (*backlightState)(nil)
+
+func (m *backlightState) WriteTo(w io.Writer) (n int64, err error) {
+	var result int
+	// header
+	result, err = w.Write([]byte{0x00, 0x00, 0x00, 0x00})
+	n += int64(result)
+	if err != nil {
+		return
+	}
+	var buffer [4]byte
+	buffer[0] = byte(m.mode)
+	buffer[1] = m.color.H
+	buffer[2] = m.color.S
+	buffer[3] = m.color.V
+	result, err = w.Write(buffer[:])
+	n += int64(result)
+	if err != nil {
+		return
+	}
+	// footer
+	result, err = w.Write([]byte{0x00, 0x00, 0x00, 0x00})
+	n += int64(result)
+	return
+}
+
+var _ io.ReaderFrom = (*backlightState)(nil)
+
+func (m *backlightState) ReadFrom(r io.Reader) (n int64, err error) {
+	var result int
+	var buffer [12]byte
+	header := buffer[0:4]
+	middle := buffer[4:8]
+	footer := buffer[8:12]
+	// header
+	result, err = r.Read(header)
+	n += int64(result)
+	if err != nil {
+		return
+	}
+	// buffer
+	result, err = r.Read(middle)
+	m.mode = BacklightMode(middle[0])
+	m.color = hsv.Color{H: middle[1], S: middle[2], V: middle[3]}
+	n += int64(result)
+	if err != nil {
+		return
+	}
+	// footer
+	result, err = r.Read(footer)
+	n += int64(result)
+	if err != nil {
+		return
+	}
+	return
 }

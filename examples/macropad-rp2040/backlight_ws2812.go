@@ -5,12 +5,9 @@ package main
 import (
 	"image/color"
 	"machine"
-	"os"
 	"time"
 
 	"github.com/bgould/keyboard-firmware/keyboard"
-	"github.com/bgould/keyboard-firmware/keyboard/console"
-	"github.com/bgould/keyboard-firmware/keyboard/hsv"
 	"tinygo.org/x/drivers/ws2812"
 )
 
@@ -30,6 +27,7 @@ func init() {
 	kbd.BacklightDriver().Configure()
 }
 
+/*
 func addBacklightCommands(commands console.Commands) {
 	commands["save-backlight"] = console.CommandHandlerFunc(saveBacklight)
 	commands["load-backlight"] = console.CommandHandlerFunc(loadBacklight)
@@ -122,3 +120,4 @@ func loadBacklightColorFromFile(filename string) (col hsv.Color, err error) {
 	}
 	return
 }
+*/

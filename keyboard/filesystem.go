@@ -36,8 +36,9 @@ func (kbd *Keyboard) FS() tinyfs.Filesystem {
 }
 
 const (
-	savedKeymapFilename = "saved.keymap"
-	savedMacrosFilename = "saved.macros"
+	savedKeymapFilename    = "saved.keymap"
+	savedMacrosFilename    = "saved.macros"
+	savedBacklightFilename = "saved.backlight"
 )
 
 func (kbd *Keyboard) ConfigureFilesystem() (err error) {
@@ -78,6 +79,20 @@ func (kbd *Keyboard) ConfigureFilesystem() (err error) {
 			println("error loading macros file: ", err) //return err
 		}
 	}
+
+	// FIXME: consolidate/standardize with block above
+	// attempt to load saved macros
+	if info, err := fs.Stat(savedBacklightFilename); err != nil {
+		println("unable to load ", savedBacklightFilename, ": ", err)
+		// return err
+	} else {
+		println("Attempting to load backlight file: ", info.Name())
+		_, err := kbd.LoadBacklightFromFile(info.Name())
+		if err != nil {
+			println("error loading backlight file: ", err) //return err
+		}
+	}
+	kbd.backlight.sync = true
 
 	return nil
 }
@@ -130,6 +145,22 @@ func (kbd *Keyboard) LoadMacrosFromFile(filename string) (n int64, err error) {
 		return 0, nil
 	}
 	return kbd.loadFromFile(filename, kbd.macros.Driver)
+}
+
+// SaveMacrosToFile write the current in-memory macros to the filesystem
+func (kbd *Keyboard) SaveBacklightToFile(filename string) (n int64, err error) {
+	if !kbd.BacklightEnabled() {
+		return 0, nil
+	}
+	return kbd.saveToFile(filename, &kbd.backlight.state)
+}
+
+// LoadMacrosFromFile updates the current in-memory macros from the filesystem
+func (kbd *Keyboard) LoadBacklightFromFile(filename string) (n int64, err error) {
+	if !kbd.macros.Enabled() {
+		return 0, nil
+	}
+	return kbd.loadFromFile(filename, &kbd.backlight.state)
 }
 
 // ########################### Filesystem Commands ###########################/
