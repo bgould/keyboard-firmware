@@ -88,19 +88,6 @@ func main() {
 	// oBuf.WriteString("\t},\n")
 	oBuf.WriteString("}\n")
 	oBuf.WriteString("\n")
-	oBuf.WriteString("var vialLzmaDefinition = []byte{\n")
-	oBuf.WriteString("\t")
-	for i, b := range tBuf.Bytes() {
-		if i == (len(tBuf.Bytes()) - 1) {
-			oBuf.WriteString(fmt.Sprintf("0x%02X,", b))
-		} else {
-			oBuf.WriteString(fmt.Sprintf("0x%02X, ", b))
-		}
-	}
-	oBuf.WriteString("\n")
-	oBuf.WriteString("}\n")
-	oBuf.WriteString("\n")
-
 	oBuf.WriteString(`
 func vialWriteLzmaDefPage(tx []byte, page uint16) bool {
 	start := page * 32
@@ -116,6 +103,21 @@ func vialWriteLzmaDefPage(tx []byte, page uint16) bool {
 	return true
 }
 	`)
+	oBuf.WriteString("\n")
+	oBuf.WriteString("var vialLzmaDefinition = []byte{\n")
+	oBuf.WriteString("\t")
+	for i, b := range tBuf.Bytes() {
+		if i == (len(tBuf.Bytes()) - 1) {
+			oBuf.WriteString(fmt.Sprintf("0x%02X,", b))
+		} else {
+			oBuf.WriteString(fmt.Sprintf("0x%02X, ", b))
+		}
+		if i%8 == 7 {
+			oBuf.WriteString("\n")
+		}
+	}
+	oBuf.WriteString("\n")
+	oBuf.WriteString("}\n")
 	oBuf.WriteString("\n")
 
 	formatted, err := format.Source([]byte(oBuf.String()))
