@@ -18,15 +18,36 @@ func (def *DeviceDefinition) UseVialRGB(drv VialRGBer) {
 	def.rgb = &vialrgbImpl{drv: drv}
 }
 
+const (
+	VialRGBProtocolVersion = 1
+)
+
+//go:generate go run golang.org/x/tools/cmd/stringer -type=VialRGBSetCommand
+
+type VialRGBSetCommand uint8
+
+const (
+	VialRGBCommandSetMode VialRGBSetCommand = iota + 0x41
+	VialRGBCommandDirectFastset
+)
+
+//go:generate go run golang.org/x/tools/cmd/stringer -type=VialRGBGetCommand
+
+type VialRGBGetCommand uint8
+
+const (
+	VialRGBCommandGetInfo VialRGBGetCommand = iota + 0x40
+	VialRGBCommandGetMode
+	VialRGBCommandGetSupported
+	VialRGBCommandGetNumberLEDs
+	VialRGBCommandGetLEDInfo
+)
+
 type vialrgbImpl struct {
 	drv VialRGBer
 }
 
 var _ rgbImpl = (*vialrgbImpl)(nil)
-
-const (
-	VialRGBProtocolVersion = 1
-)
 
 func (rgb *vialrgbImpl) handleGetValue(rx []byte, tx []byte) {
 	cmd := VialRGBGetCommand(rx[1])
