@@ -16,11 +16,13 @@ func NewVialHost(keymap keyboard.Keymap, matrix *keyboard.Matrix, macros usbvial
 func (dev *Board) NewVialKeyboard(layers ...keyboard.Layer) (*keyboard.Keyboard, *usbvial.Host) {
 	keymap := Keymap(layers...)
 	matrix := dev.NewMatrix()
-	macros, ok := keyboard.NewDefaultMacroDriver(32, 4096).(usbvial.VialMacroDriver)
+	macros := keyboard.NewDefaultMacroDriver(32, 4096)
+	macdrv, ok := macros.(usbvial.VialMacroDriver)
 	if !ok {
 		macros = nil
+		macdrv = nil
 	}
-	host := NewVialHost(keymap, matrix, macros)
+	host := NewVialHost(keymap, matrix, macdrv)
 	kbd := keyboard.New(host, matrix, keymap)
 	kbd.SetMacroDriver(macros)
 	rgb := usbvial.NewKeyboardVialRGBer(kbd)

@@ -10,7 +10,7 @@ import (
 )
 
 type VialMacroDriver interface {
-	keyboard.MacrosDriver
+	VialMacroCount() uint8
 	VialMacroBuffer() []byte
 }
 
@@ -73,7 +73,7 @@ func (kbd *KeyboardDeviceDriver) GetMacroCount() uint8 {
 	if kbd.macros == nil {
 		return 0
 	}
-	return kbd.macros.Count()
+	return kbd.macros.VialMacroCount()
 }
 
 func (kbd *KeyboardDeviceDriver) GetMacroBuffer() []byte {

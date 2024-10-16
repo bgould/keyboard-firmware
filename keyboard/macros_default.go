@@ -43,6 +43,10 @@ func (m *defaultMacroDriver) Count() uint8 {
 	return m.count
 }
 
+func (m *defaultMacroDriver) VialMacroCount() uint8 {
+	return m.Count()
+}
+
 func (m *defaultMacroDriver) VialMacroBuffer() []byte {
 	return m.buffer
 }
