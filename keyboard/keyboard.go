@@ -38,7 +38,8 @@ type Keyboard struct {
 	enterBootloader EnterBootloaderFunc
 	enterCpuReset   EnterBootloaderFunc
 
-	backlight Backlight
+	backlight     Backlight
+	backlightSave bool
 	// blState   backlightState
 
 	macros Macros
@@ -190,9 +191,15 @@ func (kbd *Keyboard) Task() {
 	if kbd.encoders != nil {
 		kbd.encoders.EncodersTask()
 	}
-	if kbd.backlight.Driver != nil {
-		kbd.backlight.Driver.Task()
+	if kbd.backlightSave {
+		cmdinfo := console.CommandInfo{Stdout: kbd.CLI(), Cmd: "save-backlight"}
+		kbd.saveBacklight(cmdinfo)
+		kbd.backlightSave = false
 	}
+	kbd.backlight.Task()
+	// if kbd.backlight.Driver != nil {
+	// 	kbd.backlight.Driver.Task()
+	// }
 	if kbd.macros.Driver != nil {
 		kbd.macros.Driver.Task(kbd)
 	}

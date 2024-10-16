@@ -68,6 +68,7 @@ func main() {
 	oBuf.WriteString("	Name: \"" + template.JSEscapeString(def.Name) + "\",\n")
 	oBuf.WriteString("	VendorID: \"" + template.JSEscapeString(def.VendorID) + "\",\n")
 	oBuf.WriteString("	ProductID: \"" + template.JSEscapeString(def.ProductID) + "\",\n")
+	oBuf.WriteString("	Lighting: \"" + template.JSEscapeString(def.Lighting) + "\",\n")
 	oBuf.WriteString("	Matrix: vial.DeviceMatrix{\n")
 	oBuf.WriteString(fmt.Sprintf("		Rows: %d,\n", def.Matrix.Rows))
 	oBuf.WriteString(fmt.Sprintf("		Cols: %d,\n", def.Matrix.Cols))
