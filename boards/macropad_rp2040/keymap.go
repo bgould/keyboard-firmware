@@ -6,8 +6,6 @@ import (
 	. "github.com/bgould/keyboard-firmware/keyboard/keycodes"
 )
 
-//go:generate go run github.com/bgould/keyboard-firmware/hosts/usbvial/gen-def -package macropad_rp2040 vial.json
-
 const (
 	_______ = KC_TRANSPARENT
 )

@@ -5,7 +5,6 @@ package macropad_rp2040
 import (
 	"machine"
 
-	"github.com/bgould/keyboard-firmware/hosts/usbvial"
 	"github.com/bgould/keyboard-firmware/keyboard"
 	"tinygo.org/x/drivers/encoders"
 )
@@ -58,21 +57,6 @@ func (dev *Board) NewMatrix() *keyboard.Matrix {
 			PosCCW:  keyboard.Pos{Row: 0, Col: encIndexCCW},
 		},
 	)
-}
-
-func (dev *Board) NewVialKeyboard(layers ...keyboard.Layer) (*keyboard.Keyboard, *usbvial.Host) {
-	keymap := Keymap(layers...)
-	matrix := dev.NewMatrix()
-	macros, ok := keyboard.NewDefaultMacroDriver(32, 4096).(usbvial.VialMacroDriver)
-	if !ok {
-		macros = nil
-	}
-	host := NewVialHost(keymap, matrix, macros)
-	kbd := keyboard.New(host, matrix, keymap)
-	kbd.SetMacroDriver(macros)
-	rgb := usbvial.NewKeyboardVialRGBer(kbd)
-	host.UseVialRGB(rgb)
-	return kbd, host
 }
 
 const (
