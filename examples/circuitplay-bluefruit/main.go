@@ -16,6 +16,12 @@ var (
 	kbd, host = board.NewVialKeyboard(layers...)
 )
 
+func init() {
+	// FIXME: enabling bluetooth interfaces with machine.Flash
+	// https://github.com/tinygo-org/tinygo/issues/4170
+	// bluetooth.DefaultAdapter.Enable()
+}
+
 func main() {
 	// set up the hardware
 	board.Configure()
