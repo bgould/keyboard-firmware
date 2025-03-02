@@ -4,4 +4,3 @@
 *.hex
 *.elf
 /vendor/
-fs-test
