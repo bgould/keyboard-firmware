@@ -1,4 +1,4 @@
-//go:build circuitplay_bluefruit && !fs.qspi
+//go:build circuitplay_bluefruit && fs.machine
 
 package main
 
